@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha256-/4UQcSmErDzPCMAiuOiWPVVsNN2s3ZY/NsmXNcj0IFc=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.15.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="集群规划这里搭建的集群由一个控制平面节点和两个工作节点组成    服务器 IP 角色 备注    192.168.59.116 control plane master   192.168.59.117 worker node node1   192.168.59.118 worker node node2   选用的软件及其版本清单如下所示    软件名称 版本号    CentOS 7.9.2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何安装 Kubernetes 集群？">
+<meta property="og:url" content="http://example.com/2023/03/16/how-to-install-kubernetes-cluster/index.html">
+<meta property="og:site_name" content="逗号的博客">
+<meta property="og:description" content="集群规划这里搭建的集群由一个控制平面节点和两个工作节点组成    服务器 IP 角色 备注    192.168.59.116 control plane master   192.168.59.117 worker node node1   192.168.59.118 worker node node2   选用的软件及其版本清单如下所示    软件名称 版本号    CentOS 7.9.2">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-03-16T13:45:09.000Z">
+<meta property="article:modified_time" content="2023-03-22T12:40:12.605Z">
+<meta property="article:author" content="逗号">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://example.com/2023/03/16/how-to-install-kubernetes-cluster/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2023/03/16/how-to-install-kubernetes-cluster/","path":"2023/03/16/how-to-install-kubernetes-cluster/","title":"如何安装 Kubernetes 集群？"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>如何安装 Kubernetes 集群？ | 逗号的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">逗号的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里有一句格言，但我还没想好</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92"><span class="nav-number">1.</span> <span class="nav-text">集群规划</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E5%92%8C%E9%85%8D%E7%BD%AE%E5%85%88%E5%86%B3%E6%9D%A1%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">安装和配置先决条件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%BB%E6%9C%BA%E5%90%8D"><span class="nav-number">2.1.</span> <span class="nav-text">设置服务器主机名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE-IP-%E5%9C%B0%E5%9D%80%E4%B8%8E%E4%B8%BB%E6%9C%BA%E5%90%8D%E5%85%B3%E7%B3%BB"><span class="nav-number">2.2.</span> <span class="nav-text">设置 IP 地址与主机名关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E9%97%AD%E5%B9%B6%E7%A6%81%E7%94%A8%E9%98%B2%E7%81%AB%E5%A2%99"><span class="nav-number">2.3.</span> <span class="nav-text">关闭并禁用防火墙</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E9%97%AD-Swap-%E5%88%86%E5%8C%BA"><span class="nav-number">2.4.</span> <span class="nav-text">关闭 Swap 分区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AC%E5%8F%91-IPv4-%E5%B9%B6%E8%AE%A9-iptables-%E7%9C%8B%E5%88%B0%E6%A1%A5%E6%8E%A5%E6%B5%81%E9%87%8F"><span class="nav-number">2.5.</span> <span class="nav-text">转发 IPv4 并让 iptables 看到桥接流量</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-kubeadm"><span class="nav-number">3.</span> <span class="nav-text">安装 kubeadm</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A1%AE%E4%BF%9D%E6%AF%8F%E4%B8%AA%E8%8A%82%E7%82%B9%E4%B8%8A-MAC-%E5%9C%B0%E5%9D%80%E5%92%8C-product-uuid-%E7%9A%84%E5%94%AF%E4%B8%80%E6%80%A7"><span class="nav-number">3.1.</span> <span class="nav-text">确保每个节点上 MAC 地址和 product_uuid 的唯一性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A3%80%E6%9F%A5%E7%BD%91%E7%BB%9C%E9%80%82%E9%85%8D%E5%99%A8"><span class="nav-number">3.2.</span> <span class="nav-text">检查网络适配器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A3%80%E6%9F%A5%E6%89%80%E9%9C%80%E7%AB%AF%E5%8F%A3"><span class="nav-number">3.3.</span> <span class="nav-text">检查所需端口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E6%97%B6"><span class="nav-number">3.4.</span> <span class="nav-text">安装容器运行时</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Step-1-Installing-containerd"><span class="nav-number">3.4.1.</span> <span class="nav-text">Step 1: Installing containerd</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#systemd"><span class="nav-number">3.4.1.1.</span> <span class="nav-text">systemd</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Step-2-Installing-runc"><span class="nav-number">3.4.2.</span> <span class="nav-text">Step 2: Installing runc</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Step-3-Installing-CNI-plugins"><span class="nav-number">3.4.3.</span> <span class="nav-text">Step 3: Installing CNI plugins</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Step-4-Customizing-containerd"><span class="nav-number">3.4.4.</span> <span class="nav-text">Step 4: Customizing containerd</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-kubeadm%E3%80%81kubelet-%E5%92%8C-kubectl"><span class="nav-number">3.5.</span> <span class="nav-text">安装 kubeadm、kubelet 和 kubectl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE-cgroup-%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F"><span class="nav-number">3.6.</span> <span class="nav-text">配置 cgroup 驱动程序</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-kubeadm-%E5%88%9B%E5%BB%BA%E9%9B%86%E7%BE%A4"><span class="nav-number">4.</span> <span class="nav-text">使用 kubeadm 创建集群</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E8%8A%82%E7%82%B9"><span class="nav-number">4.1.</span> <span class="nav-text">初始化控制平面节点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-Pod-%E7%BD%91%E7%BB%9C%E9%99%84%E5%8A%A0%E7%BB%84%E4%BB%B6"><span class="nav-number">4.2.</span> <span class="nav-text">安装 Pod 网络附加组件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E5%85%A5%E8%8A%82%E7%82%B9"><span class="nav-number">4.3.</span> <span class="nav-text">加入节点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%93%E9%AA%8C-Kubernetes"><span class="nav-number">5.</span> <span class="nav-text">体验 Kubernetes</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">逗号</p>
+  <div class="site-description" itemprop="description">这里是站点描述，但我没有写</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/acomma" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;acomma" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:acomma@yeah.net" title="E-Mail → mailto:acomma@yeah.net" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/16/how-to-install-kubernetes-cluster/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="逗号">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逗号的博客">
+      <meta itemprop="description" content="这里是站点描述，但我没有写">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="如何安装 Kubernetes 集群？ | 逗号的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          如何安装 Kubernetes 集群？
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-03-16 21:45:09" itemprop="dateCreated datePublished" datetime="2023-03-16T21:45:09+08:00">2023-03-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-03-22 20:40:12" itemprop="dateModified" datetime="2023-03-22T20:40:12+08:00">2023-03-22</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="集群规划"><a href="#集群规划" class="headerlink" title="集群规划"></a>集群规划</h2><p>这里搭建的集群由一个控制平面节点和两个工作节点组成</p>
+<table>
+<thead>
+<tr>
+<th>服务器 IP</th>
+<th>角色</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>192.168.59.116</td>
+<td>control plane</td>
+<td>master</td>
+</tr>
+<tr>
+<td>192.168.59.117</td>
+<td>worker node</td>
+<td>node1</td>
+</tr>
+<tr>
+<td>192.168.59.118</td>
+<td>worker node</td>
+<td>node2</td>
+</tr>
+</tbody></table>
+<p>选用的软件及其版本清单如下所示</p>
+<table>
+<thead>
+<tr>
+<th>软件名称</th>
+<th>版本号</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CentOS</td>
+<td>7.9.2009</td>
+</tr>
+<tr>
+<td>containerd</td>
+<td>1.6.19</td>
+</tr>
+<tr>
+<td>runc</td>
+<td>1.1.4</td>
+</tr>
+<tr>
+<td>CNI Plugins</td>
+<td>1.2.0</td>
+</tr>
+<tr>
+<td>Kubernetes</td>
+<td>1.26.2</td>
+</tr>
+</tbody></table>
+<span id="more"></span>
+
+<h2 id="安装和配置先决条件"><a href="#安装和配置先决条件" class="headerlink" title="安装和配置先决条件"></a>安装和配置先决条件</h2><h3 id="设置服务器主机名"><a href="#设置服务器主机名" class="headerlink" title="设置服务器主机名"></a>设置服务器主机名</h3><p>将 IP 为 192.168.59.116 的服务器的主机名设置为 master</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl set-hostname master</span><br></pre></td></tr></table></figure>
+
+<p>将 IP 为 192.168.59.117 的服务器的主机名设置为 node1</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl set-hostname node1</span><br></pre></td></tr></table></figure>
+
+<p>将 IP 为 192.168.59.118 的服务器的主机名设置为 node2</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl set-hostname node2</span><br></pre></td></tr></table></figure>
+
+<p>设置完成后重新登录服务器即可看到 CLI 的提示已经变更，比如 <code>[root@master ~]# </code></p>
+<h3 id="设置-IP-地址与主机名关系"><a href="#设置-IP-地址与主机名关系" class="headerlink" title="设置 IP 地址与主机名关系"></a>设置 IP 地址与主机名关系</h3><p>在集群的每一台服务器上使用下面的指令设置 IP 地址与主机名的关系</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cat &gt;&gt; /etc/hosts &lt;&lt; EOF</span><br><span class="line">192.168.59.116 master</span><br><span class="line">192.168.59.117 node1</span><br><span class="line">192.168.59.118 node2</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>这样在任意一台服务器上既可以使用 IP 地址也可以使用主机名访问其他服务器</p>
+<h3 id="关闭并禁用防火墙"><a href="#关闭并禁用防火墙" class="headerlink" title="关闭并禁用防火墙"></a>关闭并禁用防火墙</h3><p>在集群的每一台服务器上使用下面的指令检查防火墙是否处于关闭状态</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl status firewalld</span><br></pre></td></tr></table></figure>
+
+<p>当输出结果包含 <code>Active: active (running)</code> 信息时表示防火墙处于开启状态，这是需要使用如下两条指令关闭防火墙</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop firewalld</span><br></pre></td></tr></table></figure>
+
+<p>防火墙关闭后再次检查防火墙的状态，此时的输出结果中包含 <code>Active: inactive (dead)</code> 信息，然后可以使用如下指令禁用防火墙</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl disable firewalld</span><br></pre></td></tr></table></figure>
+
+<h3 id="关闭-Swap-分区"><a href="#关闭-Swap-分区" class="headerlink" title="关闭 Swap 分区"></a>关闭 Swap 分区</h3><p>在集群中的每一台服务器上执行如下指令检查 Swap 分区的状态</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">free -m</span><br></pre></td></tr></table></figure>
+
+<p>这条指令会输出如下的结果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">              total        used        free      shared  buff/cache   available</span><br><span class="line">Mem:           3789         252        3274           8         262        3311</span><br><span class="line">Swap:          3275           0        3275</span><br></pre></td></tr></table></figure>
+
+<p>可以看到此时 Swap 行的 total 和 free 两列的数据不为 0，这时可以使用如下的指令临时关闭</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">swapoff -a</span><br></pre></td></tr></table></figure>
+
+<p>关闭 Swap 后再次查看 Swap 分区的状态发现 Swap 行的 total 和 free 两列的数据均为 0，如果想要永久关闭 Swap 分区需要执行下面的指令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -ri &#x27;s/.*swap.*/#&amp;/&#x27; /etc/fstab</span><br></pre></td></tr></table></figure>
+
+<p>也就是把 <code>/etc/fstab</code> 文件的 <code>/dev/mapper/centos-swap swap                    swap    defaults        0 0</code> 内容注释掉</p>
+<h3 id="转发-IPv4-并让-iptables-看到桥接流量"><a href="#转发-IPv4-并让-iptables-看到桥接流量" class="headerlink" title="转发 IPv4 并让 iptables 看到桥接流量"></a>转发 IPv4 并让 iptables 看到桥接流量</h3><p>这部分内容全部来自官方文档的<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/setup/production-environment/container-runtimes/#install-and-configure-prerequisites">转发 IPv4 并让 iptables 看到桥接流量</a>一节，这些指令需要在集群的所有节点上执行。</p>
+<p>执行下述指令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt;EOF | sudo tee /etc/modules-load.d/k8s.conf</span><br><span class="line">overlay</span><br><span class="line">br_netfilter</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">sudo modprobe overlay</span><br><span class="line">sudo modprobe br_netfilter</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置所需的 sysctl 参数，参数在重新启动后保持不变</span></span><br><span class="line">cat &lt;&lt;EOF | sudo tee /etc/sysctl.d/k8s.conf</span><br><span class="line">net.bridge.bridge-nf-call-iptables  = 1</span><br><span class="line">net.bridge.bridge-nf-call-ip6tables = 1</span><br><span class="line">net.ipv4.ip_forward                 = 1</span><br><span class="line">EOF</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">应用 sysctl 参数而不重新启动</span></span><br><span class="line">sudo sysctl --system</span><br></pre></td></tr></table></figure>
+
+<p>通过运行以下指令确认 br_netfilter 和 overlay 模块被加载：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lsmod | grep br_netfilter</span><br><span class="line">lsmod | grep overlay</span><br></pre></td></tr></table></figure>
+
+<p>通过运行以下指令确认 net.bridge.bridge-nf-call-iptables、net.bridge.bridge-nf-call-ip6tables 和 net.ipv4.ip_forward 系统变量在你的 sysctl 配置中被设置为 1：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装-kubeadm"><a href="#安装-kubeadm" class="headerlink" title="安装 kubeadm"></a>安装 kubeadm</h2><p>这部分的内容大部分来自官方文档<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/setup/production-environment/tools/kubeadm/install-kubeadm/">安装 kubeadm</a> 一节</p>
+<h3 id="确保每个节点上-MAC-地址和-product-uuid-的唯一性"><a href="#确保每个节点上-MAC-地址和-product-uuid-的唯一性" class="headerlink" title="确保每个节点上 MAC 地址和 product_uuid 的唯一性"></a>确保每个节点上 MAC 地址和 product_uuid 的唯一性</h3><p>使用命令 <code>ip link</code> 或 <code>ifconfig -a</code> 来获取网络接口的 MAC 地址，下面是在三台机器上执行 <code>ip link</code> 的结果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"># master</span><br><span class="line">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000</span><br><span class="line">    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00</span><br><span class="line">2: enp0s3: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP mode DEFAULT group default qlen 1000</span><br><span class="line">    link/ether 08:00:27:f1:88:b5 brd ff:ff:ff:ff:ff:ff</span><br><span class="line">3: enp0s8: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP mode DEFAULT group default qlen 1000</span><br><span class="line">    link/ether 08:00:27:de:74:d5 brd ff:ff:ff:ff:ff:ff</span><br><span class="line">    </span><br><span class="line"># node1</span><br><span class="line">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000</span><br><span class="line">    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00</span><br><span class="line">2: enp0s3: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP mode DEFAULT group default qlen 1000</span><br><span class="line">    link/ether 08:00:27:49:a2:32 brd ff:ff:ff:ff:ff:ff</span><br><span class="line">3: enp0s8: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP mode DEFAULT group default qlen 1000</span><br><span class="line">    link/ether 08:00:27:d0:92:d9 brd ff:ff:ff:ff:ff:ff</span><br><span class="line"></span><br><span class="line"># node2</span><br><span class="line">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000</span><br><span class="line">    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00</span><br><span class="line">2: enp0s3: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP mode DEFAULT group default qlen 1000</span><br><span class="line">    link/ether 08:00:27:39:5d:6b brd ff:ff:ff:ff:ff:ff</span><br><span class="line">3: enp0s8: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP mode DEFAULT group default qlen 1000</span><br><span class="line">    link/ether 08:00:27:8b:ff:fd brd ff:ff:ff:ff:ff:ff</span><br></pre></td></tr></table></figure>
+
+<p>可以看到三台机器的 MAC 地址均不一样</p>
+<p>使用 <code>sudo cat /sys/class/dmi/id/product_uuid</code> 命令对 product_uuid 校验，下面是在三台机器上执行该名令后的结果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># master</span><br><span class="line">87D9BBEC-F979-6547-97EB-D7DEE69ED38B</span><br><span class="line">    </span><br><span class="line"># node1</span><br><span class="line">5A1DD514-90A5-914B-A1A0-6DFDE4856400</span><br><span class="line"></span><br><span class="line"># node2</span><br><span class="line">0274E21F-4A64-FE48-86FF-CC64B1F6F902</span><br></pre></td></tr></table></figure>
+
+<p>可以看到三台机器的 product_uuid 均不一样</p>
+<h3 id="检查网络适配器"><a href="#检查网络适配器" class="headerlink" title="检查网络适配器"></a>检查网络适配器</h3><p>目前集群中每台服务器均满足要求</p>
+<h3 id="检查所需端口"><a href="#检查所需端口" class="headerlink" title="检查所需端口"></a>检查所需端口</h3><p>目前集群中每台服务器都在一个局域网内，同时防火墙已经关闭</p>
+<h3 id="安装容器运行时"><a href="#安装容器运行时" class="headerlink" title="安装容器运行时"></a>安装容器运行时</h3><p>集群中的每一台服务器均需要安装容器运行时，并且选择 <a target="_blank" rel="noopener" href="https://containerd.io/">containerd</a> 作为 Kubernetes 的容器运行时，同时选择使用官方二进制包进行安装，安装参考文档在<a target="_blank" rel="noopener" href="https://github.com/containerd/containerd/blob/main/docs/getting-started.md#option-1-from-the-official-binaries">这里</a></p>
+<h4 id="Step-1-Installing-containerd"><a href="#Step-1-Installing-containerd" class="headerlink" title="Step 1: Installing containerd"></a>Step 1: Installing containerd</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/containerd/containerd/releases/download/v1.6.19/containerd-1.6.19-linux-amd64.tar.gz</span><br><span class="line"></span><br><span class="line">tar Cxzvf /usr/local containerd-1.6.19-linux-amd64.tar.gz</span><br></pre></td></tr></table></figure>
+
+<h5 id="systemd"><a href="#systemd" class="headerlink" title="systemd"></a>systemd</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">wget https://raw.githubusercontent.com/containerd/containerd/main/containerd.service</span><br><span class="line"></span><br><span class="line">mkdir -p /usr/local/lib/systemd/system</span><br><span class="line">cp containerd.service /usr/local/lib/systemd/system</span><br><span class="line"></span><br><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl enable --now containerd</span><br></pre></td></tr></table></figure>
+
+<h4 id="Step-2-Installing-runc"><a href="#Step-2-Installing-runc" class="headerlink" title="Step 2: Installing runc"></a>Step 2: Installing runc</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/opencontainers/runc/releases/download/v1.1.4/runc.amd64</span><br><span class="line"></span><br><span class="line">install -m 755 runc.amd64 /usr/local/sbin/runc</span><br></pre></td></tr></table></figure>
+
+<h4 id="Step-3-Installing-CNI-plugins"><a href="#Step-3-Installing-CNI-plugins" class="headerlink" title="Step 3: Installing CNI plugins"></a>Step 3: Installing CNI plugins</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/containernetworking/plugins/releases/download/v1.2.0/cni-plugins-linux-amd64-v1.2.0.tgz</span><br><span class="line"></span><br><span class="line">mkdir -p /opt/cni/bin</span><br><span class="line">tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v1.2.0.tgz</span><br></pre></td></tr></table></figure>
+
+<h4 id="Step-4-Customizing-containerd"><a href="#Step-4-Customizing-containerd" class="headerlink" title="Step 4: Customizing containerd"></a>Step 4: Customizing containerd</h4><p>安装完成后生成默认配置文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /etc/containerd</span><br><span class="line">containerd config default &gt; /etc/containerd/config.toml</span><br></pre></td></tr></table></figure>
+
+<p>将 <code>registry.k8s.io</code> 替换为 <code>registry.cn-hangzhou.aliyuncs.com/google_containers</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i &#x27;s/registry.k8s.io/registry.cn-hangzhou.aliyuncs.com\/google_containers/&#x27; /etc/containerd/config.toml</span><br></pre></td></tr></table></figure>
+
+<p>替换完成后使用如下指令重启 containerd</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart containerd</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装-kubeadm、kubelet-和-kubectl"><a href="#安装-kubeadm、kubelet-和-kubectl" class="headerlink" title="安装 kubeadm、kubelet 和 kubectl"></a>安装 kubeadm、kubelet 和 kubectl</h3><p>在集群的每一台服务器上执行下面的指令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt;EOF | sudo tee /etc/yum.repos.d/kubernetes.repo</span><br><span class="line">[kubernetes]</span><br><span class="line">name=Kubernetes</span><br><span class="line">baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/</span><br><span class="line">enabled=1</span><br><span class="line">gpgcheck=1</span><br><span class="line">gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg</span><br><span class="line">exclude=kubelet kubeadm kubectl</span><br><span class="line">EOF</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">将 SELinux 设置为 permissive 模式（相当于将其禁用）</span></span><br><span class="line">sudo setenforce 0</span><br><span class="line">sudo sed -i &#x27;s/^SELINUX=enforcing$/SELINUX=permissive/&#x27; /etc/selinux/config</span><br><span class="line"></span><br><span class="line">sudo yum install -y kubelet-1.26.2 kubeadm-1.26.2 kubectl-1.26.2 --disableexcludes=kubernetes</span><br><span class="line"></span><br><span class="line">sudo systemctl enable --now kubelet</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置-cgroup-驱动程序"><a href="#配置-cgroup-驱动程序" class="headerlink" title="配置 cgroup 驱动程序"></a>配置 cgroup 驱动程序</h3><p>参考文档在<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/tasks/administer-cluster/kubeadm/configure-cgroup-driver">这里</a>，当前版本没有配置</p>
+<h2 id="使用-kubeadm-创建集群"><a href="#使用-kubeadm-创建集群" class="headerlink" title="使用 kubeadm 创建集群"></a>使用 kubeadm 创建集群</h2><p>这部分的内容大多参考官方文档<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm">使用 kubeadm 创建集群</a>一节的内容</p>
+<h3 id="初始化控制平面节点"><a href="#初始化控制平面节点" class="headerlink" title="初始化控制平面节点"></a>初始化控制平面节点</h3><p>下面初始化控制平面节点的指令只需要在角色为控制平面的服务器上执行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">kubeadm init \</span><br><span class="line">    --kubernetes-version 1.26.2 \</span><br><span class="line">    --apiserver-advertise-address 192.168.59.116 \</span><br><span class="line">    --control-plane-endpoint master \</span><br><span class="line">    --service-cidr 10.96.0.0/12 \</span><br><span class="line">    --pod-network-cidr 192.178.0.0/16 \</span><br><span class="line">    --image-repository registry.aliyuncs.com/google_containers</span><br></pre></td></tr></table></figure>
+
+<p><code>--apiserver-advertise-address</code> 指定 API 服务器所公布的其正在监听的 IP 地址，当前设置为当前节点的 IP 地址。</p>
+<p>因为当前主机的 IP 地址为 <code>192.168.0.0/16</code>，为了避免和主机的 IP 地址冲突，<code>--pod-network-cidr</code> 的值设置为 <code>192.178.0.0/16</code>。因为选择的 Kubernetes 网络组件是 Calico，而它的 <code>cidr</code> 的默认值是 <code>192.168.0.0/16</code>，因此在安装 Calico 时需要修改它的 <code>cidr</code> 值为 <code>--pod-network-cidr</code> 指定的值。</p>
+<p><code>--image-repository</code> 指定用于拉取控制平面镜像的容器仓库，默认值是 registry.k8s.io，国内无法访问，需要替换为阿里云的镜像地址。</p>
+<p>上面的指令执行完成后将得到类型下面的结果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">Your Kubernetes control-plane has initialized successfully!</span><br><span class="line"></span><br><span class="line">To start using your cluster, you need to run the following as a regular user:</span><br><span class="line"></span><br><span class="line">  mkdir -p $HOME/.kube</span><br><span class="line">  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config</span><br><span class="line">  sudo chown $(id -u):$(id -g) $HOME/.kube/config</span><br><span class="line"></span><br><span class="line">Alternatively, if you are the root user, you can run:</span><br><span class="line"></span><br><span class="line">  export KUBECONFIG=/etc/kubernetes/admin.conf</span><br><span class="line"></span><br><span class="line">You should now deploy a pod network to the cluster.</span><br><span class="line">Run &quot;kubectl apply -f [podnetwork].yaml&quot; with one of the options listed at:</span><br><span class="line">  https://kubernetes.io/docs/concepts/cluster-administration/addons/</span><br><span class="line"></span><br><span class="line">You can now join any number of control-plane nodes by copying certificate authorities</span><br><span class="line">and service account keys on each node and then running the following as root:</span><br><span class="line"></span><br><span class="line">  kubeadm join master:6443 --token 1hb9ko.m5s9ribly9sm82t5 \</span><br><span class="line">        --discovery-token-ca-cert-hash sha256:92b6b62997f6b7b6c3e5dcc5037db146da0b6bcf287f91ad9c5cb4f6745a463a \</span><br><span class="line">        --control-plane </span><br><span class="line"></span><br><span class="line">Then you can join any number of worker nodes by running the following on each as root:</span><br><span class="line"></span><br><span class="line">kubeadm join master:6443 --token 1hb9ko.m5s9ribly9sm82t5 \</span><br><span class="line">        --discovery-token-ca-cert-hash sha256:92b6b62997f6b7b6c3e5dcc5037db146da0b6bcf287f91ad9c5cb4f6745a463a</span><br></pre></td></tr></table></figure>
+
+<p>要使非 root 用户可以运行 kubectl，请运行以下命令， 它们也是 kubeadm init 输出的一部分：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p $HOME/.kube</span><br><span class="line">sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config</span><br><span class="line">sudo chown $(id -u):$(id -g) $HOME/.kube/config</span><br></pre></td></tr></table></figure>
+
+<p>或者，如果你是 root 用户，则可以运行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export KUBECONFIG=/etc/kubernetes/admin.conf</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装-Pod-网络附加组件"><a href="#安装-Pod-网络附加组件" class="headerlink" title="安装 Pod 网络附加组件"></a>安装 Pod 网络附加组件</h3><p>网络组建只需要在角色为控制平面的服务器上进行安装即可。</p>
+<p>选择网络组件为 <a target="_blank" rel="noopener" href="https://www.tigera.io/project-calico">Calico</a>，参考官方文档 <a target="_blank" rel="noopener" href="https://docs.tigera.io/calico/3.25/getting-started/kubernetes/quickstart">Quickstart for Calico on Kubernetes</a> 进行安装</p>
+<ol>
+<li>Install the Tigera Calico operator and custom resource definitions. <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/tigera-operator.yaml</span><br></pre></td></tr></table></figure></li>
+<li>Install Calico by creating the necessary custom resource.<br> 因为需要修改 Calico 的 <code>cidr</code> 的值，因此不能直接执行上面的指令，需要单独下载 <code>custom-resources.yaml</code> <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/custom-resources.yaml</span><br></pre></td></tr></table></figure>
+ 文件下载完成后使用下面的指令将 <code>cidr</code> 的值修改为由前面 <code>kubeadm init</code> 指令的 <code>--pod-network-cidr</code> 参数指定的值 <code>192.178.0.0/16</code> <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i &#x27;s/192.168.0.0\/16/192.178.0.0\/16/&#x27; custom-resources.yaml</span><br></pre></td></tr></table></figure>
+ 修改完成后使用下面的指令进行安装 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl create -f custom-resources.yaml</span><br></pre></td></tr></table></figure></li>
+<li>Confirm that all of the pods are running with the following command. <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">watch kubectl get pods -n calico-system</span><br></pre></td></tr></table></figure>
+ Wait until each pod has the STATUS of Running.</li>
+<li>Remove the taints on the master so that you can schedule pods on it. (如果你希望能够在控制平面节点上调度 Pod 才需要执行这一步，参考<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#control-plane-node-isolation">控制平面节点隔离</a>) <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubectl taint nodes --all node-role.kubernetes.io/control-plane-</span><br><span class="line">kubectl taint nodes --all node-role.kubernetes.io/master-</span><br></pre></td></tr></table></figure>
+ It should return the following. <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node/&lt;your-hostname&gt; untainted</span><br></pre></td></tr></table></figure></li>
+<li>Confirm that you now have a node in your cluster with the following command. <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get nodes -o wide</span><br></pre></td></tr></table></figure>
+ It should return something like the following. <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NAME     STATUS   ROLES           AGE    VERSION   INTERNAL-IP      EXTERNAL-IP   OS-IMAGE                KERNEL-VERSION           CONTAINER-RUNTIME</span><br><span class="line">master   Ready    control-plane   9m3s   v1.26.2   192.168.59.116   &lt;none&gt;        CentOS Linux 7 (Core)   3.10.0-1160.el7.x86_64   containerd://1.6.19</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="加入节点"><a href="#加入节点" class="headerlink" title="加入节点"></a>加入节点</h3><p>在集群中角色为工作节点的服务器上使用 root 用户执行下面的指令，指令的内容在执行 kubeadm init 指令的输出中</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubeadm join master:6443 --token 1hb9ko.m5s9ribly9sm82t5 \</span><br><span class="line">        --discovery-token-ca-cert-hash sha256:92b6b62997f6b7b6c3e5dcc5037db146da0b6bcf287f91ad9c5cb4f6745a463a</span><br></pre></td></tr></table></figure>
+
+<p>执行结束后再角色为控制平面的服务器执行 <code>kubectl get nodes</code> 指令将会看到刚刚加入的两个节点</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">NAME     STATUS   ROLES           AGE     VERSION</span><br><span class="line">master   Ready    control-plane   14m     v1.26.2</span><br><span class="line">node1    Ready    &lt;none&gt;          3m26s   v1.26.2</span><br><span class="line">node2    Ready    &lt;none&gt;          3m17s   v1.26.2</span><br></pre></td></tr></table></figure>
+
+<h2 id="体验-Kubernetes"><a href="#体验-Kubernetes" class="headerlink" title="体验 Kubernetes"></a>体验 Kubernetes</h2><p>在集群中角色为控制平面的节点上执行下面的指令部署 Nginx 服务进行验证</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kubectl create deployment nginx --image=nginx</span><br><span class="line"></span><br><span class="line">kubectl expose deployment nginx --port=80 --type=NodePort</span><br></pre></td></tr></table></figure>
+
+<p>部署完成后使用下面的指令查看 Nginx 服务的状态</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pods,service</span><br></pre></td></tr></table></figure>
+
+<p>上面的指令将会输出类似如下的结果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">NAME                         READY   STATUS    RESTARTS   AGE</span><br><span class="line">pod/nginx-748c667d99-cl9xk   1/1     Running   0          3m31s</span><br><span class="line"></span><br><span class="line">NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE</span><br><span class="line">service/kubernetes   ClusterIP   10.96.0.1       &lt;none&gt;        443/TCP        10h</span><br><span class="line">service/nginx        NodePort    10.111.41.204   &lt;none&gt;        80:31772/TCP   3m22s</span><br></pre></td></tr></table></figure>
+
+<p>第 6 行 PORT 列显示的 <code>31772</code> 即为 Nginx 服务暴露的端口，使用集群中任一主机的 IP 加上这个端口即可访问 Nginx 服务，比如 <code>http://192.168.59.116:31772</code>。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/03/22/hello-world/" rel="next" title="Hello World">
+                  Hello World <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">逗号</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
