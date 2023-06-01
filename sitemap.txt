@@ -1,3 +1,4 @@
+https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/
 https://acomma.github.io/2023/03/16/how-to-install-kubernetes-cluster/
 https://acomma.github.io/2023/05/27/sql-usage-scenarios-1/
 https://acomma.github.io/

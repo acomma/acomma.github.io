@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="msvalidate.01" content="09940DFE4C5DA4E85A7117EF7EEC3933">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"acomma.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.16.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="场景描述根据上一行填充本行的空白栏位[1]。这是在参考资料中提出的一个问题，它给出了在 SQL Server 数据库中的解决方案，现在要在 PostgreSQL 中来模拟并解决它。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SQL 使用场景（二）">
+<meta property="og:url" content="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/index.html">
+<meta property="og:site_name" content="逗号的博客">
+<meta property="og:description" content="场景描述根据上一行填充本行的空白栏位[1]。这是在参考资料中提出的一个问题，它给出了在 SQL Server 数据库中的解决方案，现在要在 PostgreSQL 中来模拟并解决它。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/result.drawio.svg">
+<meta property="og:image" content="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/t_score_a.drawio.svg">
+<meta property="og:image" content="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/non-recursive.drawio.svg">
+<meta property="og:image" content="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/recursive-1.drawio.svg">
+<meta property="og:image" content="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/result-1.drawio.svg">
+<meta property="og:image" content="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/recursive-2.drawio.svg">
+<meta property="og:image" content="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/result-2.drawio.svg">
+<meta property="og:image" content="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/recursive-3.drawio.svg">
+<meta property="og:image" content="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/result-3.drawio.svg">
+<meta property="og:image" content="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/recursive-4.drawio.svg">
+<meta property="og:image" content="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/result-4.drawio.svg">
+<meta property="og:image" content="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/recursive-5.drawio.svg">
+<meta property="og:image" content="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/result-5.drawio.svg">
+<meta property="og:image" content="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/recursive-6.drawio.svg">
+<meta property="og:image" content="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/result-6.drawio.svg">
+<meta property="article:published_time" content="2023-06-01T14:37:39.000Z">
+<meta property="article:modified_time" content="2023-06-01T14:52:20.073Z">
+<meta property="article:author" content="逗号">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/result.drawio.svg">
+
+
+<link rel="canonical" href="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/","path":"2023/06/01/sql-usage-scenarios-2/","title":"SQL 使用场景（二）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SQL 使用场景（二） | 逗号的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">逗号的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里有一句格言，但我还没想好</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">场景描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">场景分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E9%85%8D%E8%A1%8C%E5%8F%B7"><span class="nav-number">2.1.</span> <span class="nav-text">分配行号</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%9E%E9%80%92%E5%BD%92%E9%A1%B9"><span class="nav-number">2.2.</span> <span class="nav-text">非递归项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E6%AC%A1%E9%80%92%E5%BD%92"><span class="nav-number">2.3.</span> <span class="nav-text">第一次递归</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E6%AC%A1%E9%80%92%E5%BD%92"><span class="nav-number">2.4.</span> <span class="nav-text">第二次递归</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E6%AC%A1%E9%80%92%E5%BD%92"><span class="nav-number">2.5.</span> <span class="nav-text">第三次递归</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E5%9B%9B%E6%AC%A1%E9%80%92%E5%BD%92"><span class="nav-number">2.6.</span> <span class="nav-text">第四次递归</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%94%E6%AC%A1%E9%80%92%E5%BD%92"><span class="nav-number">2.7.</span> <span class="nav-text">第五次递归</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E5%85%AD%E6%AC%A1%E9%80%92%E5%BD%92"><span class="nav-number">2.8.</span> <span class="nav-text">第六次递归</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9D%9F%E9%80%92%E5%BD%92"><span class="nav-number">2.9.</span> <span class="nav-text">结束递归</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E8%AF%A2%E7%BB%93%E6%9E%9C"><span class="nav-number">2.10.</span> <span class="nav-text">查询结果</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">逗号</p>
+  <div class="site-description" itemprop="description">这里是站点描述，但我没有写</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/acomma" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;acomma" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:acomma@yeah.net" title="E-Mail → mailto:acomma@yeah.net" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="逗号">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逗号的博客">
+      <meta itemprop="description" content="这里是站点描述，但我没有写">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SQL 使用场景（二） | 逗号的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SQL 使用场景（二）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2023-06-01 22:37:39 / 修改时间：22:52:20" itemprop="dateCreated datePublished" datetime="2023-06-01T22:37:39+08:00">2023-06-01</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="场景描述"><a href="#场景描述" class="headerlink" title="场景描述"></a>场景描述</h2><p>根据上一行填充本行的空白栏位<sup>[1]</sup>。这是在参考资料中提出的一个问题，它给出了在 SQL Server 数据库中的解决方案，现在要在 PostgreSQL 中来模拟并解决它。</p>
+<span id="more"></span>
+
+<p>假设在 PostgreSQL 12.10 的库中有一个用户的考试成绩表</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t_score (</span><br><span class="line">    user_id <span class="type">integer</span>,   <span class="comment">-- 用户 ID</span></span><br><span class="line">    user_name <span class="type">varchar</span>, <span class="comment">-- 用户姓名</span></span><br><span class="line">    exam_time <span class="type">integer</span>, <span class="comment">-- 考试时间，yyyyMM 格式</span></span><br><span class="line">    score <span class="type">integer</span>      <span class="comment">-- 分数</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>在成绩表中有如下的一些测试数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 用户 11 的考试成绩</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t_score(user_id, user_name, exam_time, score) <span class="keyword">values</span>(<span class="number">11</span>, <span class="string">&#x27;u1&#x27;</span>, <span class="number">202209</span>, <span class="number">32</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t_score(user_id, user_name, exam_time, score) <span class="keyword">values</span>(<span class="number">11</span>, <span class="string">&#x27;u1&#x27;</span>, <span class="number">202303</span>, <span class="number">30</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t_score(user_id, user_name, exam_time, score) <span class="keyword">values</span>(<span class="number">11</span>, <span class="string">&#x27;u1&#x27;</span>, <span class="number">202304</span>, <span class="number">31</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t_score(user_id, user_name, exam_time, score) <span class="keyword">values</span>(<span class="number">11</span>, <span class="string">&#x27;u1&#x27;</span>, <span class="number">202308</span>, <span class="number">35</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t_score(user_id, user_name, exam_time, score) <span class="keyword">values</span>(<span class="number">11</span>, <span class="string">&#x27;u1&#x27;</span>, <span class="number">202309</span>, <span class="number">37</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 用户 12 的考试成绩</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t_score(user_id, user_name, exam_time, score) <span class="keyword">values</span>(<span class="number">12</span>, <span class="string">&#x27;u2&#x27;</span>, <span class="number">202304</span>, <span class="number">51</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t_score(user_id, user_name, exam_time, score) <span class="keyword">values</span>(<span class="number">12</span>, <span class="string">&#x27;u2&#x27;</span>, <span class="number">202308</span>, <span class="number">65</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t_score(user_id, user_name, exam_time, score) <span class="keyword">values</span>(<span class="number">12</span>, <span class="string">&#x27;u2&#x27;</span>, <span class="number">202309</span>, <span class="number">77</span>);</span><br></pre></td></tr></table></figure>
+
+<p>我们期望写一句 SQL 查询出用户 11 的成绩，在没有考试的月份的成绩为最近一次有考试的月份的成绩，下面是我们期望的结果</p>
+<img src="/2023/06/01/sql-usage-scenarios-2/result.drawio.svg" class="">
+
+<p>在结果中有成绩的月份都用红色进行了标记，其他没有考试的月份的成绩为最近一次有考试成绩的月份的成绩。比如在 202210 月没有考试，则该月的成绩为 202209 月的成绩，一直到 202302 月。又比如 202305 月没有考试，则该月的成绩为 202304 月的成绩。</p>
+<h2 id="场景分析"><a href="#场景分析" class="headerlink" title="场景分析"></a>场景分析</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 递归是针对名称为 t_score_b 的 CTE</span></span><br><span class="line"><span class="keyword">with</span> <span class="keyword">recursive</span> t_score_a <span class="keyword">as</span> (</span><br><span class="line">    <span class="comment">-- 构建月份与成绩的关系，并为每一行分配一个连续的行号</span></span><br><span class="line">    <span class="keyword">select</span> a.exam_time, b.score, <span class="built_in">row_number</span>() <span class="keyword">over</span> (<span class="keyword">order</span> <span class="keyword">by</span> a.exam_time) <span class="keyword">as</span> row_no</span><br><span class="line">    <span class="keyword">from</span> (</span><br><span class="line">        <span class="comment">-- 构建连续的月份</span></span><br><span class="line">        <span class="keyword">select</span> to_char(</span><br><span class="line">            generate_series(</span><br><span class="line">                (<span class="keyword">select</span> <span class="built_in">min</span>(to_date(exam_time::text, <span class="string">&#x27;YYYYMM&#x27;</span>)) <span class="keyword">from</span> t_score <span class="keyword">where</span> user_id <span class="operator">=</span> <span class="number">11</span>)::<span class="type">date</span>,</span><br><span class="line">                (<span class="keyword">select</span> <span class="built_in">max</span>(to_date(exam_time::text, <span class="string">&#x27;YYYYMM&#x27;</span>)) <span class="keyword">from</span> t_score <span class="keyword">where</span> user_id <span class="operator">=</span> <span class="number">11</span>)::<span class="type">date</span>,</span><br><span class="line">                <span class="string">&#x27;1 month&#x27;</span>::<span class="type">interval</span></span><br><span class="line">            )::<span class="type">date</span>,</span><br><span class="line">            <span class="string">&#x27;YYYYMM&#x27;</span></span><br><span class="line">        )::<span class="type">integer</span> <span class="keyword">as</span> exam_time</span><br><span class="line">    ) <span class="keyword">as</span> a <span class="keyword">left</span> <span class="keyword">join</span> t_score <span class="keyword">as</span> b <span class="keyword">on</span> a.exam_time <span class="operator">=</span> b.exam_time <span class="keyword">and</span> b.user_id <span class="operator">=</span> <span class="number">11</span></span><br><span class="line">), t_score_b <span class="keyword">as</span> (</span><br><span class="line">    <span class="comment">-- 非递归项，查询出成绩不为空的行</span></span><br><span class="line">    <span class="keyword">select</span> exam_time, score, row_no <span class="keyword">from</span> t_score_a <span class="keyword">where</span> score <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">null</span></span><br><span class="line">    <span class="keyword">union</span> <span class="keyword">all</span></span><br><span class="line">    <span class="comment">-- 递归项，注意 select 子句中各个字段的取值来源</span></span><br><span class="line">    <span class="keyword">select</span> t_score_a.exam_time, t_score_b.score, t_score_a.row_no</span><br><span class="line">    <span class="comment">-- 这里的 t_score_b 是递归自引用</span></span><br><span class="line">    <span class="keyword">from</span> t_score_b <span class="keyword">inner</span> <span class="keyword">join</span> t_score_a</span><br><span class="line">        <span class="comment">-- 递归的链接条件</span></span><br><span class="line">        <span class="keyword">on</span> t_score_b.row_no <span class="operator">+</span> <span class="number">1</span> <span class="operator">=</span> t_score_a.row_no</span><br><span class="line">    <span class="comment">-- 只处理 t_score_a 中成绩为空的行</span></span><br><span class="line">    <span class="keyword">where</span> t_score_a.score <span class="keyword">is</span> <span class="keyword">null</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">select</span> exam_time, score</span><br><span class="line"><span class="keyword">from</span> t_score_b</span><br><span class="line"><span class="keyword">order</span> <span class="keyword">by</span> exam_time;</span><br></pre></td></tr></table></figure>
+
+<h3 id="分配行号"><a href="#分配行号" class="headerlink" title="分配行号"></a>分配行号</h3><p><code>t_score_a</code> 虽然有 <code>recursive</code> 修饰，但它是一个普通的 CTE，它的结果如下</p>
+<img src="/2023/06/01/sql-usage-scenarios-2/t_score_a.drawio.svg" class="">
+
+<h3 id="非递归项"><a href="#非递归项" class="headerlink" title="非递归项"></a>非递归项</h3><p><code>t_score_b</code> 是递归的 CTE，它的非递归项的执行结果为</p>
+<img src="/2023/06/01/sql-usage-scenarios-2/non-recursive.drawio.svg" class="">
+
+<h3 id="第一次递归"><a href="#第一次递归" class="headerlink" title="第一次递归"></a>第一次递归</h3><p><code>union all</code> 保留所有结果行，非递归项的结果作为 <code>t_score_b</code> 的结果集的一部分，并且将结果放到一个临时的工作表<sup>[2]</sup>中，此时工作表不为空，开始计算递归项，用工作表的内容替换递归自引用的 <code>t_score_b</code>，此时递归项的处理过程大致如下图</p>
+<img src="/2023/06/01/sql-usage-scenarios-2/recursive-1.drawio.svg" class="">
+
+<p>将第一次递归的结果加入 <code>t_score_b</code> 的结果集中得到如下的结果集</p>
+<img src="/2023/06/01/sql-usage-scenarios-2/result-1.drawio.svg" class="">
+
+<p>这个结果集就是第一次递归（迭代）后 <code>t_score_b</code> 的结果集。</p>
+<h3 id="第二次递归"><a href="#第二次递归" class="headerlink" title="第二次递归"></a>第二次递归</h3><p>将第一次递归的结果放到一个临时的中间表中，用中间表的内容替换工作表的内容，然后清空中间表，开始进行第二次递归。此时工作表不为空计算递归项</p>
+<img src="/2023/06/01/sql-usage-scenarios-2/recursive-2.drawio.svg" class="">
+
+<p>将第二次递归的结果加入 <code>t_score_b</code> 的结果集中得到如下的结果集</p>
+<img src="/2023/06/01/sql-usage-scenarios-2/result-2.drawio.svg" class="">
+
+<p>这个结果集就是第二次递归（迭代）后 <code>t_score_b</code> 的结果集。</p>
+<h3 id="第三次递归"><a href="#第三次递归" class="headerlink" title="第三次递归"></a>第三次递归</h3><p>将第二次递归的结果放到一个临时的中间表中，用中间表的内容替换工作表的内容，然后清空中间表，开始进行第三次递归。此时工作表不为空计算递归项</p>
+<img src="/2023/06/01/sql-usage-scenarios-2/recursive-3.drawio.svg" class="">
+
+<p>将第三次递归的结果加入 <code>t_score_b</code> 的结果集中得到如下的结果集</p>
+<img src="/2023/06/01/sql-usage-scenarios-2/result-3.drawio.svg" class="">
+
+<p>这个结果集就是第三次递归（迭代）后 <code>t_score_b</code> 的结果集。</p>
+<h3 id="第四次递归"><a href="#第四次递归" class="headerlink" title="第四次递归"></a>第四次递归</h3><p>将第三次递归的结果放到一个临时的中间表中，用中间表的内容替换工作表的内容，然后清空中间表，开始进行第四次递归。此时工作表不为空计算递归项</p>
+<img src="/2023/06/01/sql-usage-scenarios-2/recursive-4.drawio.svg" class="">
+
+<p>将第四次递归的结果加入 <code>t_score_b</code> 的结果集中得到如下的结果集</p>
+<img src="/2023/06/01/sql-usage-scenarios-2/result-4.drawio.svg" class="">
+
+<p>这个结果集就是第四次递归（迭代）后 <code>t_score_b</code> 的结果集。</p>
+<h3 id="第五次递归"><a href="#第五次递归" class="headerlink" title="第五次递归"></a>第五次递归</h3><p>将第四次递归的结果放到一个临时的中间表中，用中间表的内容替换工作表的内容，然后清空中间表，开始进行第五次递归。此时工作表不为空计算递归项</p>
+<img src="/2023/06/01/sql-usage-scenarios-2/recursive-5.drawio.svg" class="">
+
+<p>将第五次递归的结果加入 <code>t_score_b</code> 的结果集中得到如下的结果集</p>
+<img src="/2023/06/01/sql-usage-scenarios-2/result-5.drawio.svg" class="">
+
+<p>这个结果集就是第五次递归（迭代）后 <code>t_score_b</code> 的结果集。</p>
+<h3 id="第六次递归"><a href="#第六次递归" class="headerlink" title="第六次递归"></a>第六次递归</h3><p>将第五次递归的结果放到一个临时的中间表中，用中间表的内容替换工作表的内容，然后清空中间表，开始进行第六次递归。此时工作表不为空计算递归项</p>
+<img src="/2023/06/01/sql-usage-scenarios-2/recursive-6.drawio.svg" class="">
+
+<p>第六次递归的结果是一个空结果，为了保持完整性仍然把它们加入 <code>t_score_b</code> 的结果集中得到如下的结果集</p>
+<img src="/2023/06/01/sql-usage-scenarios-2/result-6.drawio.svg" class="">
+
+<p>这个结果集就是第六次递归（迭代）后 <code>t_score_b</code> 的结果集，可以看到和第五次递归后的结果集是一样的。</p>
+<h3 id="结束递归"><a href="#结束递归" class="headerlink" title="结束递归"></a>结束递归</h3><p>将第六次递归的结果（空结果）放到一个临时的中间表中，用这个中间表的内容替换工作表的内容，然后清空中间表，此时工作表为空结束递归。</p>
+<h3 id="查询结果"><a href="#查询结果" class="headerlink" title="查询结果"></a>查询结果</h3><p><code>order by exam_time</code> 将第六次（第五次）的结果按考试时间排序，<code>select exam_time, score</code> 排除人为添加的 <code>row_no</code> 列即最终结果。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/studyzy/p/4244606.html">根据上一行填充本行的空白栏位，SQL处理方式</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/queries-with.html">7.8. WITH查询（公共表表达式）</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/functions-window.html">9.21. 窗口函数</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/05/27/sql-usage-scenarios-1/" rel="prev" title="SQL 使用场景（一）">
+                  <i class="fa fa-chevron-left"></i> SQL 使用场景（一）
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">逗号</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
