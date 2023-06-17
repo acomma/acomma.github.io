@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="msvalidate.01" content="09940DFE4C5DA4E85A7117EF7EEC3933">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"acomma.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="问题描述在日常开发中我们会定义类似下面的 Result 类来统一接口返回结果的结构 123456789public class Result&lt;T&gt; implements Serializable &amp;#123;    private static final long serialVersionUID &#x3D; 1L;    private Integer code;    private S">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringDoc 统一应答类型处理（一）">
+<meta property="og:url" content="https://acomma.github.io/2023/06/17/springdoc-common-response-1/index.html">
+<meta property="og:site_name" content="逗号的博客">
+<meta property="og:description" content="问题描述在日常开发中我们会定义类似下面的 Result 类来统一接口返回结果的结构 123456789public class Result&lt;T&gt; implements Serializable &amp;#123;    private static final long serialVersionUID &#x3D; 1L;    private Integer code;    private S">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://acomma.github.io/2023/06/17/springdoc-common-response-1/schema-difference.drawio.svg">
+<meta property="og:image" content="https://acomma.github.io/2023/06/17/springdoc-common-response-1/api-docs-invocation-trace.drawio.svg">
+<meta property="article:published_time" content="2023-06-17T05:02:54.000Z">
+<meta property="article:modified_time" content="2023-06-17T05:20:12.228Z">
+<meta property="article:author" content="逗号">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://acomma.github.io/2023/06/17/springdoc-common-response-1/schema-difference.drawio.svg">
+
+
+<link rel="canonical" href="https://acomma.github.io/2023/06/17/springdoc-common-response-1/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2023/06/17/springdoc-common-response-1/","path":"2023/06/17/springdoc-common-response-1/","title":"SpringDoc 统一应答类型处理（一）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SpringDoc 统一应答类型处理（一） | 逗号的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">逗号的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里有一句格言，但我还没想好</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">问题分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E9%97%AE%E9%A2%98"><span class="nav-number">3.</span> <span class="nav-text">解决问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">逗号</p>
+  <div class="site-description" itemprop="description">这里是站点描述，但我没有写</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/acomma" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;acomma" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:acomma@yeah.net" title="E-Mail → mailto:acomma@yeah.net" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2023/06/17/springdoc-common-response-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="逗号">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逗号的博客">
+      <meta itemprop="description" content="这里是站点描述，但我没有写">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SpringDoc 统一应答类型处理（一） | 逗号的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SpringDoc 统一应答类型处理（一）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2023-06-17 13:02:54 / 修改时间：13:20:12" itemprop="dateCreated datePublished" datetime="2023-06-17T13:02:54+08:00">2023-06-17</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>在日常开发中我们会定义类似下面的 <code>Result</code> 类来统一接口返回结果的结构</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Result</span>&lt;T&gt; <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">serialVersionUID</span> <span class="operator">=</span> <span class="number">1L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Integer code;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String message;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> T data;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时 <code>Controller</code> 中的方法就会写成这个样子</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/detail1/&#123;userId&#125;&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result&lt;User&gt; <span class="title function_">detail1</span><span class="params">(<span class="meta">@PathVariable(name = &quot;userId&quot;)</span> Long userId)</span> &#123;</span><br><span class="line">    <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> ....</span><br><span class="line">    <span class="keyword">return</span> Result.&lt;User&gt;builder().data(user).build();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在每个方法上都写上类似 <code>Result&lt;User&gt;</code> 这样的代码还是比较繁琐的，我们期望写成 <code>User</code> 这样简单的形式</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/detail2/&#123;userId&#125;&quot;)</span></span><br><span class="line"><span class="keyword">public</span> User <span class="title function_">detail2</span><span class="params">(<span class="meta">@PathVariable(name = &quot;userId&quot;)</span> Long userId)</span> &#123;</span><br><span class="line">    <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> ....</span><br><span class="line">    <span class="keyword">return</span> user;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>而由框架去处理返回结果的包装。此时就会使用到 Spring 的 <code>ResponseBodyAdvice</code> 接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestControllerAdvice</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ResultResponseBodyAdvice</span> <span class="keyword">implements</span> <span class="title class_">ResponseBodyAdvice</span>&lt;Object&gt; &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>同时我们也会使用 <a target="_blank" rel="noopener" href="https://springdoc.org/">SpringDoc</a> 对外提供可访问的文档。此时问题出现了，我们发现在 Swagger 的文档中方法 <code>detail1</code> 和方法 <code>detail2</code> 对应的 Schema 不一样</p>
+<img src="/2023/06/17/springdoc-common-response-1/schema-difference.drawio.svg" class="">
+
+<p>我们期望 <code>detail2</code> 展示的结果和  <code>detail1</code> 一样。</p>
+<span id="more"></span>
+
+<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p><code>io.swagger.v3.oas.models.OpenAPI</code> 是 Swagger 的核心类，它是 Swagger 文档结构在 Java 语言中的表示，SpringDoc 干的事情就是构建这个类的实例并返回。默认情况下 SpringDoc 会在请求 <code>/v3/api-docs</code> 时去构建 <code>OpenAPI</code> 对象，它的实现在 <code>OpenApiWebMvcResource</code> 类的 <code>openapiJson(HttpServletRequest, @Value(API_DOCS_URL) String, Locale)</code> 方法。</p>
+<p>跟踪 <code>openapiJson</code> 方法的实现我们得到了一个主线与返回值类型处理有关的方法调用链路图</p>
+<img src="/2023/06/17/springdoc-common-response-1/api-docs-invocation-trace.drawio.svg" class="">
+
+<p>丛中可以发现返回值的类型的处理与 <code>GenericResponseService</code> 有关，是不是可以重写它的一些方法来实现给返回值类型不是 <code>Result</code> 的增加一点处理。</p>
+<p>除了构造方法 <code>GenericResponseService</code> 只有下面几个方法是公开的</p>
+<ol>
+<li><code>buildContentFromDoc</code></li>
+<li><code>setDescription</code></li>
+<li><code>setResponseEntityExceptionHandlerClass</code></li>
+<li><code>build</code></li>
+<li><code>buildGenericResponse</code></li>
+<li><code>getApiResponses</code></li>
+<li><code>buildContent</code></li>
+<li><code>evaluateResponseStatus</code></li>
+</ol>
+<p>我们只能在这 8 个方法中选择合适的方法进行重写。通过进一步的分析，我们选择重写 <code>build</code> 方法，在返回值类型不是 <code>Result</code> 时构建类似 <code>ResultUser</code> 的 Schema。</p>
+<p>构建好我们自己的 Schema 后还没完，此时只是把 Schema 加入到了 <code>OpenAPI</code> 对象中，<code>Operation</code> 对应的引用还没有修改，当然也可以在构建的同时进行修改，但是我们有一个更好的地方对它进行修改，当然也是为了展示 SpringDoc 的自定义能力。SpringDoc 在 <code>org.springdoc.core.customizers</code> 包下为我们提供了很多定制器，对我们的目标而言我们只需要 <code>OperationCustomizer</code>。实现这个定制器，在返回类型值类型不是 <code>Result</code> 时，用我们自定义的 Schema 替换原来的 Schema 即可。</p>
+<h2 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h2><p>根据问题分析中介绍我们首先继承 <code>GenericResponseService</code> 并重写它的 <code>build</code> 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> me.acomma.example.swagger;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> io.swagger.v3.core.converter.AnnotatedType;</span><br><span class="line"><span class="keyword">import</span> io.swagger.v3.core.converter.ModelConverters;</span><br><span class="line"><span class="keyword">import</span> io.swagger.v3.core.converter.ResolvedSchema;</span><br><span class="line"><span class="keyword">import</span> io.swagger.v3.oas.models.Components;</span><br><span class="line"><span class="keyword">import</span> io.swagger.v3.oas.models.Operation;</span><br><span class="line"><span class="keyword">import</span> io.swagger.v3.oas.models.media.Content;</span><br><span class="line"><span class="keyword">import</span> io.swagger.v3.oas.models.media.MediaType;</span><br><span class="line"><span class="keyword">import</span> io.swagger.v3.oas.models.media.Schema;</span><br><span class="line"><span class="keyword">import</span> io.swagger.v3.oas.models.responses.ApiResponses;</span><br><span class="line"><span class="keyword">import</span> me.acomma.example.common.Result;</span><br><span class="line"><span class="keyword">import</span> org.springdoc.core.GenericResponseService;</span><br><span class="line"><span class="keyword">import</span> org.springdoc.core.MethodAttributes;</span><br><span class="line"><span class="keyword">import</span> org.springdoc.core.OperationService;</span><br><span class="line"><span class="keyword">import</span> org.springdoc.core.PropertyResolverUtils;</span><br><span class="line"><span class="keyword">import</span> org.springdoc.core.ReturnTypeParser;</span><br><span class="line"><span class="keyword">import</span> org.springdoc.core.SpringDocConfigProperties;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.method.HandlerMethod;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 扩展 &#123;<span class="doctag">@link</span> GenericResponseService&#125; 并重写 &#123;<span class="doctag">@link</span> GenericResponseService#build(Components, HandlerMethod, Operation, MethodAttributes)&#125; 方法，</span></span><br><span class="line"><span class="comment"> * 在返回类型不为包装类型时提供如下功能：</span></span><br><span class="line"><span class="comment"> * &lt;ol&gt;</span></span><br><span class="line"><span class="comment"> *     &lt;li&gt;如果父类没有构建返回类型的 &#123;<span class="doctag">@code</span> Schema&#125;，则构建它并将它放入 &#123;<span class="doctag">@code</span> Components&#125;；这种情况出现在返回类型为基本类型及其包装类型和 &#123;<span class="doctag">@code</span> void&#125; 时；&lt;/li&gt;</span></span><br><span class="line"><span class="comment"> *     &lt;li&gt;如果 &#123;<span class="doctag">@code</span> Components&#125; 中没有包装类型的 &#123;<span class="doctag">@code</span> Schema&#125;，则构建它并将它放入 &#123;<span class="doctag">@code</span> Components&#125;；&lt;/li&gt;</span></span><br><span class="line"><span class="comment"> *     &lt;li&gt;如果返回类型是 &#123;<span class="doctag">@code</span> void&#125; 是父类没有构建 &#123;<span class="doctag">@code</span> Content&#125;，在这里构建并设置它。&lt;/li&gt;</span></span><br><span class="line"><span class="comment"> * &lt;/ol&gt;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ExampleGenericResponseService</span> <span class="keyword">extends</span> <span class="title class_">GenericResponseService</span> &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Instantiates a new Generic response builder.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> operationService          the operation builder</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> returnTypeParsers         the return type parsers</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> springDocConfigProperties the spring doc config properties</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> propertyResolverUtils     the property resolver utils</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ExampleGenericResponseService</span><span class="params">(OperationService operationService, List&lt;ReturnTypeParser&gt; returnTypeParsers, SpringDocConfigProperties springDocConfigProperties, PropertyResolverUtils propertyResolverUtils)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(operationService, returnTypeParsers, springDocConfigProperties, propertyResolverUtils);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> ApiResponses <span class="title function_">build</span><span class="params">(Components components, HandlerMethod handlerMethod, Operation operation, MethodAttributes methodAttributes)</span> &#123;</span><br><span class="line">        <span class="type">ApiResponses</span> <span class="variable">apiResponses</span> <span class="operator">=</span> <span class="built_in">super</span>.build(components, handlerMethod, operation, methodAttributes);</span><br><span class="line"></span><br><span class="line">        Class&lt;?&gt; returnType = handlerMethod.getMethod().getReturnType();</span><br><span class="line">        Class&lt;?&gt; wrapperType = Result.class;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (returnType != wrapperType) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">returnTypeSimpleName</span> <span class="operator">=</span> returnType.getSimpleName();</span><br><span class="line">            <span class="type">String</span> <span class="variable">wrapperTypeSimpleName</span> <span class="operator">=</span> wrapperType.getSimpleName();</span><br><span class="line">            <span class="type">String</span> <span class="variable">returnTypeSchemaName</span> <span class="operator">=</span> returnTypeSimpleName;</span><br><span class="line">            <span class="type">String</span> <span class="variable">wrapperTypeSchemaName</span> <span class="operator">=</span> wrapperTypeSimpleName + returnTypeSimpleName;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 参考类注释功能点 1</span></span><br><span class="line">            <span class="keyword">if</span> (!components.getSchemas().containsKey(returnTypeSchemaName)) &#123;</span><br><span class="line">                <span class="type">ResolvedSchema</span> <span class="variable">resolvedSchema</span> <span class="operator">=</span> ModelConverters.getInstance().resolveAsResolvedSchema(<span class="keyword">new</span> <span class="title class_">AnnotatedType</span>(returnType).resolveAsRef(<span class="literal">false</span>));</span><br><span class="line">                components.getSchemas().put(returnTypeSchemaName, resolvedSchema.schema);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 参考类注释功能点 2</span></span><br><span class="line">            <span class="keyword">if</span> (!components.getSchemas().containsKey(wrapperTypeSchemaName)) &#123;</span><br><span class="line">                <span class="type">ResolvedSchema</span> <span class="variable">resolvedSchema</span> <span class="operator">=</span> ModelConverters.getInstance().resolveAsResolvedSchema(<span class="keyword">new</span> <span class="title class_">AnnotatedType</span>(wrapperType).resolveAsRef(<span class="literal">false</span>));</span><br><span class="line"></span><br><span class="line">                Schema&lt;?&gt; schema = resolvedSchema.schema;</span><br><span class="line">                schema.setName(wrapperTypeSchemaName);</span><br><span class="line">                <span class="keyword">if</span> (!returnTypeSimpleName.equals(<span class="string">&quot;void&quot;</span>)) &#123;</span><br><span class="line">                    schema.getProperties().get(<span class="string">&quot;data&quot;</span>).set$ref(<span class="string">&quot;#/components/schemas/&quot;</span> + returnTypeSchemaName);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                components.getSchemas().put(wrapperTypeSchemaName, schema);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 参考类注释功能点 3</span></span><br><span class="line">            <span class="keyword">if</span> (returnTypeSimpleName.equals(<span class="string">&quot;void&quot;</span>)) &#123;</span><br><span class="line">                apiResponses.forEach((responseName, apiResponse) -&gt; &#123;</span><br><span class="line">                    <span class="keyword">if</span> (!responseName.equals(<span class="string">&quot;200&quot;</span>)) &#123;</span><br><span class="line">                        <span class="keyword">return</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">if</span> (apiResponse.getContent() == <span class="literal">null</span>) &#123;</span><br><span class="line">                        <span class="type">MediaType</span> <span class="variable">mediaType</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MediaType</span>();</span><br><span class="line">                        mediaType.setSchema(components.getSchemas().get(returnTypeSchemaName));</span><br><span class="line"></span><br><span class="line">                        <span class="type">Content</span> <span class="variable">content</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Content</span>();</span><br><span class="line">                        setContent(methodAttributes.getMethodProduces(), content, mediaType);</span><br><span class="line"></span><br><span class="line">                        apiResponse.setContent(content);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> apiResponses;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span> GenericResponseService#setContent</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">setContent</span><span class="params">(String[] methodProduces, Content content,</span></span><br><span class="line"><span class="params">                            io.swagger.v3.oas.models.media.MediaType mediaType)</span> &#123;</span><br><span class="line">        Arrays.stream(methodProduces).forEach(mediaTypeStr -&gt; content.addMediaType(mediaTypeStr, mediaType));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后，实现 <code>OperationCustomizer</code> 对返回类型值类型不是 <code>Result</code> 的 Schema 进行替换</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> me.acomma.example.swagger;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> io.swagger.v3.oas.models.Operation;</span><br><span class="line"><span class="keyword">import</span> me.acomma.example.common.Result;</span><br><span class="line"><span class="keyword">import</span> org.springdoc.core.customizers.OperationCustomizer;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.method.HandlerMethod;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 实现 &#123;<span class="doctag">@link</span> OperationCustomizer&#125;，在返回类型和包装类型不一致时使用包装类型的 &#123;<span class="doctag">@code</span> Schema&#125; 替换原来的 &#123;<span class="doctag">@code</span> Schema&#125;。</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ExampleOperationCustomer</span> <span class="keyword">implements</span> <span class="title class_">OperationCustomizer</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Operation <span class="title function_">customize</span><span class="params">(Operation operation, HandlerMethod handlerMethod)</span> &#123;</span><br><span class="line">        Class&lt;?&gt; returnType = handlerMethod.getMethod().getReturnType();</span><br><span class="line">        Class&lt;?&gt; wrapperType = Result.class;</span><br><span class="line">        <span class="type">String</span> <span class="variable">returnTypeSimpleName</span> <span class="operator">=</span> returnType.getSimpleName();</span><br><span class="line">        <span class="type">String</span> <span class="variable">wrapperTypeSimpleName</span> <span class="operator">=</span> wrapperType.getSimpleName();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (returnType != wrapperType) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">schemaName</span> <span class="operator">=</span> wrapperTypeSimpleName + returnTypeSimpleName;</span><br><span class="line">            operation.getResponses().forEach((responseName, apiResponse) -&gt; &#123;</span><br><span class="line">                <span class="keyword">if</span> (!responseName.equals(<span class="string">&quot;200&quot;</span>)) &#123;</span><br><span class="line">                    <span class="keyword">return</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (apiResponse.getContent() == <span class="literal">null</span>) &#123;</span><br><span class="line">                    <span class="keyword">return</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                apiResponse.getContent().forEach((contentName, mediaType) -&gt; mediaType.getSchema().set$ref(<span class="string">&quot;#/components/schemas/&quot;</span> + schemaName));</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> operation;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后，我们要把它们注册到容器中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> me.acomma.example.swagger;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springdoc.core.OperationService;</span><br><span class="line"><span class="keyword">import</span> org.springdoc.core.PropertyResolverUtils;</span><br><span class="line"><span class="keyword">import</span> org.springdoc.core.ReturnTypeParser;</span><br><span class="line"><span class="keyword">import</span> org.springdoc.core.SpringDocConfigProperties;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ExampleSwaggerConfiguration</span> &#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> ExampleOperationCustomer <span class="title function_">exampleOperationCustomer</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ExampleOperationCustomer</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> ExampleGenericResponseService <span class="title function_">exampleGenericResponseService</span><span class="params">(OperationService operationService, List&lt;ReturnTypeParser&gt; returnTypeParsers, SpringDocConfigProperties springDocConfigProperties, PropertyResolverUtils propertyResolverUtils)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ExampleGenericResponseService</span>(operationService, returnTypeParsers, springDocConfigProperties, propertyResolverUtils);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样就实现了我们的目标。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://passerr.github.io/2022-07-04-swagger-common-response.html">Swagger 统一应答类型处理</a>，在使用 <a target="_blank" rel="noopener" href="https://springfox.github.io/springfox/">SpringFox</a> 时如何实现统一应答类型处理</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/06/01/sql-usage-scenarios-2/" rel="prev" title="SQL 使用场景（二）">
+                  <i class="fa fa-chevron-left"></i> SQL 使用场景（二）
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/06/17/springdoc-common-response-2/" rel="next" title="SpringDoc 统一应答类型处理（二）">
+                  SpringDoc 统一应答类型处理（二） <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">逗号</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
