@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="msvalidate.01" content="09940DFE4C5DA4E85A7117EF7EEC3933">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"acomma.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="问题描述在 SpringBoot 应用中可以使用以下几种方式来控制是否返回值为空的字段  在配置文件 application.yml 中配置全局自动忽略 123spring:  jackson:    default-property-inclusion: NON_NULL 在类或字段上添加注解 @JsonInclude(JsonInclude.Include.NON_NULL) 实现一个 Jac">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于请求参数动态控制是否返回值为空的字段">
+<meta property="og:url" content="https://acomma.github.io/2023/10/28/return-non-null/index.html">
+<meta property="og:site_name" content="逗号的博客">
+<meta property="og:description" content="问题描述在 SpringBoot 应用中可以使用以下几种方式来控制是否返回值为空的字段  在配置文件 application.yml 中配置全局自动忽略 123spring:  jackson:    default-property-inclusion: NON_NULL 在类或字段上添加注解 @JsonInclude(JsonInclude.Include.NON_NULL) 实现一个 Jac">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-10-28T09:39:02.000Z">
+<meta property="article:modified_time" content="2023-10-29T10:07:33.675Z">
+<meta property="article:author" content="逗号">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://acomma.github.io/2023/10/28/return-non-null/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2023/10/28/return-non-null/","path":"2023/10/28/return-non-null/","title":"基于请求参数动态控制是否返回值为空的字段"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>基于请求参数动态控制是否返回值为空的字段 | 逗号的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">逗号的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里有一句格言，但我还没想好</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89-MappingJackson2HttpMessageConverter"><span class="nav-number">2.</span> <span class="nav-text">自定义 MappingJackson2HttpMessageConverter</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89-ResponseBodyAdvice"><span class="nav-number">3.</span> <span class="nav-text">自定义 ResponseBodyAdvice</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">逗号</p>
+  <div class="site-description" itemprop="description">这里是站点描述，但我没有写</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/acomma" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;acomma" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:acomma@yeah.net" title="E-Mail → mailto:acomma@yeah.net" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2023/10/28/return-non-null/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="逗号">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逗号的博客">
+      <meta itemprop="description" content="这里是站点描述，但我没有写">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="基于请求参数动态控制是否返回值为空的字段 | 逗号的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于请求参数动态控制是否返回值为空的字段
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-10-28 17:39:02" itemprop="dateCreated datePublished" datetime="2023-10-28T17:39:02+08:00">2023-10-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-10-29 18:07:33" itemprop="dateModified" datetime="2023-10-29T18:07:33+08:00">2023-10-29</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>在 SpringBoot 应用中可以使用以下几种方式来控制是否返回值为空的字段</p>
+<ol>
+<li>在配置文件 <code>application.yml</code> 中配置全局自动忽略 <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">jackson:</span></span><br><span class="line">    <span class="attr">default-property-inclusion:</span> <span class="string">NON_NULL</span></span><br></pre></td></tr></table></figure></li>
+<li>在类或字段上添加注解 <code>@JsonInclude(JsonInclude.Include.NON_NULL)</code></li>
+<li>实现一个 <code>Jackson2ObjectMapperBuilderCustomizer</code> 定制器 <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">@Bean</span></span><br><span class="line"><span class="string">public</span> <span class="string">Jackson2ObjectMapperBuilderCustomizer</span> <span class="string">jackson2ObjectMapperBuilderCustomizer()</span> &#123;</span><br><span class="line">    <span class="string">return</span> <span class="string">jacksonObjectMapperBuilder</span> <span class="string">-&gt;</span> &#123;</span><br><span class="line">        <span class="string">jacksonObjectMapperBuilder.serializationInclusion(JsonInclude.Include.NON_NULL);</span></span><br><span class="line">    &#125;<span class="string">;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>参考 <code>JacksonObjectMapperConfiguration</code> 自定义一个 <code>ObjectMapper</code>，覆盖默认的定义 <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">@Bean</span></span><br><span class="line"><span class="string">@Primary</span></span><br><span class="line"><span class="string">@ConditionalOnMissingBean</span></span><br><span class="line"><span class="string">public</span> <span class="string">ObjectMapper</span> <span class="string">jacksonObjectMapper(Jackson2ObjectMapperBuilder</span> <span class="string">builder)</span> &#123;</span><br><span class="line">    <span class="string">ObjectMapper</span> <span class="string">mapper</span> <span class="string">=</span> <span class="string">builder.createXmlMapper(false).build();</span></span><br><span class="line">    <span class="string">mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);</span></span><br><span class="line">    <span class="string">return</span> <span class="string">mapper;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>这 4 种方式要么是全局的要么是局部的，它们都是一次性的，设置后就不能改变，每次请求都会返回相同的结果。现在我们要实现根据请求参数中是否包含某个值动态的设置是否返回值为空的字段，具体的说我们要根据请求头中是否包含 <code>X-Include-Non-Null</code> 来控制是否返回值为空的字段。</p>
+<span id="more"></span>
+
+<h2 id="自定义-MappingJackson2HttpMessageConverter"><a href="#自定义-MappingJackson2HttpMessageConverter" class="headerlink" title="自定义 MappingJackson2HttpMessageConverter"></a>自定义 MappingJackson2HttpMessageConverter</h2><p>首先我们需要实现一个拦截器，把请求中的 <code>X-Include-Non-Null</code> 放入响应头或者线程本地变量中，方便在后面获取这个值</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">NullValueSerializationInterceptor</span> <span class="keyword">implements</span> <span class="title class_">HandlerInterceptor</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">preHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        response.setHeader(<span class="string">&quot;X-Include-Non-Null&quot;</span>, request.getHeader(<span class="string">&quot;X-Include-Non-Null&quot;</span>));</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后把它加入拦截器集合中使它生效</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WebMvcConfig</span> <span class="keyword">implements</span> <span class="title class_">WebMvcConfigurer</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addInterceptors</span><span class="params">(InterceptorRegistry registry)</span> &#123;</span><br><span class="line">        registry.addInterceptor(<span class="keyword">new</span> <span class="title class_">NullValueSerializationInterceptor</span>());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来我们要自定义两个 <code>ObjectMapper</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 这是默认的 &#123;<span class="doctag">@code</span> ObjectMapper&#125; 实现，</span></span><br><span class="line"><span class="comment"> * 拷贝自 &#123;<span class="doctag">@link</span> org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration.JacksonObjectMapperConfiguration#jacksonObjectMapper(org.springframework.http.converter.json.Jackson2ObjectMapperBuilder)&#125;，</span></span><br><span class="line"><span class="comment"> * 如果不拷贝，因为 Bean 定义上有 &#123;<span class="doctag">@code</span> <span class="doctag">@ConditionalOnMissingBean</span>&#125;，而且自定义了一个 &#123;<span class="doctag">@link</span> WebMvcConfig#customObjectMapper(Jackson2ObjectMapperBuilder)&#125;，会导致</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> MappingJackson2HttpMessageConverter#objectMapper&#125; 属性值不对</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@Primary</span></span><br><span class="line"><span class="keyword">public</span> ObjectMapper <span class="title function_">jacksonObjectMapper</span><span class="params">(Jackson2ObjectMapperBuilder builder)</span> &#123;</span><br><span class="line">    <span class="type">ObjectMapper</span> <span class="variable">mapper</span> <span class="operator">=</span> builder.createXmlMapper(<span class="literal">false</span>).build();</span><br><span class="line">    <span class="keyword">return</span> mapper;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 自定义一个 &#123;<span class="doctag">@code</span> ObjectMapper&#125;，它的创建过程与 &#123;<span class="doctag">@link</span> WebMvcConfig#jacksonObjectMapper(Jackson2ObjectMapperBuilder)&#125; 一样</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="keyword">public</span> ObjectMapper <span class="title function_">customObjectMapper</span><span class="params">(Jackson2ObjectMapperBuilder builder)</span> &#123;</span><br><span class="line">    <span class="type">ObjectMapper</span> <span class="variable">mapper</span> <span class="operator">=</span> builder.createXmlMapper(<span class="literal">false</span>).build();</span><br><span class="line">    <span class="comment">// WARNING：这是自定义的部分</span></span><br><span class="line">    mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// WARNING：如果有其他配置需要和 jacksonObjectMapper 中的配置过程保持一致</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> mapper;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在我们需要实现自己的 <code>MappingJackson2HttpMessageConverter</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.core.JsonEncoding;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.core.JsonGenerator;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.core.JsonProcessingException;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.core.PrettyPrinter;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.core.util.DefaultIndenter;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.core.util.DefaultPrettyPrinter;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.*;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.exc.InvalidDefinitionException;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.exc.MismatchedInputException;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.ser.FilterProvider;</span><br><span class="line"><span class="keyword">import</span> org.springframework.http.HttpOutputMessage;</span><br><span class="line"><span class="keyword">import</span> org.springframework.http.MediaType;</span><br><span class="line"><span class="keyword">import</span> org.springframework.http.converter.HttpMessageConversionException;</span><br><span class="line"><span class="keyword">import</span> org.springframework.http.converter.HttpMessageNotWritableException;</span><br><span class="line"><span class="keyword">import</span> org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;</span><br><span class="line"><span class="keyword">import</span> org.springframework.http.converter.json.MappingJacksonValue;</span><br><span class="line"><span class="keyword">import</span> org.springframework.util.TypeUtils;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Type;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CustomMappingJackson2HttpMessageConverter</span> <span class="keyword">extends</span> <span class="title class_">MappingJackson2HttpMessageConverter</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ObjectMapper customObjectMapper;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> PrettyPrinter ssePrettyPrinter;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">CustomMappingJackson2HttpMessageConverter</span><span class="params">(ObjectMapper jacksonObjectMapper, ObjectMapper customObjectMapper)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(jacksonObjectMapper);</span><br><span class="line">        <span class="built_in">this</span>.customObjectMapper = customObjectMapper;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 下面这部分拷贝自父类</span></span><br><span class="line">        <span class="type">DefaultPrettyPrinter</span> <span class="variable">prettyPrinter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DefaultPrettyPrinter</span>();</span><br><span class="line">        prettyPrinter.indentObjectsWith(<span class="keyword">new</span> <span class="title class_">DefaultIndenter</span>(<span class="string">&quot;  &quot;</span>, <span class="string">&quot;\ndata:&quot;</span>));</span><br><span class="line">        <span class="built_in">this</span>.ssePrettyPrinter = prettyPrinter;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ---重写开始--- 和 ---重写结束--- 之间的部分与父类方法不一样，其他部分保持一致</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">writeInternal</span><span class="params">(Object object, Type type, HttpOutputMessage outputMessage)</span> <span class="keyword">throws</span> IOException, HttpMessageNotWritableException &#123;</span><br><span class="line">        <span class="type">MediaType</span> <span class="variable">contentType</span> <span class="operator">=</span> outputMessage.getHeaders().getContentType();</span><br><span class="line">        <span class="type">JsonEncoding</span> <span class="variable">encoding</span> <span class="operator">=</span> getJsonEncoding(contentType);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ---重写开始---</span></span><br><span class="line">        JsonGenerator generator;</span><br><span class="line">        <span class="keyword">if</span> (includeNonNull(outputMessage)) &#123;</span><br><span class="line">            generator = getJacksonObjectMapper().getFactory().createGenerator(outputMessage.getBody(), encoding);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            generator = getCustomObjectMapper().getFactory().createGenerator(outputMessage.getBody(), encoding);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// ---重写结束---</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            writePrefix(generator, object);</span><br><span class="line"></span><br><span class="line">            <span class="type">Object</span> <span class="variable">value</span> <span class="operator">=</span> object;</span><br><span class="line">            Class&lt;?&gt; serializationView = <span class="literal">null</span>;</span><br><span class="line">            <span class="type">FilterProvider</span> <span class="variable">filters</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">            <span class="type">JavaType</span> <span class="variable">javaType</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (object <span class="keyword">instanceof</span> MappingJacksonValue) &#123;</span><br><span class="line">                <span class="type">MappingJacksonValue</span> <span class="variable">container</span> <span class="operator">=</span> (MappingJacksonValue) object;</span><br><span class="line">                value = container.getValue();</span><br><span class="line">                serializationView = container.getSerializationView();</span><br><span class="line">                filters = container.getFilters();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (type != <span class="literal">null</span> &amp;&amp; TypeUtils.isAssignable(type, value.getClass())) &#123;</span><br><span class="line">                javaType = getJavaType(type, <span class="literal">null</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// ---重写开始---</span></span><br><span class="line">            ObjectWriter objectWriter;</span><br><span class="line">            <span class="keyword">if</span> (includeNonNull(outputMessage)) &#123;</span><br><span class="line">                objectWriter = (serializationView != <span class="literal">null</span> ?</span><br><span class="line">                        getJacksonObjectMapper().writerWithView(serializationView) : getJacksonObjectMapper().writer());</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                objectWriter = (serializationView != <span class="literal">null</span> ?</span><br><span class="line">                        getCustomObjectMapper().writerWithView(serializationView) : getCustomObjectMapper().writer());</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// ---重写结束---</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (filters != <span class="literal">null</span>) &#123;</span><br><span class="line">                objectWriter = objectWriter.with(filters);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (javaType != <span class="literal">null</span> &amp;&amp; javaType.isContainerType()) &#123;</span><br><span class="line">                objectWriter = objectWriter.forType(javaType);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="type">SerializationConfig</span> <span class="variable">config</span> <span class="operator">=</span> objectWriter.getConfig();</span><br><span class="line">            <span class="keyword">if</span> (contentType != <span class="literal">null</span> &amp;&amp; contentType.isCompatibleWith(MediaType.TEXT_EVENT_STREAM) &amp;&amp;</span><br><span class="line">                    config.isEnabled(SerializationFeature.INDENT_OUTPUT)) &#123;</span><br><span class="line">                objectWriter = objectWriter.with(<span class="built_in">this</span>.ssePrettyPrinter);</span><br><span class="line">            &#125;</span><br><span class="line">            objectWriter.writeValue(generator, value);</span><br><span class="line"></span><br><span class="line">            writeSuffix(generator, object);</span><br><span class="line">            generator.flush();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (MismatchedInputException ex) &#123;  <span class="comment">// specific kind of JsonMappingException</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">HttpMessageNotWritableException</span>(<span class="string">&quot;Invalid JSON input: &quot;</span> + ex.getOriginalMessage(), ex);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InvalidDefinitionException ex) &#123;  <span class="comment">// another kind of JsonMappingException</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">HttpMessageConversionException</span>(<span class="string">&quot;Type definition error: &quot;</span> + ex.getType(), ex);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (JsonMappingException ex) &#123;  <span class="comment">// typically ValueInstantiationException</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">HttpMessageConversionException</span>(<span class="string">&quot;JSON mapping problem: &quot;</span> + ex.getPathReference(), ex);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (JsonProcessingException ex) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">HttpMessageNotWritableException</span>(<span class="string">&quot;Could not write JSON: &quot;</span> + ex.getOriginalMessage(), ex);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> ObjectMapper <span class="title function_">getCustomObjectMapper</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> customObjectMapper;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> ObjectMapper <span class="title function_">getJacksonObjectMapper</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>.getObjectMapper();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">includeNonNull</span><span class="params">(HttpOutputMessage outputMessage)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">includeNonNull</span> <span class="operator">=</span> outputMessage.getHeaders().getFirst(<span class="string">&quot;X-Include-Non-Null&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> includeNonNull == <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后我们把它加入 Spring 容器中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 定义参考了 &#123;<span class="doctag">@link</span> org.springframework.boot.autoconfigure.http.JacksonHttpMessageConvertersConfiguration.MappingJackson2HttpMessageConverterConfiguration#mappingJackson2HttpMessageConverter(ObjectMapper)&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="keyword">public</span> CustomMappingJackson2HttpMessageConverter <span class="title function_">mappingJackson2HttpMessageConverter</span><span class="params">(<span class="meta">@Qualifier(&quot;jacksonObjectMapper&quot;)</span> ObjectMapper jacksonObjectMapper, <span class="meta">@Qualifier(&quot;customObjectMapper&quot;)</span> ObjectMapper customObjectMapper)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">CustomMappingJackson2HttpMessageConverter</span>(jacksonObjectMapper, customObjectMapper);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="自定义-ResponseBodyAdvice"><a href="#自定义-ResponseBodyAdvice" class="headerlink" title="自定义 ResponseBodyAdvice"></a>自定义 ResponseBodyAdvice</h2><p>到这里基本就结束了，但是我们还有另外一种办法可以解决这个问题，只需要加入一个 <code>ResponseBodyAdvice</code> 的实现类即可</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.core.JsonProcessingException;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.JsonNode;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.ObjectMapper;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.node.ArrayNode;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.node.ObjectNode;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.core.MethodParameter;</span><br><span class="line"><span class="keyword">import</span> org.springframework.http.MediaType;</span><br><span class="line"><span class="keyword">import</span> org.springframework.http.converter.HttpMessageConverter;</span><br><span class="line"><span class="keyword">import</span> org.springframework.http.server.ServerHttpRequest;</span><br><span class="line"><span class="keyword">import</span> org.springframework.http.server.ServerHttpResponse;</span><br><span class="line"><span class="keyword">import</span> org.springframework.util.ClassUtils;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RestControllerAdvice;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Iterator;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="meta">@RestControllerAdvice</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CustomResponseBodyAdvice</span> <span class="keyword">implements</span> <span class="title class_">ResponseBodyAdvice</span>&lt;Object&gt; &#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> ObjectMapper objectMapper;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">supports</span><span class="params">(MethodParameter returnType, Class&lt;? extends HttpMessageConverter&lt;?&gt;&gt; converterType)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">beforeBodyWrite</span><span class="params">(Object body, MethodParameter returnType, MediaType selectedContentType, Class&lt;? extends HttpMessageConverter&lt;?&gt;&gt; selectedConverterType, ServerHttpRequest request, ServerHttpResponse response)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (body == <span class="literal">null</span> || ClassUtils.isPrimitiveOrWrapper(body.getClass()) || body <span class="keyword">instanceof</span> String) &#123;</span><br><span class="line">            <span class="keyword">return</span> body;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (includeNonNull(request)) &#123;</span><br><span class="line">            <span class="keyword">return</span> body;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">content</span> <span class="operator">=</span> objectMapper.writeValueAsString(body);</span><br><span class="line">            <span class="type">JsonNode</span> <span class="variable">jsonNode</span> <span class="operator">=</span> objectMapper.readTree(content);</span><br><span class="line">            trimNull(jsonNode, <span class="number">0</span>);</span><br><span class="line">            <span class="keyword">return</span> jsonNode;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (JsonProcessingException e) &#123;</span><br><span class="line">            <span class="keyword">return</span> body;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 删除值为NULL的字段</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">trimNull</span><span class="params">(JsonNode jsonNode, <span class="type">int</span> depth)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (jsonNode == <span class="literal">null</span> || depth &gt;= <span class="number">2</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (jsonNode.isObject()) &#123;</span><br><span class="line">            <span class="type">ObjectNode</span> <span class="variable">objectNode</span> <span class="operator">=</span> (ObjectNode) jsonNode;</span><br><span class="line">            Iterator&lt;Map.Entry&lt;String, JsonNode&gt;&gt; iterator = objectNode.fields();</span><br><span class="line">            <span class="keyword">while</span> (iterator.hasNext()) &#123;</span><br><span class="line">                Map.Entry&lt;String, JsonNode&gt; entry = iterator.next();</span><br><span class="line">                <span class="keyword">if</span> (entry.getValue().isNull()) &#123;</span><br><span class="line">                    iterator.remove();</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">if</span> (entry.getValue().isArray() || entry.getValue().isObject()) &#123;</span><br><span class="line">                        trimNull(entry.getValue(), depth + <span class="number">1</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (jsonNode.isArray()) &#123;</span><br><span class="line">            <span class="type">ArrayNode</span> <span class="variable">arrayNode</span> <span class="operator">=</span> (ArrayNode) jsonNode;</span><br><span class="line">            <span class="keyword">for</span> (JsonNode node : arrayNode) &#123;</span><br><span class="line">                trimNull(node, depth + <span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 是否忽略值为NULL的字段</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">includeNonNull</span><span class="params">(ServerHttpRequest request)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">includeNonNull</span> <span class="operator">=</span> request.getHeaders().getFirst(<span class="string">&quot;X-Include-Non-Null&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> includeNonNull != <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种方式改动较小，效率可能要慢一点，无伤大雅。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/06/17/springdoc-common-response-2/" rel="prev" title="SpringDoc 统一应答类型处理（二）">
+                  <i class="fa fa-angle-left"></i> SpringDoc 统一应答类型处理（二）
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/10/29/springboot-offsetdatetime/" rel="next" title="如何在 Spring Boot 中传递 OffsetDateTime 类型的参数？">
+                  如何在 Spring Boot 中传递 OffsetDateTime 类型的参数？ <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">逗号</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

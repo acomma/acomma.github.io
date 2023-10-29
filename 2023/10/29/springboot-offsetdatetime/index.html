@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="msvalidate.01" content="09940DFE4C5DA4E85A7117EF7EEC3933">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"acomma.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="问题描述首先创建一个 Spring Boot 项目，然后创建一个实体类 User，它有两个字段姓名 name 和生日 birthday，其中 birthday 的类型是 OffsetDataTime 12345@Datapublic class User &amp;#123;    private String name;    private OffsetDateTime birthday;&amp;#125;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何在 Spring Boot 中传递 OffsetDateTime 类型的参数？">
+<meta property="og:url" content="https://acomma.github.io/2023/10/29/springboot-offsetdatetime/index.html">
+<meta property="og:site_name" content="逗号的博客">
+<meta property="og:description" content="问题描述首先创建一个 Spring Boot 项目，然后创建一个实体类 User，它有两个字段姓名 name 和生日 birthday，其中 birthday 的类型是 OffsetDataTime 12345@Datapublic class User &amp;#123;    private String name;    private OffsetDateTime birthday;&amp;#125;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-10-29T09:25:14.000Z">
+<meta property="article:modified_time" content="2023-10-29T10:07:33.675Z">
+<meta property="article:author" content="逗号">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://acomma.github.io/2023/10/29/springboot-offsetdatetime/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2023/10/29/springboot-offsetdatetime/","path":"2023/10/29/springboot-offsetdatetime/","title":"如何在 Spring Boot 中传递 OffsetDateTime 类型的参数？"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>如何在 Spring Boot 中传递 OffsetDateTime 类型的参数？ | 逗号的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">逗号的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里有一句格言，但我还没想好</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GET-%E8%AF%B7%E6%B1%82"><span class="nav-number">2.</span> <span class="nav-text">GET 请求</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Converter-%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">2.1.</span> <span class="nav-text">使用 Converter 的方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-InitBinder-%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">2.2.</span> <span class="nav-text">使用 InitBinder 的方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-AbstractNamedValueMethodArgumentResolver-%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">2.3.</span> <span class="nav-text">使用 AbstractNamedValueMethodArgumentResolver 的方式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#POST-%E8%AF%B7%E6%B1%82"><span class="nav-number">3.</span> <span class="nav-text">POST 请求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">逗号</p>
+  <div class="site-description" itemprop="description">这里是站点描述，但我没有写</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/acomma" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;acomma" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:acomma@yeah.net" title="E-Mail → mailto:acomma@yeah.net" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2023/10/29/springboot-offsetdatetime/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="逗号">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逗号的博客">
+      <meta itemprop="description" content="这里是站点描述，但我没有写">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="如何在 Spring Boot 中传递 OffsetDateTime 类型的参数？ | 逗号的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          如何在 Spring Boot 中传递 OffsetDateTime 类型的参数？
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2023-10-29 17:25:14 / 修改时间：18:07:33" itemprop="dateCreated datePublished" datetime="2023-10-29T17:25:14+08:00">2023-10-29</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>首先创建一个 Spring Boot 项目，然后创建一个实体类 <code>User</code>，它有两个字段姓名 <code>name</code> 和生日 <code>birthday</code>，其中 <code>birthday</code> 的类型是 <code>OffsetDataTime</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> OffsetDateTime birthday;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后创建对应的控制器 <code>UserController</code>，GET 请求的第二种形式将参数封装成了对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span> &#123;</span><br><span class="line">    <span class="meta">@GetMapping(&quot;/query1&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> OffsetDateTime <span class="title function_">query1</span><span class="params">(OffsetDateTime birthday)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> birthday;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/query2&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> User <span class="title function_">query2</span><span class="params">(User user)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> user;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/create&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> User <span class="title function_">create</span><span class="params">(<span class="meta">@RequestBody</span> User user)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> user;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们要实现接收前端传递过来的形如 <code>yyyy-MM-dd HH:mm:ss</code> 的字符串并自动将它转换为能够使用 <code>OffsetDateTime</code> 类型。</p>
+<span id="more"></span>
+
+<p>Spring Boot 默认支持 ISO-8601 格式，比如 <code>2007-12-03T10:15:30+01:00</code>，所以在请求时可以使用类似如下的格式</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">curl --location &#x27;http://localhost:8080/user/query1?birthday=2023-09-02T12%3A30%3A03Z&#x27;</span><br><span class="line"></span><br><span class="line">curl --location &#x27;http://localhost:8080/user/query2?name=bob&amp;birthday=2023-09-02T12%3A30%3A03Z&#x27;</span><br><span class="line"></span><br><span class="line">curl --location &#x27;http://localhost:8080/user/create&#x27; \</span><br><span class="line">--header &#x27;Content-Type: application/json&#x27; \</span><br><span class="line">--data &#x27;&#123;</span><br><span class="line">    &quot;birthday&quot;: &quot;2023-09-02T12:30:03Z&quot;,</span><br><span class="line">    &quot;name&quot;: &quot;bob&quot;</span><br><span class="line">&#125;&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>如果将 <code>birthday</code> 的值换成 <code>2023-09-02 12:30:05</code> 将会出现如下的异常，三行日志依次对应前面的三次请求</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">2023-09-02T15:30:18.396+08:00  WARN 20588 --- [nio-8080-exec-8] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Failed to convert value of type &#x27;java.lang.String&#x27; to required type &#x27;java.time.OffsetDateTime&#x27;; Failed to convert from type [java.lang.String] to type [java.time.OffsetDateTime] for value [2023-09-02 12:30:05]]</span><br><span class="line">2023-09-02T15:30:28.181+08:00  WARN 20588 --- [nio-8080-exec-7] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public com.example.springboot.entity.User com.example.springboot.controller.UserController.query2(com.example.springboot.entity.User): [Field error in object &#x27;user&#x27; on field &#x27;birthday&#x27;: rejected value [2023-09-02 12:30:05]; codes [typeMismatch.user.birthday,typeMismatch.birthday,typeMismatch.java.time.OffsetDateTime,typeMismatch]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [user.birthday,birthday]; arguments []; default message [birthday]]; default message [Failed to convert property value of type &#x27;java.lang.String&#x27; to required type &#x27;java.time.OffsetDateTime&#x27; for property &#x27;birthday&#x27;; Failed to convert from type [java.lang.String] to type [java.time.OffsetDateTime] for value [2023-09-02 12:30:05]]] ]</span><br><span class="line">2023-09-02T15:30:34.475+08:00  WARN 20588 --- [io-8080-exec-10] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot deserialize value of type `java.time.OffsetDateTime` from String &quot;2023-09-02 12:30:05&quot;: Failed to deserialize java.time.OffsetDateTime: (java.time.format.DateTimeParseException) Text &#x27;2023-09-02 12:30:05&#x27; could not be parsed at index 10]</span><br></pre></td></tr></table></figure>
+
+<p>现在我们就来实现对 <code>yyyy-MM-dd HH:mm:ss</code> 格式的支持。</p>
+<h2 id="GET-请求"><a href="#GET-请求" class="headerlink" title="GET 请求"></a>GET 请求</h2><h3 id="使用-Converter-的方式"><a href="#使用-Converter-的方式" class="headerlink" title="使用 Converter 的方式"></a>使用 Converter 的方式</h3><p>首先需要实现一个转换器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OffsetDateTimeConverter</span> <span class="keyword">implements</span> <span class="title class_">Converter</span>&lt;String, OffsetDateTime&gt; &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> OffsetDateTime <span class="title function_">convert</span><span class="params">(String source)</span> &#123;</span><br><span class="line">        <span class="type">DateTimeFormatter</span> <span class="variable">formatter</span> <span class="operator">=</span> DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>);</span><br><span class="line">        <span class="type">LocalDateTime</span> <span class="variable">localDateTime</span> <span class="operator">=</span> LocalDateTime.parse(source, formatter);</span><br><span class="line">        <span class="type">OffsetDateTime</span> <span class="variable">offsetDateTime</span> <span class="operator">=</span> OffsetDateTime.of(localDateTime, ZoneOffset.UTC);</span><br><span class="line">        <span class="keyword">return</span> offsetDateTime;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后把自定义的转换器加入格式化注册中心中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WebConfig</span> <span class="keyword">implements</span> <span class="title class_">WebMvcConfigurer</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addFormatters</span><span class="params">(FormatterRegistry registry)</span> &#123;</span><br><span class="line">        registry.addConverter(<span class="keyword">new</span> <span class="title class_">OffsetDateTimeConverter</span>());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在使用 <code>2023-09-02 12:30:05</code> 进行请求就不会出错了</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl --location &#x27;http://localhost:8080/user/query1?birthday=2023-09-02%2012%3A30%3A05&#x27;</span><br><span class="line"></span><br><span class="line">curl --location &#x27;http://localhost:8080/user/query2?birthday=2023-09-02%2012%3A30%3A05&amp;name=bob&#x27;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用-InitBinder-的方式"><a href="#使用-InitBinder-的方式" class="headerlink" title="使用 InitBinder 的方式"></a>使用 InitBinder 的方式</h3><p>这种方式只需要实现一个 <code>InitBinder</code> 方法即可</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ControllerAdvice</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WebDataBinderAdvice</span> &#123;</span><br><span class="line">    <span class="meta">@InitBinder</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">initBinder</span><span class="params">(WebDataBinder binder)</span> &#123;</span><br><span class="line">        binder.registerCustomEditor(OffsetDateTime.class, <span class="keyword">new</span> <span class="title class_">PropertyEditorSupport</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAsText</span><span class="params">(String text)</span> <span class="keyword">throws</span> IllegalArgumentException &#123;</span><br><span class="line">                <span class="type">DateTimeFormatter</span> <span class="variable">formatter</span> <span class="operator">=</span> DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>);</span><br><span class="line">                <span class="type">LocalDateTime</span> <span class="variable">localDateTime</span> <span class="operator">=</span> LocalDateTime.parse(text, formatter);</span><br><span class="line">                <span class="type">OffsetDateTime</span> <span class="variable">offsetDateTime</span> <span class="operator">=</span> OffsetDateTime.of(localDateTime, ZoneOffset.UTC);</span><br><span class="line">                <span class="built_in">super</span>.setValue(offsetDateTime);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Converter</code> 和 <code>InitBinder</code> 都会由 <code>ModelAttributeMethodProcessor</code> 方法进行调用。</p>
+<h3 id="使用-AbstractNamedValueMethodArgumentResolver-的方式"><a href="#使用-AbstractNamedValueMethodArgumentResolver-的方式" class="headerlink" title="使用 AbstractNamedValueMethodArgumentResolver 的方式"></a>使用 AbstractNamedValueMethodArgumentResolver 的方式</h3><p>我们先来实现一个 <code>HandlerMethodArgumentResolver</code> 类型的解析器看看效果怎么样？</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OffsetDateTimeArgumentResolver</span> <span class="keyword">implements</span> <span class="title class_">HandlerMethodArgumentResolver</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">supportsParameter</span><span class="params">(MethodParameter parameter)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> parameter.getParameterType().equals(OffsetDateTime.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">resolveArgument</span><span class="params">(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">text</span> <span class="operator">=</span> webRequest.getParameter(<span class="string">&quot;birthday&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (text != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="type">DateTimeFormatter</span> <span class="variable">formatter</span> <span class="operator">=</span> DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>);</span><br><span class="line">                <span class="type">LocalDateTime</span> <span class="variable">localDateTime</span> <span class="operator">=</span> LocalDateTime.parse(text, formatter);</span><br><span class="line">                <span class="type">OffsetDateTime</span> <span class="variable">offsetDateTime</span> <span class="operator">=</span> OffsetDateTime.of(localDateTime, ZoneOffset.UTC);</span><br><span class="line">                <span class="keyword">return</span> offsetDateTime;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                <span class="comment">// 处理解析错误，可以根据需要进行日志记录或返回默认值</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 返回默认值或抛出异常，视情况而定</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>; <span class="comment">// 或者抛出异常</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后把它加到方法参数解析器列表中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WebConfig</span> <span class="keyword">implements</span> <span class="title class_">WebMvcConfigurer</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addArgumentResolvers</span><span class="params">(List&lt;HandlerMethodArgumentResolver&gt; resolvers)</span> &#123;</span><br><span class="line">        resolvers.add(<span class="keyword">new</span> <span class="title class_">OffsetDateTimeArgumentResolver</span>());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种方式对 <code>public OffsetDateTime query1(OffsetDateTime birthday) &#123;&#125;</code> 这种是有效的，但是对 <code>public User query2(User user) &#123;&#125;</code> 这种是无效的。</p>
+<p>可以参考 <code>RequestParamMethodArgumentResolver</code> 的方式对 <code>OffsetDateTimeArgumentResolver</code> 进行增强，让它不仅仅处理名称为 <code>birthday</code> 的参数，还可以处理其他名称的类型为 <code>OffsetDateTime</code> 的参数，比如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OffsetDateTimeArgumentResolver</span> <span class="keyword">extends</span> <span class="title class_">AbstractNamedValueMethodArgumentResolver</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> NamedValueInfo <span class="title function_">createNamedValueInfo</span><span class="params">(MethodParameter parameter)</span> &#123;</span><br><span class="line">        <span class="type">RequestParam</span> <span class="variable">ann</span> <span class="operator">=</span> parameter.getParameterAnnotation(RequestParam.class);</span><br><span class="line">        <span class="keyword">if</span> (ann == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">NamedValueInfo</span>(<span class="string">&quot;&quot;</span>, <span class="literal">false</span>, ValueConstants.DEFAULT_NONE);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">NamedValueInfo</span>(ann.name(), ann.required(), ann.defaultValue());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> Object <span class="title function_">resolveName</span><span class="params">(String name, MethodParameter parameter, NativeWebRequest request)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        String[] paramValues = request.getParameterValues(name);</span><br><span class="line">        <span class="keyword">if</span> (paramValues == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">String</span> <span class="variable">text</span> <span class="operator">=</span> paramValues[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">if</span> (text == <span class="literal">null</span> || text.isBlank()) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">DateTimeFormatter</span> <span class="variable">formatter</span> <span class="operator">=</span> DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>);</span><br><span class="line">        <span class="type">LocalDateTime</span> <span class="variable">localDateTime</span> <span class="operator">=</span> LocalDateTime.parse(text, formatter);</span><br><span class="line">        <span class="type">OffsetDateTime</span> <span class="variable">offsetDateTime</span> <span class="operator">=</span> OffsetDateTime.of(localDateTime, ZoneOffset.UTC);</span><br><span class="line">        <span class="keyword">return</span> offsetDateTime;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">supportsParameter</span><span class="params">(MethodParameter parameter)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> parameter.getParameterType().equals(OffsetDateTime.class);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在就可以处理如下方法定义的请求了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/query3&quot;)</span></span><br><span class="line"><span class="keyword">public</span> OffsetDateTime <span class="title function_">query3</span><span class="params">(OffsetDateTime birth, String name, OffsetDateTime memo)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> birth;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为 <code>resolveName</code> 方法有 <code>MethodParameter</code> 类型，因此也可以处理各种注解，比如根据 <code>DateTimeFormat</code> 注解处理自定义的时间格式。</p>
+<h2 id="POST-请求"><a href="#POST-请求" class="headerlink" title="POST 请求"></a>POST 请求</h2><p>首先实现一个反序列化器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OffsetDateTimeDeserializer</span> <span class="keyword">extends</span> <span class="title class_">JsonDeserializer</span>&lt;OffsetDateTime&gt; &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> OffsetDateTime <span class="title function_">deserialize</span><span class="params">(JsonParser jsonParser, DeserializationContext deserializationContext)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">text</span> <span class="operator">=</span> jsonParser.getText();</span><br><span class="line">        <span class="type">DateTimeFormatter</span> <span class="variable">formatter</span> <span class="operator">=</span> DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>);</span><br><span class="line">        <span class="type">LocalDateTime</span> <span class="variable">localDateTime</span> <span class="operator">=</span> LocalDateTime.parse(text, formatter);</span><br><span class="line">        <span class="type">OffsetDateTime</span> <span class="variable">offsetDateTime</span> <span class="operator">=</span> OffsetDateTime.of(localDateTime, ZoneOffset.UTC);</span><br><span class="line">        <span class="keyword">return</span> offsetDateTime;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后向容器中加入一个 <code>Jackson2ObjectMapperBuilderCustomizer</code> 类型的 Bean</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JacksonConfig</span> &#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> Jackson2ObjectMapperBuilderCustomizer <span class="title function_">jackson2ObjectMapperBuilderCustomizer</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> builder -&gt; &#123;</span><br><span class="line">            <span class="type">JavaTimeModule</span> <span class="variable">module</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JavaTimeModule</span>();</span><br><span class="line">            <span class="keyword">module</span>.addDeserializer(OffsetDateTime.class, <span class="keyword">new</span> <span class="title class_">OffsetDateTimeDeserializer</span>());</span><br><span class="line">            builder.modules(<span class="keyword">module</span>);</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在使用 <code>2023-09-02 12:30:05</code> 进行请求就不会出错了</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">curl --location &#x27;http://localhost:8080/user/create&#x27; \</span><br><span class="line">--header &#x27;Content-Type: application/json&#x27; \</span><br><span class="line">--data &#x27;&#123;</span><br><span class="line">    &quot;birthday&quot;: &quot;2023-09-02 12:30:05&quot;,</span><br><span class="line">    &quot;name&quot;: &quot;bob&quot;</span><br><span class="line">&#125;&#x27;</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://tu-yucheng.github.io/java-new/2023/06/09/java-zoneddatetime-offsetdatetime.html">ZonedDateTime和OffsetDateTime之间的差异</a></li>
+<li><a target="_blank" rel="noopener" href="https://zq99299.github.io/java-tutorial/datetime/iso/timezones.html">时区和偏移类 &#x2F; Zone and Offset</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.aliyun.com/article/1052944">Spring Boot 日期时间处理总结，写的太好了。。</a></li>
+<li><a target="_blank" rel="noopener" href="https://fangshixiang.blog.csdn.net/article/details/112732546">LocalDateTime、OffsetDateTime、ZonedDateTime互转，这一篇绝对喂饱你</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45536242/article/details/125691352">JAVA中计算两个日期时间的差值竟然也有这么多门道</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_35067322/article/details/100990958">彻底解决Spring mvc中时间的转换和序列化等问题</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/435892905">都什么年代了你还在用 Date</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/269427524">拨开时间的迷雾</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/10/28/return-non-null/" rel="prev" title="基于请求参数动态控制是否返回值为空的字段">
+                  <i class="fa fa-angle-left"></i> 基于请求参数动态控制是否返回值为空的字段
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">逗号</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
