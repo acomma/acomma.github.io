@@ -2,7 +2,8 @@ https://acomma.github.io/2023/06/17/springdoc-common-response-1/
 https://acomma.github.io/2023/06/17/springdoc-common-response-2/
 https://acomma.github.io/2023/10/28/return-non-null/
 https://acomma.github.io/2023/10/29/springboot-offsetdatetime/
-https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/
+https://acomma.github.io/2023/10/30/knife4j-nginx/
 https://acomma.github.io/2023/03/16/how-to-install-kubernetes-cluster/
 https://acomma.github.io/2023/05/27/sql-usage-scenarios-1/
+https://acomma.github.io/2023/06/01/sql-usage-scenarios-2/
 https://acomma.github.io/
