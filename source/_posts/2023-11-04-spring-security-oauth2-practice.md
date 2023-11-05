@@ -8,7 +8,7 @@ tags:
 
 <!-- more -->
 
-关于 OAuth2 的基本概念和授权流程不再赘述，可以参考 [The OAuth 2.0 Authorization Framework](https://datatracker.ietf.org/doc/html/rfc6749) 进行学习。在我们构建的例子中虚拟用户 Bob 是 **Resource Owner**，`example-product` 工程是 **Resource Server**，Web Browser 和 Postman 充当了 **Client**，而工程 `example-auth` 是 **Authorization Server**。完整的项目目录结构如下所示
+关于 OAuth2 的基本概念和授权流程不再赘述，可以参考 [OAuth 2.0](https://oauth.net/2/) 和 [The OAuth 2.0 Authorization Framework](https://datatracker.ietf.org/doc/html/rfc6749) 进行学习。在我们构建的例子中虚拟用户 Bob 是 **Resource Owner**，`example-product` 工程是 **Resource Server**，Web Browser 和 Postman 充当了 **Client**，而工程 `example-auth` 是 **Authorization Server**。完整的项目目录结构如下所示
 
 ```text
 ├── example-auth
@@ -488,6 +488,20 @@ clients.inMemory()
 ```
 
 与 `@PreAuthorize` 注解中要求的不一致，因此返回了 `insufficient_scope` 的结果。
+
+## 其他
+
+我们可以引入 `spring-security-oauth2-autoconfigure`
+
+```xml
+<dependency>
+    <groupId>org.springframework.security.oauth.boot</groupId>
+    <artifactId>spring-security-oauth2-autoconfigure</artifactId>
+    <version>2.6.8</version>
+</dependency>
+```
+
+使用文档在 [OAuth2 Boot](https://docs.spring.io/spring-security-oauth2-boot/docs/2.6.8/reference/html5/)。
 
 ## 参考资料
 
