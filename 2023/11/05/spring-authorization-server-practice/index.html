@@ -31,8 +31,13 @@
 <meta property="og:image" content="https://acomma.github.io/2023/11/05/spring-authorization-server-practice/consent-required.png">
 <meta property="og:image" content="https://acomma.github.io/2023/11/05/spring-authorization-server-practice/access-token-authorization.png">
 <meta property="og:image" content="https://acomma.github.io/2023/11/05/spring-authorization-server-practice/access-resource.png">
+<meta property="og:image" content="https://acomma.github.io/2023/11/05/spring-authorization-server-practice/postman-get-new-access-token.png">
+<meta property="og:image" content="https://acomma.github.io/2023/11/05/spring-authorization-server-practice/postman-sign-in.png">
+<meta property="og:image" content="https://acomma.github.io/2023/11/05/spring-authorization-server-practice/postman-submit-consent.png">
+<meta property="og:image" content="https://acomma.github.io/2023/11/05/spring-authorization-server-practice/postman-use-token.png">
+<meta property="og:image" content="https://acomma.github.io/2023/11/05/spring-authorization-server-practice/postman-send.png">
 <meta property="article:published_time" content="2023-11-05T12:17:01.000Z">
-<meta property="article:modified_time" content="2023-11-05T14:36:26.548Z">
+<meta property="article:modified_time" content="2023-11-06T13:46:17.139Z">
 <meta property="article:author" content="逗号">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://acomma.github.io/2023/11/05/spring-authorization-server-practice/sign-in.png">
@@ -118,7 +123,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%88%E6%9D%83%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">授权服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BE%9D%E8%B5%96%E9%85%8D%E7%BD%AE"><span class="nav-number">1.1.</span> <span class="nav-text">依赖配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E9%85%8D%E7%BD%AE"><span class="nav-number">1.2.</span> <span class="nav-text">端口配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Web-%E5%AE%89%E5%85%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">1.3.</span> <span class="nav-text">Web 安全配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%88%E6%9D%83%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">1.4.</span> <span class="nav-text">授权服务器配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">资源服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BE%9D%E8%B5%96%E9%85%8D%E7%BD%AE-1"><span class="nav-number">2.1.</span> <span class="nav-text">依赖配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E9%85%8D%E7%BD%AE-1"><span class="nav-number">2.2.</span> <span class="nav-text">端口配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%88%E6%9D%83%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%85%83%E6%95%B0%E6%8D%AE%E7%AB%AF%E7%82%B9%E9%85%8D%E7%BD%AE"><span class="nav-number">2.3.</span> <span class="nav-text">授权服务器元数据端点配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E5%92%8C%E8%B5%84%E6%BA%90%E6%8E%A5%E5%8F%A3"><span class="nav-number">2.4.</span> <span class="nav-text">资源和资源接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%88%E6%9D%83%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3"><span class="nav-number">2.5.</span> <span class="nav-text">授权回调接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">2.6.</span> <span class="nav-text">资源服务器配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E5%AE%89%E5%85%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">2.7.</span> <span class="nav-text">方法安全配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81%E6%B5%8B%E8%AF%95"><span class="nav-number">3.</span> <span class="nav-text">验证测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%B3%E8%AF%B7%E6%8E%88%E6%9D%83%E7%A0%81"><span class="nav-number">3.1.</span> <span class="nav-text">申请授权码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%B3%E8%AF%B7%E8%AE%BF%E9%97%AE%E4%BB%A4%E7%89%8C"><span class="nav-number">3.2.</span> <span class="nav-text">申请访问令牌</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BF%E9%97%AE%E5%8F%97%E4%BF%9D%E6%8A%A4%E8%B5%84%E6%BA%90"><span class="nav-number">3.3.</span> <span class="nav-text">访问受保护资源</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%88%E6%9D%83%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">授权服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BE%9D%E8%B5%96%E9%85%8D%E7%BD%AE"><span class="nav-number">1.1.</span> <span class="nav-text">依赖配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E9%85%8D%E7%BD%AE"><span class="nav-number">1.2.</span> <span class="nav-text">端口配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Web-%E5%AE%89%E5%85%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">1.3.</span> <span class="nav-text">Web 安全配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%88%E6%9D%83%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">1.4.</span> <span class="nav-text">授权服务器配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">资源服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BE%9D%E8%B5%96%E9%85%8D%E7%BD%AE-1"><span class="nav-number">2.1.</span> <span class="nav-text">依赖配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E9%85%8D%E7%BD%AE-1"><span class="nav-number">2.2.</span> <span class="nav-text">端口配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%88%E6%9D%83%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%85%83%E6%95%B0%E6%8D%AE%E7%AB%AF%E7%82%B9%E9%85%8D%E7%BD%AE"><span class="nav-number">2.3.</span> <span class="nav-text">授权服务器元数据端点配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E5%92%8C%E8%B5%84%E6%BA%90%E6%8E%A5%E5%8F%A3"><span class="nav-number">2.4.</span> <span class="nav-text">资源和资源接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%88%E6%9D%83%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3"><span class="nav-number">2.5.</span> <span class="nav-text">授权回调接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">2.6.</span> <span class="nav-text">资源服务器配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E5%AE%89%E5%85%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">2.7.</span> <span class="nav-text">方法安全配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81%E6%B5%8B%E8%AF%95"><span class="nav-number">3.</span> <span class="nav-text">验证测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%B3%E8%AF%B7%E6%8E%88%E6%9D%83%E7%A0%81"><span class="nav-number">3.1.</span> <span class="nav-text">申请授权码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%B3%E8%AF%B7%E8%AE%BF%E9%97%AE%E4%BB%A4%E7%89%8C"><span class="nav-number">3.2.</span> <span class="nav-text">申请访问令牌</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BF%E9%97%AE%E5%8F%97%E4%BF%9D%E6%8A%A4%E8%B5%84%E6%BA%90"><span class="nav-number">3.3.</span> <span class="nav-text">访问受保护资源</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Postman-%E8%AE%BF%E9%97%AE%E5%8F%97%E4%BF%9D%E6%8A%A4%E7%9A%84%E8%B5%84%E6%BA%90"><span class="nav-number">4.</span> <span class="nav-text">使用 Postman 访问受保护的资源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -195,9 +200,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2023-11-05 20:17:01 / 修改时间：22:36:26" itemprop="dateCreated datePublished" datetime="2023-11-05T20:17:01+08:00">2023-11-05</time>
+      <time title="创建时间：2023-11-05 20:17:01" itemprop="dateCreated datePublished" datetime="2023-11-05T20:17:01+08:00">2023-11-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-11-06 21:46:17" itemprop="dateModified" datetime="2023-11-06T21:46:17+08:00">2023-11-06</time>
     </span>
 
   
@@ -321,10 +332,38 @@
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;sub&quot;</span><span class="punctuation">:</span> <span class="string">&quot;bob&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;aud&quot;</span><span class="punctuation">:</span> <span class="string">&quot;example-product&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;nbf&quot;</span><span class="punctuation">:</span> <span class="number">1699192555</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;scope&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="string">&quot;user&quot;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;iss&quot;</span><span class="punctuation">:</span> <span class="string">&quot;http://127.0.0.1:8081&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;exp&quot;</span><span class="punctuation">:</span> <span class="number">1699192855</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;iat&quot;</span><span class="punctuation">:</span> <span class="number">1699192555</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
 
 <p>我们发现 <code>scope</code> 属性中没有 <code>@PreAuthorize</code> 注解中要求的 <code>product</code>，因此访问资源被拒绝了。</p>
+<h2 id="使用-Postman-访问受保护的资源"><a href="#使用-Postman-访问受保护的资源" class="headerlink" title="使用 Postman 访问受保护的资源"></a>使用 Postman 访问受保护的资源</h2><p>在前面我们使用 Web Browser 和 Postman 分步骤地演示了客户端需要做的事情，下面我们完全使用 Postman 承担客户端的角色，在一个地方完成所有的事情，这更能接近真实的场景</p>
+<img src="/2023/11/05/spring-authorization-server-practice/postman-get-new-access-token.png" class="">
+
+<ol>
+<li>在 Postman 中打开新请求选项卡</li>
+<li>选择 HTTP Method 为 GET，然后输入 URL：<code>http://localhost:8082/product/1</code></li>
+<li>转到 Authorization 选项， 选择 Type 为 OAuth 2.0</li>
+<li>在 Configure New Token 部分：<ol>
+<li>Grant Type: Authorization Code</li>
+<li>Callback URL: <code>http://127.0.0.1:8082/callback/authorized</code></li>
+<li>Auth URL: <a target="_blank" rel="noopener" href="http://localhost:9191/realms/sivalabs/protocol/openid-connect/auth">http://localhost:9191/realms/sivalabs/protocol/openid-connect/auth</a></li>
+<li>Access Token URL: <a target="_blank" rel="noopener" href="http://localhost:9191/realms/sivalabs/protocol/openid-connect/token">http://localhost:9191/realms/sivalabs/protocol/openid-connect/token</a></li>
+<li>Client ID: messages-webapp</li>
+<li>Client Secret: qVcg0foCUNyYbgF0Sg52zeIhLYyOwXpQ</li>
+<li>Scope: openid profile</li>
+<li>State: randomstring</li>
+<li>Client Authentication: Send as Basic Auth header</li>
+</ol>
+</li>
+<li>点击 Get New Access Token 按钮</li>
+<li>Postman 会弹出 Keycloak 登录页面 <img src="/2023/11/05/spring-authorization-server-practice/postman-sign-in.png" class=""></li>
+<li>使用用户凭证 bob&#x2F;123456 登录</li>
+<li>进行用户授权操作 <img src="/2023/11/05/spring-authorization-server-practice/postman-submit-consent.png" class=""></li>
+<li>现在你应该可以看到带有 Token 详细信息的响应了 <img src="/2023/11/05/spring-authorization-server-practice/postman-use-token.png" class=""></li>
+<li>点击 Use Token 按钮，你应该看到 Access Token 部分已经有值了<img src="/2023/11/05/spring-authorization-server-practice/postman-send.png" class=""></li>
+<li>点击 Send 按钮访问受保护资源</li>
+</ol>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
 <li><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-authorization-server/docs/current/reference/html/getting-started.html">Spring Authorization Server Reference - Getting Started</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_43437874/article/details/130306854">Spring Security 6.x 系列【28】授权服务器篇之Spring Authorization Server 1.0 入门案例</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.baeldung.com/spring-security-oauth-auth-server">Spring Security OAuth Authorization Server</a></li>
+<li><a target="_blank" rel="noopener" href="https://springdoc.cn/spring-security-oauth2-tutorial-securing-resource-server/">Spring Security OAuth 2 教程 - 8：资源服务器</a></li>
 </ol>
 
     </div>
