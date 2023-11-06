@@ -561,8 +561,40 @@ redirect_uri | 回调地址，当授权码申请成功后浏览器会重定向�
 
 我们发现 `scope` 属性中没有 `@PreAuthorize` 注解中要求的 `product`，因此访问资源被拒绝了。
 
+## 使用 Postman 访问受保护的资源
+
+在前面我们使用 Web Browser 和 Postman 分步骤地演示了客户端需要做的事情，下面我们完全使用 Postman 承担客户端的角色，在一个地方完成所有的事情，这更能接近真实的场景
+
+{% asset_img postman-get-new-access-token.png %}
+
+1. 在 Postman 中打开新请求选项卡
+2. 选择 HTTP Method 为 GET，然后输入 URL：`http://localhost:8082/product/1`
+3. 转到 Authorization 选项， 选择 Type 为 OAuth 2.0
+4. 在 Configure New Token 部分：
+    1. Grant Type: Authorization Code
+    2. Callback URL: `http://127.0.0.1:8082/callback/authorized`
+    3. Auth URL: http://localhost:9191/realms/sivalabs/protocol/openid-connect/auth
+    4. Access Token URL: http://localhost:9191/realms/sivalabs/protocol/openid-connect/token
+    5. Client ID: messages-webapp
+    6. Client Secret: qVcg0foCUNyYbgF0Sg52zeIhLYyOwXpQ
+    7. Scope: openid profile
+    8. State: randomstring
+    9. Client Authentication: Send as Basic Auth header
+5. 点击 Get New Access Token 按钮
+6. Postman 会弹出 Keycloak 登录页面
+    {% asset_img postman-sign-in.png %}
+7. 使用用户凭证 bob/123456 登录
+8. 进行用户授权操作
+    {% asset_img postman-submit-consent.png %}
+9. 现在你应该可以看到带有 Token 详细信息的响应了
+    {% asset_img postman-use-token.png %}
+10. 点击 Use Token 按钮，你应该看到 Access Token 部分已经有值了
+    {% asset_img postman-send.png %}
+11. 点击 Send 按钮访问受保护资源
+
 ## 参考资料
 
 1. [Spring Authorization Server Reference - Getting Started](https://docs.spring.io/spring-authorization-server/docs/current/reference/html/getting-started.html)
 2. [Spring Security 6.x 系列【28】授权服务器篇之Spring Authorization Server 1.0 入门案例](https://blog.csdn.net/qq_43437874/article/details/130306854)
 3. [Spring Security OAuth Authorization Server](https://www.baeldung.com/spring-security-oauth-auth-server)
+4. [Spring Security OAuth 2 教程 - 8：资源服务器](https://springdoc.cn/spring-security-oauth2-tutorial-securing-resource-server/)
