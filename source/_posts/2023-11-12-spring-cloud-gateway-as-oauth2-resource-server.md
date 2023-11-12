@@ -971,7 +971,41 @@ public class ExampleOrderApplication {
 
 ## 授权服务作为内部服务
 
-目前授权服务 `example-auth` 是作为一个独立的服务单独部署的，它没有加入 `example-eureka` 服务注册中心，无法通过网关对它进行访问。授权服务如果要访问用户信息的话无法通过访问用户服务 `example-user` 得到，它可能会和用户服务共用数据库等资源。如果将授权服务纳入服务注册中心，通过网关进行访问将会遇到和参考资料 [[13]](https://blog.csdn.net/weixin_43829936/article/details/118250290) 类似的问题，解决起来略微麻烦。
+目前授权服务 `example-auth` 是作为一个独立的服务单独部署的，它没有加入 `example-eureka` 服务注册中心，无法通过网关对它进行访问。授权服务如果要访问用户信息的话无法通过访问用户服务 `example-user` 得到，它可能会和用户服务共用数据库等资源。如果将授权服务纳入服务注册中心，通过网关进行访问会出现什么问题呢？
+
+当在浏览器访问 [http://localhost:8080/example-auth/oauth2/authorize?client_id=example-client&scope=product&state=965236&response_type=code&redirect_uri=https://www.baidu.com](http://localhost:8080/example-auth/oauth2/authorize?client_id=example-client&scope=product&state=965236&response_type=code&redirect_uri=https://www.baidu.com) 获取授权码时会跳转到 `example-auth` 的登录页面
+
+{% asset_img sign-in-page-of-example-auth.png %}
+
+当我们输入用户名和密码登录后会跳转到 `example-auth` 的错误页面
+
+{% asset_img whitelabel-error-page-of-example-auth.png %}
+
+可以参考参考资料 [[13]](https://blog.csdn.net/weixin_43829936/article/details/118250290) 的方式进行解决。但是在点击 `Sign in` 按钮后会得到 CSRF 结果
+
+{% asset_img csrf-of-gateway.png %}
+
+当我们在网关使用 `http.csrf(ServerHttpSecurity.CsrfSpec::disable);` 禁用 csrf 后又会得到一个空白页面。
+
+这个问题的本质是 `example-auth` 模块的 `DefaultLoginPageGeneratingFilter` 类返回的默认的登录页面的内容为
+
+```html
+<form class="form-signin" method="post" action="/login">
+    <h2 class="form-signin-heading">Please sign in</h2>
+    <p>
+        <label for="username" class="sr-only">Username</label>
+        <input type="text" id="username" name="username" class="form-control" placeholder="Username" required="" autofocus="">
+    </p>
+    <p>
+        <label for="password" class="sr-only">Password</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Password" required="">
+    </p>
+    <input name="_csrf" type="hidden" value="ROsIkqxGnIV02wiqz_3sVIVFVy-Gf3Z6_7ywk0WFs486MLO9IdJrp84jqrBZ72qSqtDYMeNwek7kGkRXnN6FoHy8he0JVoaL">
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+</form>
+```
+
+在点击 `Sign in` 按钮是会调用 `http://localhost:8080/login` 提交表单到 `example-gateway` 模块，在网关这个请求不会被转发，而在网关它又是没有权限的，因此会返回 `403 Forbidden`。
 
 ## 参考资料
 
