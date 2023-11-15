@@ -8,7 +8,7 @@ tags:
 
 <!-- more -->
 
-关于 OAuth2 的基本概念和授权流程不再赘述，可以参考 [OAuth 2.0](https://oauth.net/2/) 和 [The OAuth 2.0 Authorization Framework](https://datatracker.ietf.org/doc/html/rfc6749) 进行学习。在我们构建的例子中虚拟用户 Bob 是 **Resource Owner**，`example-product` 工程是 **Resource Server**，Web Browser 和 Postman 充当了 **Client**，而工程 `example-auth` 是 **Authorization Server**。完整的项目目录结构如下所示
+关于 OAuth2 的基本概念和授权流程不再赘述，可以参考 [OAuth 2.0](https://oauth.net/2/) 和 [The OAuth 2.0 Authorization Framework](https://datatracker.ietf.org/doc/html/rfc6749) 进行学习。在我们构建的例子中虚拟用户 Bob 是 **Resource Owner**，`example-user` 工程是 **Resource Server**，Web Browser 和 Postman 充当了 **Client**，而工程 `example-auth` 是 **Authorization Server**。完整的项目目录结构如下所示
 
 ```text
 ├── example-auth
@@ -25,23 +25,23 @@ tags:
 │           │                   └── WebSecurityConfig.java               # Web 安全配置类
 │           └── resources
 │               └── application.yml                                      # 配置文件
-├── example-product
+├── example-user
 │   ├── pom.xml
 │   └── src
 │       └── main
 │           ├── java
 │           │   └── com
 │           │       └── example
-│           │           └── product
-│           │               ├── ExampleProductApplication.java          # 启动类
+│           │           └── user
+│           │               ├── ExampleUserApplication.java             # 启动类
 │           │               ├── config
 │           │               │   ├── MethodSecurityConfig.java           # 方法安全配置类
 │           │               │   ├── OAuth2ResourceServerConfig.java     # 资源服务器配置类
 │           │               │   └── WebSecurityConfig.java              # Web 安全配置类
 │           │               ├── controller
-│           │               │   └── ProductController.java              # 资源接口类
+│           │               │   └── UserController.java                 # 资源接口类
 │           │               └── entity
-│           │                   └── Product.java                        # 资源类
+│           │                   └── User.java                           # 资源类
 │           └── resources
 │               └── application.yml                                     # 配置文件
 └── pom.xml
@@ -113,11 +113,11 @@ tags:
 
 ### 端口配置
 
-我们给授权服务器分配的端口为 `8081`，配置在 `application.yml` 文件中
+我们给授权服务器分配的端口为 `9090`，配置在 `application.yml` 文件中
 
 ```yaml
 server:
-  port: 8081
+  port: 9090
 ```
 
 ### Web 安全配置
@@ -194,11 +194,11 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         clients.inMemory()
-                .withClient("example-product")          // 客户端 ID
-                .secret("{noop}example-product-secret") // 客户端登录密码
+                .withClient("example-client")          // 客户端 ID
+                .secret("{noop}example-client-secret") // 客户端登录密码
                 .autoApprove(false)
-                .redirectUris("http://127.0.0.1:8082")  // 获取授权码后的跳转地址，这里配置的是资源服务器的地址
-                .scopes("product", "user")
+                .redirectUris("https://www.baidu.com") // 获取授权码后的跳转地址
+                .scopes("user", "product")
                 .accessTokenValiditySeconds(30 * 60)
                 .authorizedGrantTypes("authorization_code", "implicit", "password", "client_credentials");
     }
@@ -238,7 +238,7 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>example-product</artifactId>
+    <artifactId>example-user</artifactId>
 
     <dependencies>
         <dependency>
@@ -278,11 +278,11 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
 
 ### 端口配置
 
-我们给资源服务器分配的端口为 `8082`，配置在 `application.yml` 文件中
+我们给资源服务器分配的端口为 `8081`，配置在 `application.yml` 文件中
 
 ```yaml
 server:
-  port: 8082
+  port: 8081
 ```
 
 ### 资源和资源接口
@@ -293,7 +293,7 @@ server:
 import lombok.Data;
 
 @Data
-public class Product {
+public class User {
     private Integer id;
 
     private String name;
@@ -303,7 +303,7 @@ public class Product {
 我们的资源接口也很简单，它只有一个访问详情的接口
 
 ```java
-import com.example.product.entity.Product;
+import com.example.user.entity.User;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -311,20 +311,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/product")
-public class ProductController {
+@RequestMapping("/user")
+public class UserController {
     @GetMapping("/{id}")
-    @PreAuthorize("#oauth2.hasScope('product')")
-    public Product detail(@PathVariable("id") Integer id) {
-        Product product = new Product();
-        product.setId(id);
-        product.setName("product-" + id);
-        return product;
+    @PreAuthorize("#oauth2.hasScope('user')")
+    public User detail(@PathVariable("id") Integer id) {
+        User user = new User();
+        user.setId(id);
+        user.setName("user-" + id);
+        return user;
     }
 }
 ```
 
-注意到 `@PreAuthorize("#oauth2.hasScope('product')")` 这行代码中的 `#oauth2.hasScope('product')`，我们需要开启全局的方法安全才会生效，参考后面的方法安全配置类。
+注意到 `@PreAuthorize("#oauth2.hasScope('user')")` 这行代码中的 `#oauth2.hasScope('user')`，我们需要开启全局的方法安全才会生效，参考后面的方法安全配置类。
 
 ### Web 安全配置
 
@@ -361,9 +361,9 @@ public class OAuth2ResourceServerConfig extends ResourceServerConfigurerAdapter 
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
         RemoteTokenServices tokenServices = new RemoteTokenServices();
-        tokenServices.setCheckTokenEndpointUrl("http://localhost:8081/oauth/check_token"); //授权服务器校验 access_token 的地址
-        tokenServices.setClientId("example-product");            // 在授权服务器配置的客户端 ID
-        tokenServices.setClientSecret("example-product-secret"); // 在授权服务器配置的客户端密码
+        tokenServices.setCheckTokenEndpointUrl("http://localhost:9090/oauth/check_token"); //授权服务器校验 access_token 的地址
+        tokenServices.setClientId("example-client");            // 在授权服务器配置的客户端 ID
+        tokenServices.setClientSecret("example-client-secret"); // 在授权服务器配置的客户端密码
 
         resources.tokenServices(tokenServices);
     }
@@ -397,15 +397,15 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
 ### 申请授权码
 
-在浏览器中访问 [http://localhost:8081/oauth/authorize?client_id=example-product&cliect_secret=example-product-secret&response_type=code](http://localhost:8081/oauth/authorize?client_id=example-product&cliect_secret=example-product-secret&response_type=code) 申请授权码，其中的 `client_id` 和 `cliect_secret` 的值就是在授权服务器配置类中配置的客户端 ID 和客户端密码
+在浏览器中访问 [http://localhost:9090/oauth/authorize?client_id=example-client&cliect_secret=example-client-secret&response_type=code](http://localhost:9090/oauth/authorize?client_id=example-client&cliect_secret=example-client-secret&response_type=code) 申请授权码，其中的 `client_id` 和 `cliect_secret` 的值就是在授权服务器配置类中配置的客户端 ID 和客户端密码
 
 ```java
 clients.inMemory()
-        .withClient("example-product")
-        .secret("{noop}example-product-secret")
+        .withClient("example-client")
+        .secret("{noop}example-client-secret")
 ```
 
-此时会跳转到 [http://localhost:8081/login](http://localhost:8081/login) 登录页面
+此时会跳转到 [http://localhost:9090/login](http://localhost:9090/login) 登录页面
 
 在这里输入资源拥有者的用户名和密码，即 `bob` 和 `123456`
 
@@ -415,15 +415,17 @@ clients.inMemory()
 
 {% asset_img oauth-approval.png %}
 
-当我们选择好对资源的授权后，点击 `Authorize` 按钮就会跳转到我们在授权服务器配置类中配置的跳转地址，即 `.redirectUris("http://127.0.0.1:8082")`，只是此时会携带授权码 [http://127.0.0.1:8082/?code=SGyCRx](http://127.0.0.1:8082/?code=SGyCRx)，`SGyCRx` 就是授权码。
+当我们选择好对资源的授权后，点击 `Authorize` 按钮就会跳转到我们在授权服务器配置类中配置的跳转地址，即 `.redirectUris("https://www.baidu.com")`，只是此时会携带授权码 [https://www.baidu.com/?code=Conxl4](https://www.baidu.com/?code=Conxl4)，`Conxl4` 就是授权码。
+
+{% asset_img authorization-code.png %}
 
 ### 申请访问令牌
 
-使用 Postman 访问 [http://localhost:8081/oauth/token?grant_type=authorization_code&redirect_uri=http://127.0.0.1:8082&scope=product&code=CQ8APT](http://localhost:8081/oauth/token?grant_type=authorization_code&redirect_uri=http://127.0.0.1:8082&scope=product&code=CQ8APT) 获取访问令牌
+使用 Postman 访问 [http://localhost:9090/oauth/token?grant_type=authorization_code&redirect_uri=https://www.baidu.com&scope=user&code=Conxl4](http://localhost:9090/oauth/token?grant_type=authorization_code&redirect_uri=https://www.baidu.com&scope=user&code=Conxl4) 获取访问令牌
 
 {% asset_img access-token.png %}
 
-注意请求的方法为 `POST`，`grant_type` 的值为 `authorization_code`，`redirect_uri` 的值为在授权服务器配置类中配置的跳转地址 `http://127.0.0.1:8082`，`scope` 的值为 `product`，`code` 的值为在前面获取的授权码 `CQ8APT`。另外需要注意需要配置 `Authorization` 参数，具体的配置如下，`Type` 需要选择 `Basic Auth`，`Username` 和 `Password` 分别是在授权服务器配置类中配置的客户端 ID 和客户端密码
+注意请求的方法为 `POST`，`grant_type` 的值为 `authorization_code`，`redirect_uri` 的值为在授权服务器配置类中配置的跳转地址 `https://www.baidu.com`，`scope` 的值为 `user`，`code` 的值为在前面获取的授权码 `Conxl4`。另外需要注意需要配置 `Authorization` 参数，具体的配置如下，`Type` 需要选择 `Basic Auth`，`Username` 和 `Password` 分别是在授权服务器配置类中配置的客户端 ID 和客户端密码
 
 {% asset_img access-token-authorization.png %}
 
@@ -431,10 +433,10 @@ clients.inMemory()
 
 ```json
 {
-    "access_token": "d3P-2ZoAEwO2mZbAyCHKIj-dgmE",
+    "access_token": "vtYKd8hE0Sqg4_F3GMizb8aH2wQ",
     "token_type": "bearer",
     "expires_in": 1799,
-    "scope": "product"
+    "scope": "user"
 }
 ```
 
@@ -442,7 +444,7 @@ clients.inMemory()
 
 ### 校验令牌
 
-我们可以访问 [http://localhost:8081/oauth/check_token?token=d3P-2ZoAEwO2mZbAyCHKIj-dgmE](http://localhost:8081/oauth/check_token?token=d3P-2ZoAEwO2mZbAyCHKIj-dgmE) 校验访问令牌的有效性，其中 `token` 参数的值为前面获取的访问令牌，同时要注意请求的方法为 `POST`
+我们可以访问 [http://localhost:9090/oauth/check_token?token=vtYKd8hE0Sqg4_F3GMizb8aH2wQ](http://localhost:9090/oauth/check_token?token=vtYKd8hE0Sqg4_F3GMizb8aH2wQ) 校验访问令牌的有效性，其中 `token` 参数的值为前面获取的访问令牌，同时要注意请求的方法为 `POST`
 
 {% asset_img check-token.png %}
 
@@ -451,14 +453,14 @@ clients.inMemory()
 ```json
 {
     "active": true,
-    "exp": 1699082465,
+    "exp": 1700056305,
     "user_name": "bob",
     "authorities": [
         "ROLE_admin"
     ],
-    "client_id": "example-product",
+    "client_id": "example-client",
     "scope": [
-        "product"
+        "user"
     ]
 }
 ```
@@ -475,11 +477,11 @@ clients.inMemory()
 {
     "error": "insufficient_scope",
     "error_description": "Insufficient scope for this resource",
-    "scope": "product"
+    "scope": "user"
 }
 ```
 
-这证明我们的 `@PreAuthorize("#oauth2.hasScope('product')")` 起作用了。当我们校验这个访问令牌时返回结果的 `scope` 部分如下
+这证明我们的 `@PreAuthorize("#oauth2.hasScope('user')")` 起作用了。当我们校验这个访问令牌时返回结果的 `scope` 部分如下
 
 ```json
 "scope": [
