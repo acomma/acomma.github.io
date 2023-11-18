@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="msvalidate.01" content="09940DFE4C5DA4E85A7117EF7EEC3933">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"acomma.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="问题描述通常授权服务是作为独立的服务进行部署的或者使用的是由其他服务商提供的服务。Spring Authorization Server 比较特殊，它既可以作为独立服务进行部署，就如在上一篇文章介绍的那样；又因为它是 Spring 体系下的一员，因此将它作为内部服务部署在 Gateway 后面又是完全可行的。但是在实践的过程中遇到了一点儿问题，下面是具体的问题描述。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="将授权服务作为内部服务时遇到的问题及解决办法">
+<meta property="og:url" content="https://acomma.github.io/2023/11/17/spring-authorization-server-as-internal-service/index.html">
+<meta property="og:site_name" content="逗号的博客">
+<meta property="og:description" content="问题描述通常授权服务是作为独立的服务进行部署的或者使用的是由其他服务商提供的服务。Spring Authorization Server 比较特殊，它既可以作为独立服务进行部署，就如在上一篇文章介绍的那样；又因为它是 Spring 体系下的一员，因此将它作为内部服务部署在 Gateway 后面又是完全可行的。但是在实践的过程中遇到了一点儿问题，下面是具体的问题描述。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://acomma.github.io/2023/11/17/spring-authorization-server-as-internal-service/sign-in-page-of-example-auth.png">
+<meta property="og:image" content="https://acomma.github.io/2023/11/17/spring-authorization-server-as-internal-service/whitelabel-error-page-of-example-auth.png">
+<meta property="og:image" content="https://acomma.github.io/2023/11/17/spring-authorization-server-as-internal-service/authorize-redirect.png">
+<meta property="og:image" content="https://acomma.github.io/2023/11/17/spring-authorization-server-as-internal-service/login-redirect.png">
+<meta property="article:published_time" content="2023-11-17T13:56:44.000Z">
+<meta property="article:modified_time" content="2023-11-18T09:32:54.020Z">
+<meta property="article:author" content="逗号">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://acomma.github.io/2023/11/17/spring-authorization-server-as-internal-service/sign-in-page-of-example-auth.png">
+
+
+<link rel="canonical" href="https://acomma.github.io/2023/11/17/spring-authorization-server-as-internal-service/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2023/11/17/spring-authorization-server-as-internal-service/","path":"2023/11/17/spring-authorization-server-as-internal-service/","title":"将授权服务作为内部服务时遇到的问题及解决办法"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>将授权服务作为内部服务时遇到的问题及解决办法 | 逗号的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">逗号的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里有一句格言，但我还没想好</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E6%9E%90%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">分析问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E5%AE%9A%E5%90%91%E5%88%B0%E7%99%BB%E5%BD%95%E9%A1%B5%E9%9D%A2%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="nav-number">2.1.</span> <span class="nav-text">重定向到登录页面的过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E5%AE%9A%E5%90%91%E5%88%B0%E7%99%BD%E6%9D%BF%E9%A1%B5%E9%9D%A2%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="nav-number">2.2.</span> <span class="nav-text">重定向到白板页面的过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E9%97%AE%E9%A2%98"><span class="nav-number">3.</span> <span class="nav-text">解决问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%93%8D%E5%BA%94%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-number">3.1.</span> <span class="nav-text">自定义响应过滤器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%94%BE%E8%A1%8C%E5%AF%B9%E6%8E%88%E6%9D%83%E6%9C%8D%E5%8A%A1%E7%9A%84%E8%AF%B7%E6%B1%82"><span class="nav-number">3.2.</span> <span class="nav-text">放行对授权服务的请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E6%96%B0%E9%85%8D%E7%BD%AE%E8%B7%AF%E7%94%B1%E8%BD%AC%E5%8F%91%E8%A7%84%E5%88%99"><span class="nav-number">3.3.</span> <span class="nav-text">重新配置路由转发规则</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E5%9C%B0%E5%9D%80"><span class="nav-number">4.</span> <span class="nav-text">源码地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">逗号</p>
+  <div class="site-description" itemprop="description">这里是站点描述，但我没有写</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/acomma" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;acomma" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:acomma@yeah.net" title="E-Mail → mailto:acomma@yeah.net" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2023/11/17/spring-authorization-server-as-internal-service/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="逗号">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逗号的博客">
+      <meta itemprop="description" content="这里是站点描述，但我没有写">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="将授权服务作为内部服务时遇到的问题及解决办法 | 逗号的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          将授权服务作为内部服务时遇到的问题及解决办法
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-11-17 21:56:44" itemprop="dateCreated datePublished" datetime="2023-11-17T21:56:44+08:00">2023-11-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-11-18 17:32:54" itemprop="dateModified" datetime="2023-11-18T17:32:54+08:00">2023-11-18</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>通常授权服务是作为独立的服务进行部署的或者使用的是由其他服务商提供的服务。Spring Authorization Server 比较特殊，它既可以作为独立服务进行部署，就如在<a href="https://acomma.github.io/2023/11/12/spring-cloud-gateway-as-oauth2-resource-server/">上一篇文章</a>介绍的那样；又因为它是 Spring 体系下的一员，因此将它作为内部服务部署在 Gateway 后面又是完全可行的。但是在实践的过程中遇到了一点儿问题，下面是具体的问题描述。</p>
+<span id="more"></span>
+
+<p>在<a href="https://acomma.github.io/2023/11/12/spring-cloud-gateway-as-oauth2-resource-server/">前一篇文章</a>文章的基础上对 <code>example-auth</code> 服务做一点儿改造使它成为内部服务。首先是要在 <code>pom.xml</code> 文件中加入 Eureka 客户端的依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-netflix-eureka-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>其次是在配置文件 <code>application.xml</code> 文件中加入 Eureka 服务端地址的配置</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">eureka:</span></span><br><span class="line">  <span class="attr">client:</span></span><br><span class="line">    <span class="attr">serviceUrl:</span></span><br><span class="line">      <span class="attr">defaultZone:</span> <span class="string">http://localhost:8761/eureka/</span></span><br></pre></td></tr></table></figure>
+
+<p>当然不能忘了在 <code>example-gateway</code> 的 <code>OAuth2ResourceServerConfig.java</code> 中放行授权服务相关的请求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> SecurityWebFilterChain <span class="title function_">resourceServerSecurityFilterChain</span><span class="params">(ServerHttpSecurity http)</span> &#123;</span><br><span class="line">    http.authorizeExchange(exchanges -&gt; exchanges</span><br><span class="line">            <span class="comment">// 省略了...</span></span><br><span class="line">            .pathMatchers(<span class="string">&quot;/example-auth/**&quot;</span>).permitAll()</span><br><span class="line">            <span class="comment">// 省略了...</span></span><br><span class="line">    <span class="keyword">return</span> http.build();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在我们已经将授权服务改造为了内部服务，我们来尝试测试一下看看是否符合我们的预期。</p>
+<p>当我们在浏览器访问 <a target="_blank" rel="noopener" href="http://localhost:8080/example-auth/oauth2/authorize?client_id=example-client&scope=user&state=965236&response_type=code&redirect_uri=https://www.baidu.com">http://localhost:8080/example-auth/oauth2/authorize?client_id&#x3D;example-client&amp;scope&#x3D;user&amp;state&#x3D;965236&amp;response_type&#x3D;code&amp;redirect_uri&#x3D;https://www.baidu.com</a> 获取授权码时会重定向到 <code>example-auth</code> 的登录页面</p>
+<img src="/2023/11/17/spring-authorization-server-as-internal-service/sign-in-page-of-example-auth.png" class="">
+
+<p>当我们输入用户名和密码登录后会重定向到 <code>example-auth</code> 的错误页面</p>
+<img src="/2023/11/17/spring-authorization-server-as-internal-service/whitelabel-error-page-of-example-auth.png" class="">
+
+<p>其中浏览器地址栏中 IP 地址 <code>192.168.1.4</code> 是我本地电脑的 IP 地址。我们发现授权服务并没有如我们预期的那样重定向到授权页面，同时浏览器地址栏中的地址并不是网关的地址。那么问题是什么呢？请看下面的问题分析。</p>
+<h2 id="分析问题"><a href="#分析问题" class="headerlink" title="分析问题"></a>分析问题</h2><h3 id="重定向到登录页面的过程"><a href="#重定向到登录页面的过程" class="headerlink" title="重定向到登录页面的过程"></a>重定向到登录页面的过程</h3><p>当在浏览器访问地址 <code>http://localhost:8080/example-auth/oauth2/authorize?client_id=example-client&amp;scope=user&amp;state=965236&amp;response_type=code&amp;redirect_uri=https://www.baidu.com</code> 时，请求被网关转发到授权服务器 <code>example-auth</code>，经过一系列过滤器 <code>Filter</code> 后到达 <code>OAuth2AuthorizationEndpointFilter</code>，由它处理 <code>/oauth2/authorize</code> 请求，我们来看下的 <code>doFilterInternal</code> 方法的处理逻辑</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// OAuth2AuthorizationEndpointFilter.java</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doFilterInternal</span><span class="params">(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">  <span class="comment">// 判断是否由该过滤器处理，如果不是则继续交给下一个过滤器进行处理</span></span><br><span class="line">  <span class="keyword">if</span> (!<span class="built_in">this</span>.authorizationEndpointMatcher.matches(request)) &#123;</span><br><span class="line">    filterChain.doFilter(request, response);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="type">Authentication</span> <span class="variable">authentication</span> <span class="operator">=</span> <span class="built_in">this</span>.authenticationConverter.convert(request);</span><br><span class="line">    <span class="keyword">if</span> (authentication <span class="keyword">instanceof</span> AbstractAuthenticationToken) &#123;</span><br><span class="line">      ((AbstractAuthenticationToken) authentication).setDetails(<span class="built_in">this</span>.authenticationDetailsSource.buildDetails(request));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 由认证管理器进行认证处理</span></span><br><span class="line">    <span class="type">Authentication</span> <span class="variable">authenticationResult</span> <span class="operator">=</span> <span class="built_in">this</span>.authenticationManager.authenticate(authentication);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 未认证的情况下走这个分支</span></span><br><span class="line">    <span class="keyword">if</span> (!authenticationResult.isAuthenticated()) &#123;</span><br><span class="line">      <span class="comment">// If the Principal (Resource Owner) is not authenticated then</span></span><br><span class="line">      <span class="comment">// pass through the chain with the expectation that the authentication process</span></span><br><span class="line">      <span class="comment">// will commence via AuthenticationEntryPoint</span></span><br><span class="line">      filterChain.doFilter(request, response);</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line">  &#125; <span class="keyword">catch</span> (OAuth2AuthenticationException ex) &#123;</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于是第一次请求肯定是未认证的，因此会继续交给后续过滤器进行处理，我们跳过中间的过滤器来到 <code>ExceptionTranslationFilter</code>，但是我们先不看这个过滤器的处理逻辑，我们先来看看它的后面一个处理，即 <code>AuthorizationFilter</code> 的处理逻辑</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AuthorizationFilter.java</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doFilter</span><span class="params">(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">  <span class="comment">// 省略了...</span></span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 由授权管理器进行权限检查，因为我们还未登录过，所以是匿名用户，</span></span><br><span class="line">    <span class="comment">// 而我们在 example-auth 的 WebSecurityConfig.java 中配置的是所有请求都需要认证，</span></span><br><span class="line">    <span class="comment">// 因此这里返回的 decision 是为未授权的</span></span><br><span class="line">    <span class="type">AuthorizationDecision</span> <span class="variable">decision</span> <span class="operator">=</span> <span class="built_in">this</span>.authorizationManager.check(<span class="built_in">this</span>::getAuthentication, request);</span><br><span class="line">    <span class="built_in">this</span>.eventPublisher.publishAuthorizationEvent(<span class="built_in">this</span>::getAuthentication, request, decision);</span><br><span class="line">    <span class="comment">// 未授权时抛出访问拒绝异常</span></span><br><span class="line">    <span class="keyword">if</span> (decision != <span class="literal">null</span> &amp;&amp; !decision.isGranted()) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">AccessDeniedException</span>(<span class="string">&quot;Access Denied&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    chain.doFilter(request, response);</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    request.removeAttribute(alreadyFilteredAttributeName);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为未登录所以授权失败抛出了 <code>AccessDeniedException</code>，此时会回到上一个过滤器，即 <code>ExceptionTranslationFilter</code> 进行处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ExceptionTranslationFilter.java</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">doFilter</span><span class="params">(HttpServletRequest request, HttpServletResponse response, FilterChain chain)</span> <span class="keyword">throws</span> IOException, ServletException &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 从这里进入下一个过滤器，即 AuthorizationFilter，进行处理</span></span><br><span class="line">    chain.doFilter(request, response);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (IOException ex) &#123;</span><br><span class="line">    <span class="keyword">throw</span> ex;</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 处理由 AuthorizationFilter 抛出的 AccessDeniedException</span></span><br><span class="line">    handleSpringSecurityException(request, response, chain, securityException);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>handleSpringSecurityException</code> 会一直调用到 <code>handleAccessDeniedException</code> 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ExceptionTranslationFilter.java</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">handleAccessDeniedException</span><span class="params">(HttpServletRequest request, HttpServletResponse response, FilterChain chain, AccessDeniedException exception)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">  <span class="type">Authentication</span> <span class="variable">authentication</span> <span class="operator">=</span> <span class="built_in">this</span>.securityContextHolderStrategy.getContext().getAuthentication();</span><br><span class="line">  <span class="type">boolean</span> <span class="variable">isAnonymous</span> <span class="operator">=</span> <span class="built_in">this</span>.authenticationTrustResolver.isAnonymous(authentication);</span><br><span class="line">  <span class="comment">// 因为我们还未登录，是匿名用户，因此会进入这个分支</span></span><br><span class="line">  <span class="keyword">if</span> (isAnonymous || <span class="built_in">this</span>.authenticationTrustResolver.isRememberMe(authentication)) &#123;</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line">    sendStartAuthentication(request, response, chain,</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">InsufficientAuthenticationException</span>(<span class="built_in">this</span>.messages.getMessage(<span class="string">&quot;ExceptionTranslationFilter.insufficientAuthentication&quot;</span>, <span class="string">&quot;Full authentication is required to access this resource&quot;</span>)));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line">    <span class="built_in">this</span>.accessDeniedHandler.handle(request, response, exception);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>sendStartAuthentication</code> 方法会调用 <code>DelegatingAuthenticationEntryPoint</code> 类的 <code>commence</code> 方法，而后者又回调用 <code>LoginUrlAuthenticationEntryPoint</code> 类的 <code>commence</code> 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// LoginUrlAuthenticationEntryPoint.java</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">commence</span><span class="params">(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)</span> <span class="keyword">throws</span> IOException, ServletException &#123;</span><br><span class="line">  <span class="keyword">if</span> (!<span class="built_in">this</span>.useForward) &#123;</span><br><span class="line">    <span class="comment">// redirect to login page. Use https if forceHttps true</span></span><br><span class="line">    <span class="comment">// 这里的 redirectUrl 变量的值即为 /login</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">redirectUrl</span> <span class="operator">=</span> buildRedirectUrlToLoginPage(request, response, authException);</span><br><span class="line">    <span class="built_in">this</span>.redirectStrategy.sendRedirect(request, response, redirectUrl);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 省略了...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>DefaultRedirectStrategy</code> 类的 <code>sendRedirect</code> 方法经过层层的调用会一直到 <code>org.apache.catalina.connector.Response</code> 类的 <code>sendRedirect</code> 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// org.apache.catalina.connector.Response.java</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sendRedirect</span><span class="params">(String location)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">  <span class="comment">// SC_FOUND 的值为 302</span></span><br><span class="line">  sendRedirect(location, SC_FOUND);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个方法会继续调用同一个类里的一个重载方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sendRedirect</span><span class="params">(String location, <span class="type">int</span> status)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// Generate a temporary redirect to the specified location</span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">Context</span> <span class="variable">context</span> <span class="operator">=</span> getContext();</span><br><span class="line">        <span class="comment">// If no ROOT context is defined, the context can be null.</span></span><br><span class="line">        <span class="comment">// In this case, the default Tomcat values are assumed, but without</span></span><br><span class="line">        <span class="comment">// reference to org.apache.catalina.STRICT_SERVLET_COMPLIANCE.</span></span><br><span class="line">        String locationUri;</span><br><span class="line">        <span class="comment">// Relative redirects require HTTP/1.1 or later</span></span><br><span class="line">        <span class="keyword">if</span> (getRequest().getCoyoteRequest().getSupportsRelativeRedirects() &amp;&amp; (context == <span class="literal">null</span> || context.getUseRelativeRedirects())) &#123;</span><br><span class="line">            locationUri = location;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            locationUri = toAbsolute(location);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// status 的值为 302</span></span><br><span class="line">        setStatus(status);</span><br><span class="line">        setHeader(<span class="string">&quot;Location&quot;</span>, locationUri);</span><br><span class="line">        <span class="comment">// 省略了...</span></span><br><span class="line">    &#125; <span class="keyword">catch</span> (IllegalArgumentException e) &#123;</span><br><span class="line">        <span class="comment">// 省略了...</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们看到在这个方法里向相应头写入了 <code>Location</code>，<code>locationUri</code> 的值为 <code>http://192.168.1.4:9090/login</code>。我们也可以通过浏览器收到的响应证实这一点</p>
+<img src="/2023/11/17/spring-authorization-server-as-internal-service/authorize-redirect.png" class="">
+
+<p>浏览器收到 302 响应后会自动重定向到 <code>Location</code> 指向的网页，从而显示登录页面。</p>
+<h3 id="重定向到白板页面的过程"><a href="#重定向到白板页面的过程" class="headerlink" title="重定向到白板页面的过程"></a>重定向到白板页面的过程</h3><p>我们输入用户名密码并点击登录按钮时，此时浏览器会以表单的形式向地址 <code>http://192.168.1.4:9090/login</code> 提交请求，这个请求经过一系列过滤器后会达到 <code>UsernamePasswordAuthenticationFilter</code>，从而在它的父类 <code>AbstractAuthenticationProcessingFilter</code> 进行处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AbstractAuthenticationProcessingFilter.java</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">doFilter</span><span class="params">(HttpServletRequest request, HttpServletResponse response, FilterChain chain)</span> <span class="keyword">throws</span> IOException, ServletException &#123;</span><br><span class="line">  <span class="comment">// 省略了...</span></span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 认证成功后调用的方法</span></span><br><span class="line">    successfulAuthentication(request, response, chain, authenticationResult);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (InternalAuthenticationServiceException failed) &#123;</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line">  &#125; <span class="keyword">catch</span> (AuthenticationException ex) &#123;</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>省略了具体的认证过程和认证失败后的处理过程，它们不是这里的重点，我们重点看认证成功后的处理过程</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AbstractAuthenticationProcessingFilter.java</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">successfulAuthentication</span><span class="params">(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult)</span> <span class="keyword">throws</span> IOException, ServletException &#123;</span><br><span class="line">  <span class="comment">// 省略了...</span></span><br><span class="line">  <span class="built_in">this</span>.successHandler.onAuthenticationSuccess(request, response, authResult);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后一行的 <code>onAuthenticationSuccess</code> 方法会调用 <code>DefaultRedirectStrategy</code> 类的 <code>sendRedirect</code> 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sendRedirect</span><span class="params">(HttpServletRequest request, HttpServletResponse response, String url)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">  <span class="comment">// 省略了...</span></span><br><span class="line">  response.sendRedirect(redirectUrl);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>省略了构建 <code>redirectUrl</code> 的过程，而它的值为 <code>/</code>。根据前面的经验最后一行的 <code>sendRedirect</code> 方法会向相应头中写入 <code>Location</code> 变量，它的值为 <code>http://192.168.1.4:9090/</code>。我们也可以通过浏览器的收到的响应证实这一点</p>
+<img src="/2023/11/17/spring-authorization-server-as-internal-service/login-redirect.png" class="">
+
+<p>浏览器收到 302 响应后会自动重定向到 <code>Location</code> 指向的网页，在授权服务 <code>example-auth</code> 中没有 <code>http://192.168.1.4:9090/</code> 对应的页面，因此最终现实了默认的白板页。</p>
+<h2 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h2><p>通过上面的分析我们发现无论是发起获取授权码请求还是发起登录请求最终都会重定向到授权服务对应的 IP 地址而不是网关的地址，从而直接的和授权服务进行交互而不是通过网关和授权服务进行交互。另一方面获取授权码和登录它们的请求和相应都是通过网关的，重定向到授权服务对应的 IP 地址的行为是浏览器在收到 302 响应后由浏览器作出的。那么我们是否可以在网关写出 302 响应前修改 <code>Location</code> 的值，让它指向网关的地址而不是授权服务的地址，从而实现浏览器在重定向时使用网关的地址呢？这样不就一切就通过网关了吗？答案是可以的。</p>
+<h3 id="自定义响应过滤器"><a href="#自定义响应过滤器" class="headerlink" title="自定义响应过滤器"></a>自定义响应过滤器</h3><p>我们可以实现网关的 <code>GlobalFilter</code> 接口，自定义一个响应过滤器就可以完成这个需求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.cloud.gateway.filter.GatewayFilterChain;</span><br><span class="line"><span class="keyword">import</span> org.springframework.cloud.gateway.filter.GlobalFilter;</span><br><span class="line"><span class="keyword">import</span> org.springframework.cloud.gateway.filter.NettyWriteResponseFilter;</span><br><span class="line"><span class="keyword">import</span> org.springframework.core.Ordered;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.server.ServerWebExchange;</span><br><span class="line"><span class="keyword">import</span> reactor.core.publisher.Mono;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 自定义响应过滤器。</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CustomResponseFilter</span> <span class="keyword">implements</span> <span class="title class_">GlobalFilter</span>, Ordered &#123;</span><br><span class="line">    <span class="comment">// 授权服务的名称，应该从配置文件中获取</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">authorizationServiceName</span> <span class="operator">=</span> <span class="string">&quot;example-auth&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;Void&gt; <span class="title function_">filter</span><span class="params">(ServerWebExchange exchange, GatewayFilterChain chain)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">path</span> <span class="operator">=</span> exchange.getRequest().getPath().value();</span><br><span class="line">        <span class="comment">// 只对请求路径中包含 /oauth2/authorize 和 /login 的响应进行处理</span></span><br><span class="line">        <span class="keyword">if</span> (path.contains(<span class="string">&quot;/oauth2/authorize&quot;</span>) || path.contains(<span class="string">&quot;/login&quot;</span>)) &#123;</span><br><span class="line">            <span class="comment">// 自定义响应装饰器</span></span><br><span class="line">            <span class="type">CustomServerHttpResponseDecorator</span> <span class="variable">decorator</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CustomServerHttpResponseDecorator</span>(exchange.getResponse(), exchange.getRequest(), authorizationServiceName);</span><br><span class="line">            <span class="keyword">return</span> chain.filter(exchange.mutate().response(decorator).build());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> chain.filter(exchange);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getOrder</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 在最终写出响应之前执行该过滤器</span></span><br><span class="line">        <span class="keyword">return</span> NettyWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER - <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>自定义的响应装饰器 <code>CustomServerHttpResponseDecorator</code> 的代码如下所示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.reactivestreams.Publisher;</span><br><span class="line"><span class="keyword">import</span> org.springframework.core.io.buffer.DataBuffer;</span><br><span class="line"><span class="keyword">import</span> org.springframework.http.HttpStatusCode;</span><br><span class="line"><span class="keyword">import</span> org.springframework.http.server.reactive.ServerHttpRequest;</span><br><span class="line"><span class="keyword">import</span> org.springframework.http.server.reactive.ServerHttpResponse;</span><br><span class="line"><span class="keyword">import</span> org.springframework.http.server.reactive.ServerHttpResponseDecorator;</span><br><span class="line"><span class="keyword">import</span> reactor.core.publisher.Mono;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.net.URI;</span><br><span class="line"><span class="keyword">import</span> java.net.URISyntaxException;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 自定义响应装饰器。</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CustomServerHttpResponseDecorator</span> <span class="keyword">extends</span> <span class="title class_">ServerHttpResponseDecorator</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ServerHttpRequest request;</span><br><span class="line">    <span class="comment">// 授权服务的服务名</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String authorizationServiceName;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">CustomServerHttpResponseDecorator</span><span class="params">(ServerHttpResponse delegate, ServerHttpRequest request, String authorizationServiceName)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(delegate);</span><br><span class="line">        <span class="built_in">this</span>.request = request;</span><br><span class="line">        <span class="built_in">this</span>.authorizationServiceName = authorizationServiceName;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;Void&gt; <span class="title function_">writeWith</span><span class="params">(Publisher&lt;? extends DataBuffer&gt; body)</span> &#123;</span><br><span class="line">        <span class="comment">// 只处理响应状态码为 3xx 的响应，包括 302</span></span><br><span class="line">        <span class="type">HttpStatusCode</span> <span class="variable">statusCode</span> <span class="operator">=</span> <span class="built_in">super</span>.getStatusCode();</span><br><span class="line">        <span class="keyword">if</span> (statusCode != <span class="literal">null</span> &amp;&amp; statusCode.is3xxRedirection()) &#123;</span><br><span class="line">            <span class="comment">// 这个 location 是由下游服务返回的重定向地址</span></span><br><span class="line">            <span class="type">URI</span> <span class="variable">location</span> <span class="operator">=</span> <span class="built_in">super</span>.getHeaders().getLocation();</span><br><span class="line">            <span class="keyword">if</span> (location != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="type">String</span> <span class="variable">query</span> <span class="operator">=</span> location.getQuery();</span><br><span class="line">                <span class="comment">// 只处理重定向地址中不包含 query 参数或者 query 参数中包含 code=，即包含 code 参数的响应</span></span><br><span class="line">                <span class="keyword">if</span> (query == <span class="literal">null</span> || !query.contains(<span class="string">&quot;code=&quot;</span>)) &#123;</span><br><span class="line">                    <span class="type">URI</span> <span class="variable">newLocation</span> <span class="operator">=</span> getNewLocation(location);</span><br><span class="line">                    <span class="built_in">super</span>.getHeaders().setLocation(newLocation);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>.writeWith(body);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取新的重定向地址</span></span><br><span class="line">    <span class="keyword">private</span> URI <span class="title function_">getNewLocation</span><span class="params">(URI location)</span> &#123;</span><br><span class="line">        URI newLocation;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 重原始的请求中获取 schema/host/port，即使用网关的 schema/host/port</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">newScheme</span> <span class="operator">=</span> request.getURI().getScheme();</span><br><span class="line">            <span class="type">String</span> <span class="variable">newHost</span> <span class="operator">=</span> request.getURI().getHost();</span><br><span class="line">            <span class="type">int</span> <span class="variable">newPort</span> <span class="operator">=</span> request.getURI().getPort();</span><br><span class="line">            <span class="comment">// 新的路径需要拼接上授权服务的服务名，这样网关才能正确的转发请求</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">newPath</span> <span class="operator">=</span> <span class="string">&quot;/&quot;</span> + authorizationServiceName + location.getPath();</span><br><span class="line">            <span class="comment">// query 参数和 fragment 参数原样返回</span></span><br><span class="line">            newLocation = <span class="keyword">new</span> <span class="title class_">URI</span>(newScheme, <span class="literal">null</span>, newHost, newPort, newPath, location.getQuery(), location.getFragment());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (URISyntaxException x) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(x.getMessage(), x);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> newLocation;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="放行对授权服务的请求"><a href="#放行对授权服务的请求" class="headerlink" title="放行对授权服务的请求"></a>放行对授权服务的请求</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration(proxyBeanMethods = false)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OAuth2ResourceServerConfig</span> &#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@Order(1)</span></span><br><span class="line">    <span class="keyword">public</span> SecurityWebFilterChain <span class="title function_">resourceServerSecurityFilterChain</span><span class="params">(ServerHttpSecurity http)</span> &#123;</span><br><span class="line">        http.authorizeExchange(exchanges -&gt; exchanges</span><br><span class="line">                <span class="comment">// 省略了...</span></span><br><span class="line">                .pathMatchers(<span class="string">&quot;/example-auth/**&quot;</span>).permitAll()</span><br><span class="line">                <span class="comment">// 在默认的授权页面点击 Submit Consent 按钮后请求的地址</span></span><br><span class="line">                .pathMatchers(<span class="string">&quot;/oauth2/authorize&quot;</span>).permitAll()</span><br><span class="line">                <span class="comment">// 在默认的登录页面点击 Sign in 按钮后请求的地址</span></span><br><span class="line">                .pathMatchers(<span class="string">&quot;/login&quot;</span>).permitAll()</span><br><span class="line">                .anyExchange().authenticated());</span><br><span class="line">        http.oauth2ResourceServer(configurer -&gt; configurer.jwt(Customizer.withDefaults()));</span><br><span class="line">        <span class="comment">// 因为默认的登录页面带有隐藏的 csrf 字段，点击 Sign in 按钮后会一起发送到网关，</span></span><br><span class="line">        <span class="comment">// 而网关并不认识它，因为它是授权服务返回的</span></span><br><span class="line">        http.csrf(ServerHttpSecurity.CsrfSpec::disable);</span><br><span class="line">        <span class="keyword">return</span> http.build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>放行所有请求路径以 <code>/example-auth</code> 开头的请求是显而易见的。而额外的 <code>/oauth2/authorize</code> 和 <code>/login</code> 两个路径也放行就不是那么的显然。</p>
+<p>简单的解释就是默认的登录页面和授权页面的表单的 <code>action</code> 属性的值分别为 <code>/login</code> 和 <code>/oauth2/authorize</code>，而点解相应的提交按钮后它们会拼接在网关的地址后面得到 <code>http://localhost:8080/login</code> 和 <code>http://localhost:8080/oauth2/authorize</code>，不放行它们的话对应的请求在网关就会被拦截，从而返回 <code>401 Unauthorized</code>。</p>
+<h3 id="重新配置路由转发规则"><a href="#重新配置路由转发规则" class="headerlink" title="重新配置路由转发规则"></a>重新配置路由转发规则</h3><p>修改网关的配置文件 <code>application.yml</code>，重写转发到授权服务的路由规则</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 省略了...</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="comment"># 省略了...</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="comment"># 省略了...</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">example-auth</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">lb://example-auth</span></span><br><span class="line">          <span class="attr">predicates:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">Path=/example-auth/**,/oauth2/authorize,/login</span></span><br><span class="line"><span class="comment"># 省略了...</span></span><br></pre></td></tr></table></figure>
+
+<p>规则中 <code>/example-auth/**</code> 是显然的。配置 <code>/login</code> 和 <code>/oauth2/authorize</code> 的理由是它们是登录表单和授权表单的请求地址，网关无法处理它们，只有授权服务才能处理它们，因此他们也应当转发到授权服务。</p>
+<h2 id="源码地址"><a href="#源码地址" class="headerlink" title="源码地址"></a>源码地址</h2><p><a target="_blank" rel="noopener" href="https://github.com/acomma/examples/tree/main/example-oauth2">examples&#x2F;example-oauth2</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/hc1285653662/article/details/126633112">oauth2 通过gateway请求授权码不能回调到return_uri</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43829936/article/details/118250290">oauth2授权码模式遇到的坑，1.走网关无法返回授权码 2.refresh_token新token丢失用户信息</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/11/12/spring-cloud-gateway-as-oauth2-resource-server/" rel="prev" title="将 Spring Cloud Gateway 作为 OAuth2 的资源服务器">
+                  <i class="fa fa-angle-left"></i> 将 Spring Cloud Gateway 作为 OAuth2 的资源服务器
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">逗号</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
