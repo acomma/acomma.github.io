@@ -515,7 +515,7 @@ redirect_uri | 回调地址，当授权码申请成功后浏览器会重定向�
 
 使用 Postman 访问 [http://localhost:8081/oauth2/token?grant_type=authorization_code&redirect_uri=http://127.0.0.1:8082/callback/authorized&code=sSdyOPiSOytzVwkZhOmwg_3_GS8uo_fvSjjd9MbhCDuNyYzFJ7lEnCp88vzAwFxOrbjIqr_K4srWYoQnFPsmRPg_UxYpjNIlgVM6CcavmcqusKKM8qgJCFOrcIhTSkPl](http://localhost:8081/oauth2/token?grant_type=authorization_code&redirect_uri=http://127.0.0.1:8082/callback/authorized&code=sSdyOPiSOytzVwkZhOmwg_3_GS8uo_fvSjjd9MbhCDuNyYzFJ7lEnCp88vzAwFxOrbjIqr_K4srWYoQnFPsmRPg_UxYpjNIlgVM6CcavmcqusKKM8qgJCFOrcIhTSkPl) 获取访问令牌
 
-{% asset_img access-token.png %}
+{% asset_img access_token.png %}
 
 注意请求的方法为 `POST`，`grant_type` 的值为 `authorization_code`，`redirect_uri` 的值为在授权服务器配置类中配置的跳转地址 `http://127.0.0.1:8082/callback/authorized`，`code` 的值为在前面获取的授权码 `sSdyOPiSOytzVwkZhOmwg_3_GS8uo_fvSjjd9MbhCDuNyYzFJ7lEnCp88vzAwFxOrbjIqr_K4srWYoQnFPsmRPg_UxYpjNIlgVM6CcavmcqusKKM8qgJCFOrcIhTSkPl`。另外需要注意需要配置 `Authorization` 参数，具体的配置如下，`Type` 需要选择 `Basic Auth`，这个值要与授权服务器中配置的授权方式，即 `clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)`，一致；`Username` 和 `Password` 分别是在授权服务器配置类中配置的客户端 ID 和客户端密码
 
