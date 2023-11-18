@@ -1,6 +1,7 @@
 ---
 title: Spring Authorization Server 实践
 date: 2023-11-05 20:17:01
+updated: 2023-11-05 20:17:01
 tags:
 ---
 

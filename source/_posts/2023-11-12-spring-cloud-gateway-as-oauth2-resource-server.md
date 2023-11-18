@@ -1,6 +1,7 @@
 ---
 title: 将 Spring Cloud Gateway 作为 OAuth2 的资源服务器
 date: 2023-11-12 14:46:15
+updated: 2023-11-12 14:46:15
 tags:
 ---
 

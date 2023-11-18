@@ -1,6 +1,7 @@
 ---
 title: Spring Security OAuth2 实践
 date: 2023-11-04 11:04:58
+updated: 2023-11-04 11:04:58
 tags:
 ---
 

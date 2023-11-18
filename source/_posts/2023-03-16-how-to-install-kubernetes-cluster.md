@@ -1,6 +1,7 @@
 ---
 title: 如何安装 Kubernetes 集群？
 date: 2023-03-16 21:45:09
+updated: 2023-03-16 21:45:09
 tags:
 ---
 
