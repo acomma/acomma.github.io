@@ -1,3 +1,4 @@
+https://acomma.github.io/2023/11/19/decode-jwt-in-gateway-and-relay-to-other-service/
 https://acomma.github.io/2023/11/17/spring-authorization-server-as-internal-service/
 https://acomma.github.io/2023/11/12/spring-cloud-gateway-as-oauth2-resource-server/
 https://acomma.github.io/2023/11/10/deploy-spring-cloud-project-on-docker/
