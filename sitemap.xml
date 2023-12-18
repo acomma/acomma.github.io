@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://acomma.github.io/2023/12/18/postgresql-two-adjacent-single-quotes/</loc>
+    
+    <lastmod>2023-12-18</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://acomma.github.io/2023/11/19/decode-jwt-in-gateway-and-relay-to-other-service/</loc>
     
     <lastmod>2023-11-19</lastmod>
@@ -139,7 +148,7 @@
 
   <url>
     <loc>https://acomma.github.io/</loc>
-    <lastmod>2023-12-02</lastmod>
+    <lastmod>2023-12-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
