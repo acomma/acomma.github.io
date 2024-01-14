@@ -92,6 +92,6 @@ Kettle 的定时任务是哪一种情况呢？
 
 1. [kettle的job定时任务的一个小问题](https://cloud.tencent.com/developer/article/1442132)
 2. [Launching job entries in parallel](https://pentaho-public.atlassian.net/wiki/spaces/EAI/pages/370049045/Launching+job+entries+in+parallel)，提到了 Job Execution Engine 采用了 Backtracking Algorithm
-3. [Kettle基本概念 之 Kettle设计模块](https://www.jianshu.com/p/a02480e2dda1)，多路径和回溯
+3. [Kettle解决方案: 第二章 Kettle基本概念](https://www.cnblogs.com/redcoatjk/p/9228263.html)，多路径和回溯，出自 [Pentaho Kettle解决方案：使用PDI构建开源ETL解决方案](https://book.douban.com/subject/25866405/) 这本书
 4. [定时任务时间过长会不会影响下次的执行？](https://zhuanlan.zhihu.com/p/344053917)
 5. [Springboot中上一个定时任务没执行完，是否会影响下一个定时任务执行分析及结论](https://blog.csdn.net/wtwcsdn123/article/details/124684997)
