@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="msvalidate.01" content="09940DFE4C5DA4E85A7117EF7EEC3933">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha256-yIDrPSXHZdOZhAqiBP7CKzIwMQmRCJ8UeB8Jo17YC4o=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"acomma.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.19.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="问题假设有一个 PDI（Kettle）Job，运行这个 Job 需要耗时 30 秒钟。现在每 10 秒钟调度运行一次这个 Job。我们的问题是这个 Job 的运行情况是怎样的？具体地说是上一个调度的 Job 还没有执行完就到了下一个调度的 Job 的执行时间，那么下一个调度的 Job 会执行吗？也就是定时任务如果执行的时间很长的话，那么下一次还能按时执行嘛？    Case 1：无论上一次 Job">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PDI 定时任务调度问题">
+<meta property="og:url" content="https://acomma.github.io/2024/01/13/the-problem-of-pdi-schedule/index.html">
+<meta property="og:site_name" content="逗号的博客">
+<meta property="og:description" content="问题假设有一个 PDI（Kettle）Job，运行这个 Job 需要耗时 30 秒钟。现在每 10 秒钟调度运行一次这个 Job。我们的问题是这个 Job 的运行情况是怎样的？具体地说是上一个调度的 Job 还没有执行完就到了下一个调度的 Job 的执行时间，那么下一个调度的 Job 会执行吗？也就是定时任务如果执行的时间很长的话，那么下一次还能按时执行嘛？    Case 1：无论上一次 Job">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://acomma.github.io/2024/01/13/the-problem-of-pdi-schedule/schedule.drawio.svg">
+<meta property="og:image" content="https://acomma.github.io/2024/01/13/the-problem-of-pdi-schedule/chatgpt1.png">
+<meta property="og:image" content="https://acomma.github.io/2024/01/13/the-problem-of-pdi-schedule/chatgpt2.png">
+<meta property="og:image" content="https://acomma.github.io/2024/01/13/the-problem-of-pdi-schedule/chatgpt3.png">
+<meta property="og:image" content="https://acomma.github.io/2024/01/13/the-problem-of-pdi-schedule/job.png">
+<meta property="og:image" content="https://acomma.github.io/2024/01/13/the-problem-of-pdi-schedule/wait-for.png">
+<meta property="og:image" content="https://acomma.github.io/2024/01/13/the-problem-of-pdi-schedule/start.png">
+<meta property="og:image" content="https://acomma.github.io/2024/01/13/the-problem-of-pdi-schedule/run.png">
+<meta property="article:published_time" content="2024-01-13T13:53:50.000Z">
+<meta property="article:modified_time" content="2024-01-13T13:53:50.000Z">
+<meta property="article:author" content="逗号">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://acomma.github.io/2024/01/13/the-problem-of-pdi-schedule/schedule.drawio.svg">
+
+
+<link rel="canonical" href="https://acomma.github.io/2024/01/13/the-problem-of-pdi-schedule/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2024/01/13/the-problem-of-pdi-schedule/","path":"2024/01/13/the-problem-of-pdi-schedule/","title":"PDI 定时任务调度问题"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>PDI 定时任务调度问题 | 逗号的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">逗号的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里有一句格言，但我还没想好</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-number">3.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E8%AE%BA"><span class="nav-number">4.</span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">逗号</p>
+  <div class="site-description" itemprop="description">这里是站点描述，但我没有写</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/acomma" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;acomma" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:acomma@yeah.net" title="E-Mail → mailto:acomma@yeah.net" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2024/01/13/the-problem-of-pdi-schedule/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="逗号">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逗号的博客">
+      <meta itemprop="description" content="这里是站点描述，但我没有写">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="PDI 定时任务调度问题 | 逗号的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PDI 定时任务调度问题
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-01-13 21:53:50" itemprop="dateCreated datePublished" datetime="2024-01-13T21:53:50+08:00">2024-01-13</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>假设有一个 PDI（Kettle）Job，运行这个 Job 需要耗时 30 秒钟。现在每 10 秒钟调度运行一次这个 Job。我们的问题是这个 Job 的运行情况是怎样的？具体地说是上一个调度的 Job 还没有执行完就到了下一个调度的 Job 的执行时间，那么下一个调度的 Job 会执行吗？也就是定时任务如果执行的时间很长的话，那么下一次还能按时执行嘛？</p>
+<img src="/2024/01/13/the-problem-of-pdi-schedule/schedule.drawio.svg" class="">
+
+<ul>
+<li><strong>Case 1</strong>：无论上一次 Job 是否执行完成，下一次 Job 按照 10 秒钟的间隔准时开始；</li>
+<li><strong>Case 2</strong>：上一次 Job 未执行完成，下一次 Job 不会开始执行；一旦上一次 Job 执行完成，下一次 Job 立即开始执行，中间没有间隔；</li>
+<li><strong>Case 3</strong>：上一次 Job 未执行完成，下一次 Job 不会开始执行；上一次 Job 执行完成后等待 10 秒钟的间隔再开启下一次 Job 的执行；</li>
+</ul>
+<p>Kettle 的定时任务是哪一种情况呢？</p>
+<span id="more"></span>
+
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>我们先来问一下 ChatGPT，看看它怎么说？我们在三个不同的会话问 ChatGPT 同样的问题</p>
+<p>第一个会话</p>
+<img src="/2024/01/13/the-problem-of-pdi-schedule/chatgpt1.png" class="">
+
+<p>第二个会话</p>
+<img src="/2024/01/13/the-problem-of-pdi-schedule/chatgpt2.png" class="">
+
+<p>第三个会话</p>
+<img src="/2024/01/13/the-problem-of-pdi-schedule/chatgpt3.png" class="">
+
+<p>从这三个回答来看基本可以确定如果一个任务的执行时间很长，而下一次任务的触发时间点已经到了，调度器将会推迟触发下一次任务的执行。因此我们基本可以排除 Case 1 这种情况了，那到底是 Case 2 还是 Case 3 呢？我们需要做一点小实验。</p>
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p>在这个实验中我们将创建只有两个节点的 Job，一个 Start 节点，这是 Job 必须的一个节点；一个 Wait for 节点，用来模拟耗时的任务。</p>
+<img src="/2024/01/13/the-problem-of-pdi-schedule/job.png" class="">
+
+<p>我们给 Wait for 节点，即模拟任务节点，配置 30 秒钟的等待时间</p>
+<img src="/2024/01/13/the-problem-of-pdi-schedule/wait-for.png" class="">
+
+<p>给 Start 节点配置没 10 秒钟调度一次，注意勾选“Repeat”复选框，不然只会调度一次</p>
+<img src="/2024/01/13/the-problem-of-pdi-schedule/start.png" class="">
+
+<p>然后在本地运行起来</p>
+<img src="/2024/01/13/the-problem-of-pdi-schedule/run.png" class="">
+
+<p>运行一段时间后把执行结果的日志复制出来进行分析，为了便于分析在日志中间加了一些空行来分割每一次调度</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">2024/01/14 10:40:45 - Spoon - Spoon</span><br><span class="line">2024/01/14 10:43:41 - Spoon - Spoon</span><br><span class="line">2024/01/14 11:02:06 - Spoon - Starting job...</span><br><span class="line">2024/01/14 11:02:06 - Job 1 - Start of job execution</span><br><span class="line"></span><br><span class="line">2024/01/14 11:02:07 - Job 1 - Job 1</span><br><span class="line">2024/01/14 11:02:17 - Job 1 - Starting entry [Wait for]</span><br><span class="line">2024/01/14 11:02:47 - Job 1 - Finished job entry [Wait for] (result=[true])</span><br><span class="line"></span><br><span class="line">2024/01/14 11:02:47 - Job 1 - Job 1</span><br><span class="line">2024/01/14 11:02:57 - Job 1 - Starting entry [Wait for]</span><br><span class="line">2024/01/14 11:03:27 - Job 1 - Finished job entry [Wait for] (result=[true])</span><br><span class="line"></span><br><span class="line">2024/01/14 11:03:27 - Job 1 - Job 1</span><br><span class="line">2024/01/14 11:03:37 - Job 1 - Starting entry [Wait for]</span><br><span class="line">2024/01/14 11:04:07 - Job 1 - Finished job entry [Wait for] (result=[true])</span><br><span class="line"></span><br><span class="line">.</span><br><span class="line">.</span><br><span class="line">.</span><br></pre></td></tr></table></figure>
+
+<p>在完成执行前的准备工作后，02:07 开始等待 10 秒钟直到 02:17 开始执行 Wait for 节点直到 02:47 耗时 30 秒钟后执行完成，这是第一次调度的时间节点。接着等待 10 秒钟直到 02:57 开始执行 Wait for 节点直到 03:27 耗时 30 秒钟后执行完成，这是第二次调度的时间节点。接着等待 10 秒钟直到 03:37 开始执行 Wait for 节点直到 04:07 耗时 30 秒钟后执行完成，这是第三次调度的时间节点。如果我们不停止 Job 它将按照这样节奏一直运行下去。</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>从实验结果可以看到 PDI 的定时任务的调度符合 Case 3 这种情况。在触发第一次调度的任务还未执行完成前即使到了第二次调度触发的时间点也不会立即触发任务执行，调度器将等待第一次调度的任务执行完成，然后等待一个触发周期再出发第二次调度。</p>
+<p>在这里我们分析的是 PDI 自带的定时任务调度功能，如果是使用 Windows 的任务计划执行程序来调度则需要设置任务计划“请勿启动新实例”，具体参考 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/zdyang/p/11759873.html">3.kettle-定时执行任务</a>；如果是使用 Linux 的 Crontab 功能则可能需要参考 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/lemon-le/p/8476604.html">crontab定时任务第一个周期未完成下一个周期执行就来了</a> 控制调度器不等待任务执行完成就开始下一次调度的问题。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1442132">kettle的job定时任务的一个小问题</a></li>
+<li><a target="_blank" rel="noopener" href="https://pentaho-public.atlassian.net/wiki/spaces/EAI/pages/370049045/Launching+job+entries+in+parallel">Launching job entries in parallel</a>，提到了 Job Execution Engine 采用了 Backtracking Algorithm</li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/a02480e2dda1">Kettle基本概念 之 Kettle设计模块</a>，多路径和回溯</li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/344053917">定时任务时间过长会不会影响下次的执行？</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/wtwcsdn123/article/details/124684997">Springboot中上一个定时任务没执行完，是否会影响下一个定时任务执行分析及结论</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/12/18/postgresql-two-adjacent-single-quotes/" rel="prev" title="如何理解 PostgreSQL 中两个邻近的单引号">
+                  <i class="fa fa-angle-left"></i> 如何理解 PostgreSQL 中两个邻近的单引号
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">逗号</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
