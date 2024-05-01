@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="msvalidate.01" content="09940DFE4C5DA4E85A7117EF7EEC3933">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha256-wiz7ZSCn/btzhjKDQBms9Hx4sSeUYsDrTLg7roPstac=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"acomma.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="问题在我们的业务中有一个生产者程序不停地向 message 表写入记录，简化的 message 表的结构如下所示 1234567CREATE TABLE message(    id          SERIAL,      -- ID    content     VARCHAR,     -- 消息内容    create_time TIMESTAMPTZ, -- 创建时间    PRIMA">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PostgreSQL TIMESTAMP 类型映射为 Java Date 类型时精度丢失问题">
+<meta property="og:url" content="https://acomma.github.io/2024/04/27/postgres-timestamp-and-java-date/index.html">
+<meta property="og:site_name" content="逗号的博客">
+<meta property="og:description" content="问题在我们的业务中有一个生产者程序不停地向 message 表写入记录，简化的 message 表的结构如下所示 1234567CREATE TABLE message(    id          SERIAL,      -- ID    content     VARCHAR,     -- 消息内容    create_time TIMESTAMPTZ, -- 创建时间    PRIMA">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://acomma.github.io/2024/04/27/postgres-timestamp-and-java-date/create_time.png">
+<meta property="article:published_time" content="2024-04-27T14:00:33.000Z">
+<meta property="article:modified_time" content="2024-04-27T14:00:33.000Z">
+<meta property="article:author" content="逗号">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://acomma.github.io/2024/04/27/postgres-timestamp-and-java-date/create_time.png">
+
+
+<link rel="canonical" href="https://acomma.github.io/2024/04/27/postgres-timestamp-and-java-date/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2024/04/27/postgres-timestamp-and-java-date/","path":"2024/04/27/postgres-timestamp-and-java-date/","title":"PostgreSQL TIMESTAMP 类型映射为 Java Date 类型时精度丢失问题"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>PostgreSQL TIMESTAMP 类型映射为 Java Date 类型时精度丢失问题 | 逗号的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">逗号的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里有一句格言，但我还没想好</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E5%9B%A0"><span class="nav-number">3.</span> <span class="nav-text">原因</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E8%AE%BA"><span class="nav-number">4.</span> <span class="nav-text">结论</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">逗号</p>
+  <div class="site-description" itemprop="description">这里是站点描述，但我没有写</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/acomma" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;acomma" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:acomma@yeah.net" title="E-Mail → mailto:acomma@yeah.net" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2024/04/27/postgres-timestamp-and-java-date/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="逗号">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逗号的博客">
+      <meta itemprop="description" content="这里是站点描述，但我没有写">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="PostgreSQL TIMESTAMP 类型映射为 Java Date 类型时精度丢失问题 | 逗号的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PostgreSQL TIMESTAMP 类型映射为 Java Date 类型时精度丢失问题
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-04-27 22:00:33" itemprop="dateCreated datePublished" datetime="2024-04-27T22:00:33+08:00">2024-04-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>在我们的业务中有一个生产者程序不停地向 <code>message</code> 表写入记录，简化的 <code>message</code> 表的结构如下所示</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> message</span><br><span class="line">(</span><br><span class="line">    id          SERIAL,      <span class="comment">-- ID</span></span><br><span class="line">    content     <span class="type">VARCHAR</span>,     <span class="comment">-- 消息内容</span></span><br><span class="line">    create_time TIMESTAMPTZ, <span class="comment">-- 创建时间</span></span><br><span class="line">    <span class="keyword">PRIMARY</span> KEY (id)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>另外有一个消费者程序不停地读取 <code>message</code> 表的数据，这个消费者程序依赖一个称为“水位线”的时间戳，所有创建时间小于等于水位线的消息都已经处理，我们使用 <code>consumer</code> 表来记录当前的水位线</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> consumer</span><br><span class="line">(</span><br><span class="line">    id        SERIAL,      <span class="comment">-- ID</span></span><br><span class="line">    watermark TIMESTAMPTZ, <span class="comment">-- 水位线</span></span><br><span class="line">    <span class="keyword">PRIMARY</span> KEY (id)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>我们会有一个定时任务每隔一段时间调度一次消费者程序，消费者程序的主要逻辑是</p>
+<ol>
+<li><p>检查当前水位线</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">test=# SELECT watermark FROM consumer;</span><br><span class="line">       watermark</span><br><span class="line">------------------------</span><br><span class="line"> 2024-04-30 15:16:17+08</span><br><span class="line">(1 row)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用当前水位线加载待处理消息</p>
+ <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">test<span class="operator">=</span># <span class="keyword">SELECT</span> content, create_time <span class="keyword">FROM</span> message <span class="keyword">WHERE</span> create_time <span class="operator">&gt;</span> <span class="string">&#x27;2024-04-30 15:16:17+08&#x27;</span> <span class="keyword">AND</span> create_time <span class="operator">&lt;=</span> NOW() <span class="keyword">ORDER</span> <span class="keyword">BY</span> create_time;</span><br><span class="line">content <span class="operator">|</span>          create_time</span><br><span class="line"><span class="comment">---------+-------------------------------</span></span><br><span class="line">aaa     <span class="operator">|</span> <span class="number">2024</span><span class="number">-04</span><span class="number">-30</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">18.936795</span><span class="operator">+</span><span class="number">08</span></span><br><span class="line">bbb     <span class="operator">|</span> <span class="number">2024</span><span class="number">-04</span><span class="number">-30</span> <span class="number">17</span>:<span class="number">18</span>:<span class="number">19.956867</span><span class="operator">+</span><span class="number">08</span></span><br><span class="line">(<span class="number">2</span> <span class="keyword">rows</span>)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>逐条处理消息，并用当前消息的创建时间更新水位线，最后一条消息处理完成时</p>
+ <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">test<span class="operator">=</span># <span class="keyword">UPDATE</span> consumer <span class="keyword">SET</span> watermark <span class="operator">=</span> <span class="string">&#x27;2024-04-30 17:18:19.956867+08&#x27;</span>;</span><br><span class="line"><span class="keyword">UPDATE</span> <span class="number">1</span></span><br><span class="line">test<span class="operator">=</span># <span class="keyword">SELECT</span> watermark <span class="keyword">FROM</span> consumer;</span><br><span class="line">        watermark</span><br><span class="line"><span class="comment">-------------------------------</span></span><br><span class="line"><span class="number">2024</span><span class="number">-04</span><span class="number">-30</span> <span class="number">17</span>:<span class="number">18</span>:<span class="number">19.956867</span><span class="operator">+</span><span class="number">08</span></span><br><span class="line">(<span class="number">1</span> <span class="type">row</span>)</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>就当前的 SQL 版本模拟的逻辑而言在定时任务第 2 轮调度时将没有待处理消息。但是当我们使用 Java 语言实现上面的逻辑时我们发现在定时任务第 2 轮调度时内容为 <code>bbb</code> 的消息会再一次被处理。在 Java 版本的实现里我们使用了 <code>java.util.Date</code> 类型来表示 <code>create_time</code> 和 <code>watermark</code>。</p>
+<span id="more"></span>
+
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>通过 Debug 我们发现在 Java 中使用 <code>java.util.Date</code> 类型来表示 PostgreSQL 的 <code>TIMESTAMPTZ</code> 类型时 Java 的 <code>createTime</code> 字段的值和 PostgreSQL 的 <code>create_time</code> 字段值不一样</p>
+<img src="/2024/04/27/postgres-timestamp-and-java-date/create_time.png" class="">
+
+<p>以内容为 <code>bbb</code> 的记录为例，在 PostgreSQL 中创建时间的值为 <code>2024-04-30 17:18:19.956867+08</code>，而 Java 中的创建时间为 <code>2024-04-30T17:18:19.956+0800</code>。通过观察发现这两个时间值除了格式上的差异以外最大的不同是在“秒域”后面 Java 的时间值比 PostgreSQL 的时间值少了一部分，PostgreSQL 时间值在秒域后面是 <code>.956867</code>，Java 时间值在秒域后面是 <code>.956</code>。</p>
+<p>当我们在定时任务第 1 轮调度处理完消息后用 Java 时间值作为参数去更新水位线后</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">test=# SELECT watermark FROM consumer;</span><br><span class="line">         watermark</span><br><span class="line">----------------------------</span><br><span class="line"> 2024-04-30 17:18:19.956+08</span><br><span class="line">(1 row)</span><br></pre></td></tr></table></figure>
+
+<p>在定时任务第 2 轮调度时用这个新水位线去查询消息时</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">test=# SELECT content, create_time FROM message WHERE create_time &gt; &#x27;2024-04-30 17:18:19.956+08&#x27; AND create_time &lt;= NOW() ORDER BY create_time;</span><br><span class="line"> content |          create_time</span><br><span class="line">---------+-------------------------------</span><br><span class="line"> bbb     | 2024-04-30 17:18:19.956867+08</span><br><span class="line">(1 row)</span><br></pre></td></tr></table></figure>
+
+<p>从这里可以发现时间值 <code>2024-04-30 17:18:19.956+08</code> 要比时间值 <code>2024-04-30 17:18:19.956867+08</code> 小，也就是说 Java 时间值 <code>2024-04-30T17:18:19.956+0800</code> 不等于 PostgreSQL 时间值 <code>2024-04-30 17:18:19.956867+08</code>。是什么原因导致了时间值不相等的结果呢？</p>
+<h2 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h2><p>在 PostgreSQL 文档 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/datatype-datetime.html">8.5. 日期&#x2F;时间类型</a> 中有这么一段话</p>
+<blockquote>
+<p><code>time</code>、<code>timestamp</code> 和 <code>interval</code> 接受一个可选的精度值 <code>p</code>，这个精度值声明在秒域中小数点之后保留的位数。</p>
+</blockquote>
+<p>PostgreSQL <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/datatype-datetime.html#DATATYPE-DATETIME-OUTPUT">8.5.2. 日期&#x2F;时间输出</a>缺省是 ISO 格式，在输出时它采用一个空格而不是 T。结合这两点我们可以确认时间值 <code>2024-04-30 17:18:19.956867+08</code> 中 <code>.956867</code> 这部分表示的是 <code>0.956867</code> 秒。</p>
+<p>如果使用 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/functions-datetime.html#FUNCTIONS-DATETIME-EXTRACT">EXTRACT</a> 函数抽取 <code>epoch</code> 域可以得到</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">test=# SELECT create_time, EXTRACT(EPOCH FROM create_time) AS create_time_epoch FROM message;</span><br><span class="line">          create_time          | create_time_epoch</span><br><span class="line">-------------------------------+-------------------</span><br><span class="line"> 2024-04-30 16:17:18.936795+08 | 1714465038.936795</span><br><span class="line"> 2024-04-30 17:18:19.956867+08 | 1714468699.956867</span><br><span class="line">(2 rows)</span><br></pre></td></tr></table></figure>
+
+<p><code>create_time_epoch</code> 字段的值是自 <code>1970-01-01 00:00:00 UTC</code> 以来的秒数，把它再乘以 <code>1000</code> 转换为毫秒看看</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">test=# SELECT create_time, EXTRACT(EPOCH FROM create_time) AS create_time_epoch, EXTRACT(EPOCH FROM create_time) * 1000 AS create_time_milliseconds FROM message;</span><br><span class="line">          create_time          | create_time_epoch | create_time_milliseconds</span><br><span class="line">-------------------------------+-------------------+--------------------------</span><br><span class="line"> 2024-04-30 16:17:18.936795+08 | 1714465038.936795 |        1714465038936.795</span><br><span class="line"> 2024-04-30 17:18:19.956867+08 | 1714468699.956867 |        1714468699956.867</span><br><span class="line">(2 rows)</span><br></pre></td></tr></table></figure>
+
+<p>我们发现 <code>create_time_milliseconds</code> 字段小数点前面部分和上图中创建时间的 <code>fastTime</code> 属性的值一致，而 <code>java.util.Date</code> 类型的 <code>fastTime</code> 保存的是时间的毫秒值，对比两个值发现 <code>fastTime</code> 比 <code>create_time_milliseconds</code> 少了小数点后面的部分，即 <code>.867</code>，它表示的是 <code>0.867</code> 毫秒（<code>867</code> 微秒）。</p>
+<p>原因基本可以确定了，PostgreSQL 的 <code>TIMESTAMPTZ</code> 类型可以保存时间的微秒值，而 Java 的 <code>java.util.Date</code> 类型只能保存时间的毫秒值，在把 <code>TIMESTAMPTZ</code> 转换为 <code>java.util.Date</code> 时丢掉了微秒部分。在哪里丢掉的呢？</p>
+<p>我们打开 MyBatis 的 <code>DateTypeHandler</code>，查看其中的一个 <code>getNullableResult</code> 方法，比如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> Date <span class="title function_">getNullableResult</span><span class="params">(ResultSet rs, String columnName)</span> <span class="keyword">throws</span> SQLException &#123;</span><br><span class="line">    <span class="type">Timestamp</span> <span class="variable">sqlTimestamp</span> <span class="operator">=</span> rs.getTimestamp(columnName);</span><br><span class="line">    <span class="keyword">return</span> sqlTimestamp != <span class="literal">null</span> ? <span class="keyword">new</span> <span class="title class_">Date</span>(sqlTimestamp.getTime()) : <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个方法的逻辑是先从 <code>ResultSet</code> 获取 <code>Timestamp</code> 对象，再创建 <code>Date</code> 对象并返回。而 <code>Timestamp</code> 类的注释中有这么一句话</p>
+<blockquote>
+<p>It adds the ability to hold the SQL TIMESTAMP fractional seconds value, by allowing the specification of fractional seconds to a precision of nanoseconds.</p>
+</blockquote>
+<p>Java 的 <code>Timestamp</code> 类型是可以承接 PostgreSQL 的 <code>TIMESTAMPTZ</code> 类型的微秒部分的，使用的是 <code>Timestamp</code> 的私有属性 <code>nanos</code>。我们跟踪 <code>PgResultSet</code> 的 <code>getTimestamp</code> 方法调用直到 <code>TimestampUtils#toTimestamp</code> 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="meta">@PolyNull</span> Timestamp <span class="title function_">toTimestamp</span><span class="params">(<span class="meta">@Nullable</span> Calendar cal,</span></span><br><span class="line"><span class="params">    <span class="meta">@PolyNull</span> String s)</span> <span class="keyword">throws</span> SQLException &#123;</span><br><span class="line">    <span class="keyword">try</span> (<span class="type">ResourceLock</span> <span class="variable">ignore</span> <span class="operator">=</span> lock.obtain()) &#123;</span><br><span class="line">        <span class="comment">// 省略一些边界判断逻辑...</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// s 的值为 2024-04-30 17:18:19.956867+08</span></span><br><span class="line">        <span class="type">ParsedTimestamp</span> <span class="variable">ts</span> <span class="operator">=</span> parseBackendTimestamp(s);</span><br><span class="line">        <span class="type">Calendar</span> <span class="variable">useCal</span> <span class="operator">=</span> ts.hasOffset ? getCalendar(ts.offset) : setupCalendar(cal);</span><br><span class="line">        useCal.set(Calendar.ERA, ts.era);</span><br><span class="line">        useCal.set(Calendar.YEAR, ts.year);</span><br><span class="line">        useCal.set(Calendar.MONTH, ts.month - <span class="number">1</span>);</span><br><span class="line">        useCal.set(Calendar.DAY_OF_MONTH, ts.day);</span><br><span class="line">        useCal.set(Calendar.HOUR_OF_DAY, ts.hour);</span><br><span class="line">        useCal.set(Calendar.MINUTE, ts.minute);</span><br><span class="line">        useCal.set(Calendar.SECOND, ts.second);</span><br><span class="line">        useCal.set(Calendar.MILLISECOND, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">Timestamp</span> <span class="variable">result</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Timestamp</span>(useCal.getTimeInMillis());</span><br><span class="line">        <span class="comment">// ts.nanos 的值为 956867000</span></span><br><span class="line">        result.setNanos(ts.nanos);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再来看看 <code>Timestamp#getTime</code> 方法的实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">long</span> <span class="title function_">getTime</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// 获取的是父类 Date 的毫秒时间，1714468699000</span></span><br><span class="line">    <span class="type">long</span> <span class="variable">time</span> <span class="operator">=</span> <span class="built_in">super</span>.getTime();</span><br><span class="line">    <span class="comment">// nanos 的值为 956867000，nanos / 1000000 等于 956</span></span><br><span class="line">    <span class="keyword">return</span> (time + (nanos / <span class="number">1000000</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在创建 <code>Date</code> 对象时通过 <code>nanos / 1000000</code> 取余丢掉了微秒部分。</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>Java 的 <code>java.util.Date</code> 类型只能保存毫秒精度的时间，而 PostgreSQL 的 <code>TIMESTAMPTZ</code> 类型可以保存微秒精度的时间，在转换时丢掉了微秒部分，从而导致两个时间不一致。</p>
+<p>为了保证精度不丢失可以使用 <code>java.sql.Timestamp</code>、<code>java.time.LocalDateTime</code>、<code>java.time.OffsetDateTime</code> 或者 <code>java.time.ZonedDateTime</code> 之一。另外一种解决办法是为 <code>message</code> 和 <code>consumer</code> 表的时间类型指定精度值 <code>p</code> 为 3，即使用 <code>TIMESTAMPTZ(3)</code>。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/01/13/the-problem-of-pdi-schedule/" rel="prev" title="PDI 定时任务调度问题">
+                  <i class="fa fa-angle-left"></i> PDI 定时任务调度问题
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">逗号</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
