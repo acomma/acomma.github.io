@@ -117,6 +117,27 @@ test=# SELECT * FROM interval WHERE (start <= 6 AND 6 <= "end") OR (start <= 9 A
 
 这种方式虽然也能实现功能，但是它的代码就相对长了很多。这种方式也有一个好处，它的实现逻辑是自然的。
 
+就这个例子而言可以使用 PostgreSQL 的 [范围类型](http://postgres.cn/docs/11/rangetypes.html)来实现，比如使用 `int4range`，使用 `&&` 操作符计算两个区间是否有重叠
+
+```sql
+est=# CREATE TABLE interval(id SERIAL, range INT4RANGE, PRIMARY KEY (id));
+CREATE TABLE
+test=# INSERT INTO interval(range) VALUES ('[2, 5]'), ('[3, 8]');
+INSERT 0 2
+test=# SELECT * FROM interval;
+ id | range
+----+-------
+  1 | [2,6)
+  2 | [3,9)
+(2 rows)
+
+test=# SELECT * FROM interval WHERE range && INT4RANGE(6, 9);
+ id | range
+----+-------
+  2 | [3,9)
+(1 row)
+```
+
 ## 总结
 
 使用逆向思维 `A.end >= B.start && A.start <= B.end` 来判断两个区间是否重叠初看起来不是那么直观，但是它的实现最简单，不需要借助其他辅助函数就能完成判断，推荐采用这种方法。
