@@ -2,7 +2,7 @@
 title: 一种解决 Knife4j 的 @ApiSupport 不生效的方法
 date: 2023-11-02 21:16:46
 updated: 2023-11-02 21:16:46
-tags:
+tags: [Knife4j]
 ---
 
 ## 问题描述

@@ -2,7 +2,7 @@
 title: 将授权服务作为内部服务时遇到的问题及解决办法
 date: 2023-11-17 21:56:44
 updated: 2023-11-17 21:56:44
-tags:
+tags: [OAuth2, Spring Cloud]
 ---
 
 ## 问题描述

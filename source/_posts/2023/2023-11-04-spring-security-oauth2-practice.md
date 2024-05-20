@@ -2,7 +2,7 @@
 title: Spring Security OAuth2 实践
 date: 2023-11-04 11:04:58
 updated: 2023-11-04 11:04:58
-tags:
+tags: [OAuth2, Spring Security]
 ---
 
 [Spring Security OAuth](https://spring.io/projects/spring-security-oauth) 的生命周期已经结束，官方已经删除它的文档，现在推荐使用 [Spring Authorization Server](https://spring.io/projects/spring-authorization-server)，但是还是有很多老项目在继续使用 Spring Security OAuth，学习它仍然是必要的。虽然官方文档已经删除了，但是找到了一篇较早时间的翻译 [Spring Security OAuth2 开发指南](https://www.oschina.net/translate/spring-security-oauth-docs-oauth2)，可以作为实践的基础。网络上也有很多如何使用它的文章，这篇文章是自己实践的一点记录。

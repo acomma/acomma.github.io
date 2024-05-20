@@ -2,7 +2,7 @@
 title: PostgreSQL TIMESTAMP 类型映射为 Java Date 类型时精度丢失问题
 date: 2024-04-27 22:00:33
 updated: 2024-04-27 22:00:33
-tags:
+tags: [PostgreSQL, Java]
 ---
 
 ## 问题

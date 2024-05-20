@@ -2,7 +2,7 @@
 title: 在 Docker 上部署 Spring Cloud 工程
 date: 2023-11-10 23:25:04
 updated: 2023-11-10 23:25:04
-tags:
+tags: [Spring Cloud, Docker]
 ---
 
 我们有一个使用 Spring Cloud 技术栈开发的简单的商城项目 [acomma/shop tag:spring-boot-2](https://github.com/acomma/shop)，现在要将它构建成 Docker 镜像并以容器的方式运行起来。

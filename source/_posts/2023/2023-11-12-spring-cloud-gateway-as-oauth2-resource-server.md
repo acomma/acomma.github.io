@@ -2,7 +2,7 @@
 title: 将 Spring Cloud Gateway 作为 OAuth2 的资源服务器
 date: 2023-11-12 14:46:15
 updated: 2023-11-12 14:46:15
-tags:
+tags: [OAuth2, Spring Cloud]
 ---
 
 我们将要实现这样一个微服务系统，将 Spring Cloud Gateway 作为 OAuth2 的资源服务器，在 Gateway 实现集中的统一的鉴权功能，各个微服务之间的调用不再单独鉴权。系统的规划如下表所示

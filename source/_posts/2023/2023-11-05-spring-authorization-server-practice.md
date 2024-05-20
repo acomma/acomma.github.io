@@ -2,7 +2,7 @@
 title: Spring Authorization Server 实践
 date: 2023-11-05 20:17:01
 updated: 2023-11-05 20:17:01
-tags:
+tags: [OAuth2, Spring Cloud]
 ---
 
 [Spring Security OAuth](https://spring.io/projects/spring-security-oauth) 的生命周期已经结束，现在推荐使用 [Spring Authorization Server](https://spring.io/projects/spring-authorization-server)。

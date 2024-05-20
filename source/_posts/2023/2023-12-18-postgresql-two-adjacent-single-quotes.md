@@ -2,7 +2,7 @@
 title: 如何理解 PostgreSQL 中两个邻近的单引号
 date: 2023-12-18 20:09:24
 updated: 2023-12-18 20:09:24
-tags:
+tags: [PostgreSQL]
 ---
 
 在 PostgreSQL 中执行如下的 SQL 语句

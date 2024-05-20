@@ -2,7 +2,7 @@
 title: SpringDoc 统一应答类型处理（一）
 date: 2023-06-17 13:02:54
 updated: 2023-06-17 13:02:54
-tags:
+tags: [SpringDoc]
 ---
 
 ## 问题描述
