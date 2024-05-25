@@ -9,6 +9,8 @@ tags: [PostgreSQL]
 
 PostgreSQL 提供了 `timestamp` 和 `timestamptz` 两种数据类型来表示时间戳，它们分别是 `timestamp without time zone` 和 `timestamp with time zone` 的缩写。`timestamp` 是标准 SQL 支持的缩写，而 `timestamptz` 是一种 PostgreSQL 的扩展。从它们的名字就可以知道 `timestamp` 不包含时区信息，而 `timestamptz` 包含。
 
+<!-- more -->
+
 为了学习 PostgreSQL 的时间戳类型我们创建一个测试表 `label`，每个字段的说明参考下面的建表语句
 
 ```sql
