@@ -23,7 +23,7 @@
     <meta name="description" content="这里是站点描述，但我没有写">
 <meta property="og:type" content="website">
 <meta property="og:title" content="逗号的博客">
-<meta property="og:url" content="https://acomma.github.io/archives/2023/11/index.html">
+<meta property="og:url" content="https://acomma.github.io/page/3/index.html">
 <meta property="og:site_name" content="逗号的博客">
 <meta property="og:description" content="这里是站点描述，但我没有写">
 <meta property="og:locale" content="zh_CN">
@@ -31,14 +31,14 @@
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://acomma.github.io/archives/2023/11/">
+<link rel="canonical" href="https://acomma.github.io/page/3/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":false,"lang":"zh-CN","comments":"","permalink":"","path":"archives/2023/11/index.html","title":""}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":true,"isPost":false,"lang":"zh-CN","comments":"","permalink":"","path":"page/3/index.html","title":""}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>归档 | 逗号的博客</title>
+<title>逗号的博客</title>
   
 
 
@@ -153,169 +153,140 @@
 
     </div>
 
-    <div class="main-inner archive posts-collapse">
+    <div class="main-inner index posts-expand">
+
+    
 
 
+<div class="post-block">
   
   
-  
-  <div class="post-block">
-    <div class="post-content">
-      <div class="collection-title">
-        <span class="collection-header">嗯..! 目前共计 21 篇日志。 继续努力。</span>
-      </div>
 
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2023/03/16/how-to-install-kubernetes-cluster/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="逗号">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逗号的博客">
+      <meta itemprop="description" content="这里是站点描述，但我没有写">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | 逗号的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2023/03/16/how-to-install-kubernetes-cluster/" class="post-title-link" itemprop="url">如何安装 Kubernetes 集群？</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-03-16 21:45:09" itemprop="dateCreated datePublished" datetime="2023-03-16T21:45:09+08:00">2023-03-16</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="集群规划"><a href="#集群规划" class="headerlink" title="集群规划"></a>集群规划</h2><p>这里搭建的集群由一个控制平面节点和两个工作节点组成</p>
+<table>
+<thead>
+<tr>
+<th>服务器 IP</th>
+<th>角色</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>192.168.59.116</td>
+<td>control plane</td>
+<td>master</td>
+</tr>
+<tr>
+<td>192.168.59.117</td>
+<td>worker node</td>
+<td>node1</td>
+</tr>
+<tr>
+<td>192.168.59.118</td>
+<td>worker node</td>
+<td>node2</td>
+</tr>
+</tbody></table>
+<p>选用的软件及其版本清单如下所示</p>
+<table>
+<thead>
+<tr>
+<th>软件名称</th>
+<th>版本号</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CentOS</td>
+<td>7.9.2009</td>
+</tr>
+<tr>
+<td>containerd</td>
+<td>1.6.19</td>
+</tr>
+<tr>
+<td>runc</td>
+<td>1.1.4</td>
+</tr>
+<tr>
+<td>CNI Plugins</td>
+<td>1.2.0</td>
+</tr>
+<tr>
+<td>Kubernetes</td>
+<td>1.26.2</td>
+</tr>
+</tbody></table>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/03/16/how-to-install-kubernetes-cluster/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
-    <div class="collection-year">
-      <span class="collection-header">2023<span class="collection-year-count">16</span></span>
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2023-11-19T16:51:49+08:00"
-              content="2023-11-19">
-          11-19
-        </time>
-      </div>
+    
+    
+    
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/11/19/decode-jwt-in-gateway-and-relay-to-other-service/" itemprop="url">
-            <span itemprop="name">在网关解析 JWT 并中继给其他服务</span>
-          </a>
-      </div>
-
+    <footer class="post-footer">
+        <div class="post-eof"></div>
       
-    </header>
+    </footer>
   </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2023-11-17T21:56:44+08:00"
-              content="2023-11-17">
-          11-17
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/11/17/spring-authorization-server-as-internal-service/" itemprop="url">
-            <span itemprop="name">将授权服务作为内部服务时遇到的问题及解决办法</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2023-11-12T14:46:15+08:00"
-              content="2023-11-12">
-          11-12
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/11/12/spring-cloud-gateway-as-oauth2-resource-server/" itemprop="url">
-            <span itemprop="name">将 Spring Cloud Gateway 作为 OAuth2 的资源服务器</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2023-11-10T23:25:04+08:00"
-              content="2023-11-10">
-          11-10
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/11/10/deploy-spring-cloud-project-on-docker/" itemprop="url">
-            <span itemprop="name">在 Docker 上部署 Spring Cloud 工程</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2023-11-05T20:17:01+08:00"
-              content="2023-11-05">
-          11-05
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/11/05/spring-authorization-server-practice/" itemprop="url">
-            <span itemprop="name">Spring Authorization Server 实践</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2023-11-04T11:04:58+08:00"
-              content="2023-11-04">
-          11-04
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/11/04/spring-security-oauth2-practice/" itemprop="url">
-            <span itemprop="name">Spring Security OAuth2 实践</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2023-11-02T21:16:46+08:00"
-              content="2023-11-02">
-          11-02
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/11/02/knife4j-apisupport-order/" itemprop="url">
-            <span itemprop="name">一种解决 Knife4j 的 @ApiSupport 不生效的方法</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
+</div>
 
 
-    </div>
-  </div>
-  
-  
-  
+
+
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
+  </nav>
 
 </div>
   </main>
