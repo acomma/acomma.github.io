@@ -214,6 +214,8 @@
     
     
     <div class="post-body" itemprop="articleBody"><h2 id="表示时间戳的数据类型"><a href="#表示时间戳的数据类型" class="headerlink" title="表示时间戳的数据类型"></a>表示时间戳的数据类型</h2><p>PostgreSQL 提供了 <code>timestamp</code> 和 <code>timestamptz</code> 两种数据类型来表示时间戳，它们分别是 <code>timestamp without time zone</code> 和 <code>timestamp with time zone</code> 的缩写。<code>timestamp</code> 是标准 SQL 支持的缩写，而 <code>timestamptz</code> 是一种 PostgreSQL 的扩展。从它们的名字就可以知道 <code>timestamp</code> 不包含时区信息，而 <code>timestamptz</code> 包含。</p>
+<span id="more"></span>
+
 <p>为了学习 PostgreSQL 的时间戳类型我们创建一个测试表 <code>label</code>，每个字段的说明参考下面的建表语句</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> label</span><br><span class="line">(</span><br><span class="line">    id          SERIAL,      <span class="comment">-- ID</span></span><br><span class="line">    name        <span class="type">VARCHAR</span>,     <span class="comment">-- 标签名称</span></span><br><span class="line">    create_time <span class="type">TIMESTAMP</span>,   <span class="comment">-- 创建时间（无时区）</span></span><br><span class="line">    update_time TIMESTAMPTZ, <span class="comment">-- 更新时间（有时区）</span></span><br><span class="line">    <span class="keyword">PRIMARY</span> KEY (id)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
 
