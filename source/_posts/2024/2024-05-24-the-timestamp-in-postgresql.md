@@ -1,15 +1,22 @@
 ---
 title: PostgreSQL 中的时间戳
 date: 2024-05-24 22:13:06
-updated: 2024-05-24 22:13:06
+updated: 2024-05-30 22:13:06
 tags: [PostgreSQL]
 ---
+
+最近读到一篇非常好的文章 [PostgreSQL 中 timestamp 与 timestamptz 的区别](https://blog.japinli.top/2023/03/postgresql-timestamp/)，也可以访问 [https://japinli.github.io/2023/03/postgresql-timestamp/](https://japinli.github.io/2023/03/postgresql-timestamp/)，读完这篇文章后学习到了两点
+
+1. PostgreSQL 存在两个纪元，Unix 纪元（1970-01-01 00:00:00）和 PostgreSQL 纪元（2000-01-01 00:00:00），在底层存储系统存储的是时间相对于 PostgreSQL 纪元的数值。`EXTRACT(EPOCH FROM source)` 是基于 Unix 纪元的结果。
+2. 顺藤摸瓜可以阅读 `src/backend/utils/adt/timestamp.c` 文件中的 `timestamp_in` 和 `timestamp_out` 函数，从源码上理解时间字符串的输入和输出逻辑。
+
+因此本文的逻辑是基于显示的结果而言，从显示的结果推论可能的原因，只是为了方便理解。推荐阅读它而不是本文。
+
+<!-- more -->
 
 ## 表示时间戳的数据类型
 
 PostgreSQL 提供了 `timestamp` 和 `timestamptz` 两种数据类型来表示时间戳，它们分别是 `timestamp without time zone` 和 `timestamp with time zone` 的缩写。`timestamp` 是标准 SQL 支持的缩写，而 `timestamptz` 是一种 PostgreSQL 的扩展。从它们的名字就可以知道 `timestamp` 不包含时区信息，而 `timestamptz` 包含。
-
-<!-- more -->
 
 为了学习 PostgreSQL 的时间戳类型我们创建一个测试表 `label`，每个字段的说明参考下面的建表语句
 
