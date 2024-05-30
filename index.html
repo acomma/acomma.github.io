@@ -194,6 +194,13 @@
 
       <time title="创建时间：2024-05-24 22:13:06" itemprop="dateCreated datePublished" datetime="2024-05-24T22:13:06+08:00">2024-05-24</time>
     </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2024-05-30 22:13:06" itemprop="dateModified" datetime="2024-05-30T22:13:06+08:00">2024-05-30</time>
+    </span>
 
   
 </div>
@@ -205,7 +212,12 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <h2 id="表示时间戳的数据类型"><a href="#表示时间戳的数据类型" class="headerlink" title="表示时间戳的数据类型"></a>表示时间戳的数据类型</h2><p>PostgreSQL 提供了 <code>timestamp</code> 和 <code>timestamptz</code> 两种数据类型来表示时间戳，它们分别是 <code>timestamp without time zone</code> 和 <code>timestamp with time zone</code> 的缩写。<code>timestamp</code> 是标准 SQL 支持的缩写，而 <code>timestamptz</code> 是一种 PostgreSQL 的扩展。从它们的名字就可以知道 <code>timestamp</code> 不包含时区信息，而 <code>timestamptz</code> 包含。</p>
+          <p>最近读到一篇非常好的文章 <a target="_blank" rel="noopener" href="https://blog.japinli.top/2023/03/postgresql-timestamp/">PostgreSQL 中 timestamp 与 timestamptz 的区别</a>，也可以访问 <a target="_blank" rel="noopener" href="https://japinli.github.io/2023/03/postgresql-timestamp/">https://japinli.github.io/2023/03/postgresql-timestamp/</a>，读完这篇文章后学习到了两点</p>
+<ol>
+<li>PostgreSQL 存在两个纪元，Unix 纪元（1970-01-01 00:00:00）和 PostgreSQL 纪元（2000-01-01 00:00:00），在底层存储系统存储的是时间相对于 PostgreSQL 纪元的数值。<code>EXTRACT(EPOCH FROM source)</code> 是基于 Unix 纪元的结果。</li>
+<li>顺藤摸瓜可以阅读 <code>src/backend/utils/adt/timestamp.c</code> 文件中的 <code>timestamp_in</code> 和 <code>timestamp_out</code> 函数，从源码上理解时间字符串的输入和输出逻辑。</li>
+</ol>
+<p>因此本文的逻辑是基于显示的结果而言，从显示的结果推论可能的原因，只是为了方便理解。推荐阅读它而不是本文。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2024/05/24/the-timestamp-in-postgresql/#more" rel="contents">
