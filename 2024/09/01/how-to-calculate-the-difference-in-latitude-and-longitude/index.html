@@ -20,30 +20,32 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"acomma.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="在 PostgreSQL 中执行如下的 SQL 语句 1SELECT &#x27;AND c1 &#x3D; &#x27;&#x27;&#x27; || 5 || &#x27;&#x27;&#x27;&#x27;;  将输出 AND c1 &#x3D; &#39;5&#39;。我们的疑问是 5 两边的单引号 &#39; 是怎么得到的？">
+    <meta name="description" content="为了方便定位地球上的点，人为定义了经线和纬线，它们组成了一个经纬网。经度的范围为 [-180°, +180°]，本初子午线的位置为 0°，向东走为东经，经度范围为 [0°, +180°]，向西走为西经，经度范围为 [-180°, 0°]，-180° 和 180° 对应同一根经线，也叫国际日期变更线。纬度的范围为 [-90°, +90°]，赤道的位置为 0°，向北走为北纬，纬度范围为 [0°, +9">
 <meta property="og:type" content="article">
-<meta property="og:title" content="如何理解 PostgreSQL 中两个邻近的单引号">
-<meta property="og:url" content="https://acomma.github.io/2023/12/18/postgresql-two-adjacent-single-quotes/index.html">
+<meta property="og:title" content="如何计算经纬度的差？">
+<meta property="og:url" content="https://acomma.github.io/2024/09/01/how-to-calculate-the-difference-in-latitude-and-longitude/index.html">
 <meta property="og:site_name" content="逗号的博客">
-<meta property="og:description" content="在 PostgreSQL 中执行如下的 SQL 语句 1SELECT &#x27;AND c1 &#x3D; &#x27;&#x27;&#x27; || 5 || &#x27;&#x27;&#x27;&#x27;;  将输出 AND c1 &#x3D; &#39;5&#39;。我们的疑问是 5 两边的单引号 &#39; 是怎么得到的？">
+<meta property="og:description" content="为了方便定位地球上的点，人为定义了经线和纬线，它们组成了一个经纬网。经度的范围为 [-180°, +180°]，本初子午线的位置为 0°，向东走为东经，经度范围为 [0°, +180°]，向西走为西经，经度范围为 [-180°, 0°]，-180° 和 180° 对应同一根经线，也叫国际日期变更线。纬度的范围为 [-90°, +90°]，赤道的位置为 0°，向北走为北纬，纬度范围为 [0°, +9">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://acomma.github.io/2023/12/18/postgresql-two-adjacent-single-quotes/string.drawio.svg">
-<meta property="article:published_time" content="2023-12-18T12:09:24.000Z">
-<meta property="article:modified_time" content="2023-12-18T12:09:24.000Z">
+<meta property="og:image" content="https://acomma.github.io/2024/09/01/how-to-calculate-the-difference-in-latitude-and-longitude/longitude-and-latitude.jpg">
+<meta property="og:image" content="https://acomma.github.io/2024/09/01/how-to-calculate-the-difference-in-latitude-and-longitude/point-distance.jpg">
+<meta property="og:image" content="https://acomma.github.io/2024/09/01/how-to-calculate-the-difference-in-latitude-and-longitude/world-map.jpg">
+<meta property="article:published_time" content="2024-09-01T08:54:24.000Z">
+<meta property="article:modified_time" content="2024-09-01T08:54:24.000Z">
 <meta property="article:author" content="逗号">
-<meta property="article:tag" content="PostgreSQL">
+<meta property="article:tag" content="GIS">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://acomma.github.io/2023/12/18/postgresql-two-adjacent-single-quotes/string.drawio.svg">
+<meta name="twitter:image" content="https://acomma.github.io/2024/09/01/how-to-calculate-the-difference-in-latitude-and-longitude/longitude-and-latitude.jpg">
 
 
-<link rel="canonical" href="https://acomma.github.io/2023/12/18/postgresql-two-adjacent-single-quotes/">
+<link rel="canonical" href="https://acomma.github.io/2024/09/01/how-to-calculate-the-difference-in-latitude-and-longitude/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2023/12/18/postgresql-two-adjacent-single-quotes/","path":"2023/12/18/postgresql-two-adjacent-single-quotes/","title":"如何理解 PostgreSQL 中两个邻近的单引号"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2024/09/01/how-to-calculate-the-difference-in-latitude-and-longitude/","path":"2024/09/01/how-to-calculate-the-difference-in-latitude-and-longitude/","title":"如何计算经纬度的差？"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>如何理解 PostgreSQL 中两个邻近的单引号 | 逗号的博客</title>
+<title>如何计算经纬度的差？ | 逗号的博客</title>
   
 
 
@@ -169,7 +171,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2023/12/18/postgresql-two-adjacent-single-quotes/">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2024/09/01/how-to-calculate-the-difference-in-latitude-and-longitude/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -182,12 +184,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="如何理解 PostgreSQL 中两个邻近的单引号 | 逗号的博客">
+      <meta itemprop="name" content="如何计算经纬度的差？ | 逗号的博客">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          如何理解 PostgreSQL 中两个邻近的单引号
+          如何计算经纬度的差？
         </h1>
 
         <div class="post-meta-container">
@@ -198,7 +200,7 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2023-12-18 20:09:24" itemprop="dateCreated datePublished" datetime="2023-12-18T20:09:24+08:00">2023-12-18</time>
+      <time title="创建时间：2024-09-01 16:54:24" itemprop="dateCreated datePublished" datetime="2024-09-01T16:54:24+08:00">2024-09-01</time>
     </span>
 
   
@@ -210,26 +212,28 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>在 PostgreSQL 中执行如下的 SQL 语句</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="string">&#x27;AND c1 = &#x27;&#x27;&#x27;</span> <span class="operator">||</span> <span class="number">5</span> <span class="operator">||</span> <span class="string">&#x27;&#x27;&#x27;&#x27;</span>;</span><br></pre></td></tr></table></figure>
+    <div class="post-body" itemprop="articleBody"><p>为了方便定位地球上的点，人为定义了经线和纬线，它们组成了一个经纬网。经度的范围为 [-180°, +180°]，本初子午线的位置为 0°，向东走为东经，经度范围为 [0°, +180°]，向西走为西经，经度范围为 [-180°, 0°]，-180° 和 180° 对应同一根经线，也叫国际日期变更线。纬度的范围为 [-90°, +90°]，赤道的位置为 0°，向北走为北纬，纬度范围为 [0°, +90°]，向南走为南纬，纬度范围为 [-90°, 0°]，-90° 和 90° 的位置对应南极点和北极点。</p>
+<img src="/2024/09/01/how-to-calculate-the-difference-in-latitude-and-longitude/longitude-and-latitude.jpg" class="">
 
-<p>将输出 <code>AND c1 = &#39;5&#39;</code>。我们的疑问是 <code>5</code> 两边的单引号 <code>&#39;</code> 是怎么得到的？</p>
+<p>我们的问题是对于给定两个经度或纬度，如何计算它们之间的差值？</p>
 <span id="more"></span>
 
-<p>在官方文档的 <a target="_blank" rel="noopener" href="https://www.postgresql.org/docs/16/sql-syntax-lexical.html#SQL-SYNTAX-CONSTANTS">4.1.2.1. String Constants</a> 一节中给出了字符串的定义</p>
-<blockquote>
-<p>A string constant in SQL is an arbitrary sequence of characters bounded by single quotes (<code>&#39;</code>), for example <code>&#39;This is a string&#39;</code>. To include a single-quote character within a string constant, write two adjacent single quotes, e.g., <code>&#39;Dianne&#39;&#39;s horse&#39;</code>.</p>
-</blockquote>
-<p>同时我们从官法文档的 <a target="_blank" rel="noopener" href="https://www.postgresql.org/docs/16/functions-string.html#FUNCTIONS-STRING">9.4. String Functions and Operators</a> 一节中知道字符串串接操作符 <code>||</code> 可以把两个字符串连接起来得到一个新的字符串，它也可以接收一个非字符串输入，比如数字 <code>5</code>，此时会自动地把非字符串输入转换为字符串再进行串接。</p>
-<p>现在再来看前面的 SQL 语句</p>
-<img src="/2023/12/18/postgresql-two-adjacent-single-quotes/string.drawio.svg" class="">
+<p>我们来复习一下如何计算数轴上两个点的距离</p>
+<img src="/2024/09/01/how-to-calculate-the-difference-in-latitude-and-longitude/point-distance.jpg" class="">
 
-<p><code>||</code> 操作符将 <code>SELECT</code> 子句分为了 3 部分。第 ① 和第 ③ 部分是字符串，第 ② 部分是数字。</p>
-<p>第 ① 部分字符串的内容是由下标 0 和 下标 12 处的单引号包围的内容，即 <code>AND c1 = &#39;&#39;</code>，下标 10 和下标 11 两个邻近的单引号将输出 <code>5</code> 左边的单引号。第 ③ 部分字符串的内容是由下标 20 和下标 23 处的单引号包围的内容，即 <code>&#39;&#39;</code>，下标 21 和下标 22 两个邻近的单引号将输出 <code>5</code> 右边的单引号。</p>
-<p>我们来看另一个有趣的例子</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="string">&#x27;AND c1 = &#x27;&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;</span>;</span><br></pre></td></tr></table></figure>
+<p>由于纬度和数轴类似，因此两个纬度之间的差可以类比数轴上两个点的距离进行计算</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">double</span> <span class="title function_">calculateLatitudeDifference</span><span class="params">(<span class="type">double</span> lat1, <span class="type">double</span> lat2)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> Math.abs(lat1 - lat2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>这个例子将输出 <code>AND c1 = &#39;&#39;&#39;</code>。除去首尾的单引号，中间的 6 个单引号 <code>&#39;&#39;&#39;&#39;&#39;&#39;</code> 每两个邻近的单引号输出一个单引号，我们可以用 <code>/</code> 作为分隔符分割一下 <code>&#39;&#39;/&#39;&#39;/&#39;&#39;</code>，即第 1 和第 2 个单引号输出结果中的第一个单引号，第 3 和第 4 个单引号输出结果中的第二个单引号，第 5 和第 6 个单引号输出结果中的第三个单引号。</p>
+<p>对于经度我们可以进行类似的计算</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">double</span> <span class="title function_">calculateLongitudeDifference</span><span class="params">(<span class="type">double</span> lon1, <span class="type">double</span> lon2)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> Math.abs(lon1 - lon2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上面的计算方式下 +170° 和 -170° 之间差为 340°，我们把世界地图打开，+170° 和 -170° 之间是很近的，它们是国际日期变更线两侧 10° 的经线，它们之间的差为 20° 看起来才合理。</p>
+<img src="/2024/09/01/how-to-calculate-the-difference-in-latitude-and-longitude/world-map.jpg" class="">
+
+<p>其实上面的计算方式不能算是错误的，对于纬线来说它们只有在赤道的 0° 纬线是重叠的，但是对于经线来说它在本初子午线的 0° 经线和国际日期变更线的 +180°（-180°）两个位置重叠了。按照上面的计算方式计算的是两个经度最远的距离，对于经度来说我们期望计算它们最近的距离</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">double</span> <span class="title function_">calculateLongitudeDifference</span><span class="params">(<span class="type">double</span> lon1, <span class="type">double</span> lon2)</span> &#123;</span><br><span class="line">    <span class="type">double</span> <span class="variable">difference</span> <span class="operator">=</span> Math.abs(lon1 - lon2);</span><br><span class="line">    <span class="keyword">if</span> (difference &gt; <span class="number">180</span>) &#123;</span><br><span class="line">        difference = <span class="number">360</span> - difference;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> difference;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>完～</p>
 
     </div>
 
@@ -239,21 +243,18 @@
 
     <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/PostgreSQL/" rel="tag"># PostgreSQL</a>
+              <a href="/tags/GIS/" rel="tag"># GIS</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2023/11/19/decode-jwt-in-gateway-and-relay-to-other-service/" rel="prev" title="在网关解析 JWT 并中继给其他服务">
-                  <i class="fa fa-angle-left"></i> 在网关解析 JWT 并中继给其他服务
+                <a href="/2024/08/31/optional-condition-in-postgresql-function/" rel="prev" title="在 PostgreSQL 函数中使用可选条件">
+                  <i class="fa fa-angle-left"></i> 在 PostgreSQL 函数中使用可选条件
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2024/01/13/the-problem-of-pdi-schedule/" rel="next" title="PDI 定时任务调度问题">
-                  PDI 定时任务调度问题 <i class="fa fa-angle-right"></i>
-                </a>
             </div>
           </div>
     </footer>
