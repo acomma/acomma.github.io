@@ -1,9 +1,11 @@
 ---
 title: 一种解决 Knife4j 的 @ApiSupport 不生效的方法
 date: 2023-11-02 21:16:46
-updated: 2023-11-02 21:16:46
+updated: 2024-10-02 18:51:51
 tags: [Knife4j]
 ---
+
+备注：[Knife4j](https://github.com/xiaoymin/knife4j) 通过 `com.github.xiaoymin.knife4j.spring.extension.Knife4jOpenApiCustomizer` 类的 `addOrderExtension` 方法给 `Tag` 类应用 `@ApiSupport` 注解的 `order` 属性。
 
 ## 问题描述
 
