@@ -1,4 +1,5 @@
 https://acomma.github.io/tags/index.html
+https://acomma.github.io/2024/11/09/how-to-query-consecutive-record-in-postgresql/
 https://acomma.github.io/2024/10/02/a-query-method-for-longitude-cross-180/
 https://acomma.github.io/2023/11/02/knife4j-apisupport-order/
 https://acomma.github.io/2024/09/01/how-to-calculate-the-difference-in-latitude-and-longitude/
