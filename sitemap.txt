@@ -1,4 +1,5 @@
 https://acomma.github.io/tags/index.html
+https://acomma.github.io/2025/01/01/install-debian-on-virtualbox/
 https://acomma.github.io/2024/11/09/how-to-query-consecutive-record-in-postgresql/
 https://acomma.github.io/2024/10/02/a-query-method-for-longitude-cross-180/
 https://acomma.github.io/2023/11/02/knife4j-apisupport-order/
@@ -29,8 +30,8 @@ https://acomma.github.io/tags/Kubernetes/
 https://acomma.github.io/tags/SQL/
 https://acomma.github.io/tags/SpringDoc/
 https://acomma.github.io/tags/Spring-Boot/
-https://acomma.github.io/tags/Jackson/
 https://acomma.github.io/tags/Java/
+https://acomma.github.io/tags/Jackson/
 https://acomma.github.io/tags/Knife4j/
 https://acomma.github.io/tags/Nginx/
 https://acomma.github.io/tags/OAuth2/
@@ -41,3 +42,5 @@ https://acomma.github.io/tags/JWT/
 https://acomma.github.io/tags/PostgreSQL/
 https://acomma.github.io/tags/Kettle/
 https://acomma.github.io/tags/GIS/
+https://acomma.github.io/tags/Linux/
+https://acomma.github.io/tags/Debian/
