@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="msvalidate.01" content="09940DFE4C5DA4E85A7117EF7EEC3933">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"acomma.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在使用 Jackson 序列化对象时可以使用 @JsonPropertyOrder 注解、@JsonProperty 注解，MapperFeature 枚举中 SORT_PROPERTIES_ALPHABETICALLY、SORT_CREATOR_PROPERTIES_FIRST 和 SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER 枚举值来控制字段的输出顺">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Jackson 字段排序过程">
+<meta property="og:url" content="https://acomma.github.io/2025/01/10/jackson-field-sorting-process/index.html">
+<meta property="og:site_name" content="逗号的博客">
+<meta property="og:description" content="在使用 Jackson 序列化对象时可以使用 @JsonPropertyOrder 注解、@JsonProperty 注解，MapperFeature 枚举中 SORT_PROPERTIES_ALPHABETICALLY、SORT_CREATOR_PROPERTIES_FIRST 和 SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER 枚举值来控制字段的输出顺">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://acomma.github.io/2025/01/10/jackson-field-sorting-process/before_sorting_vs_after_sorting.drawio.svg">
+<meta property="article:published_time" content="2025-01-10T13:08:28.000Z">
+<meta property="article:modified_time" content="2025-01-10T13:08:28.000Z">
+<meta property="article:author" content="逗号">
+<meta property="article:tag" content="java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://acomma.github.io/2025/01/10/jackson-field-sorting-process/before_sorting_vs_after_sorting.drawio.svg">
+
+
+<link rel="canonical" href="https://acomma.github.io/2025/01/10/jackson-field-sorting-process/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2025/01/10/jackson-field-sorting-process/","path":"2025/01/10/jackson-field-sorting-process/","title":"Jackson 字段排序过程"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Jackson 字段排序过程 | 逗号的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">逗号的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里有一句格言，但我还没想好</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E7%94%A8%E4%BE%8B"><span class="nav-number">1.</span> <span class="nav-text">测试用例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%92%E5%BA%8F%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">排序过程</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">逗号</p>
+  <div class="site-description" itemprop="description">这里是站点描述，但我没有写</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/acomma" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;acomma" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:acomma@yeah.net" title="E-Mail → mailto:acomma@yeah.net" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2025/01/10/jackson-field-sorting-process/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="逗号">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逗号的博客">
+      <meta itemprop="description" content="这里是站点描述，但我没有写">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Jackson 字段排序过程 | 逗号的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Jackson 字段排序过程
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-01-10 21:08:28" itemprop="dateCreated datePublished" datetime="2025-01-10T21:08:28+08:00">2025-01-10</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在使用 Jackson 序列化对象时可以使用 <code>@JsonPropertyOrder</code> 注解、<code>@JsonProperty</code> 注解，<code>MapperFeature</code> 枚举中 <code>SORT_PROPERTIES_ALPHABETICALLY</code>、<code>SORT_CREATOR_PROPERTIES_FIRST</code> 和 <code>SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER</code> 枚举值来控制字段的输出顺序。如果没有通过这些方式控制字段的输出顺序，则输出的结果与对象中的字段的定义顺序有关。那么排序的过程是怎样的呢？下面来看一看。</p>
+<span id="more"></span>
+
+<h2 id="测试用例"><a href="#测试用例" class="headerlink" title="测试用例"></a>测试用例</h2><p>我们通过如下的测试用例来演示 Jackson 的排序过程。首先会定义一个实体类 <code>Person</code>，它包含了 <code>@JsonPropertyOrder</code> 注解、<code>@JsonProperty</code> 注解。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.annotation.JsonProperty;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.annotation.JsonPropertyOrder;</span><br><span class="line"><span class="keyword">import</span> lombok.AllArgsConstructor;</span><br><span class="line"><span class="keyword">import</span> lombok.Data;</span><br><span class="line"><span class="keyword">import</span> lombok.NoArgsConstructor;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@JsonPropertyOrder(value = &#123;&quot;name&quot;, &quot;age&quot;, &quot;gender&quot;&#125;, alphabetic = true)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Integer gender;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> age;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Double height;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@JsonProperty(index = 1)</span></span><br><span class="line">    <span class="keyword">private</span> Double weight;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String address;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String phone;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@JsonProperty(index = 2)</span></span><br><span class="line">    <span class="keyword">private</span> String email;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来是测试类。为了保持简单没有为 <code>ObjectMapper</code> 配置 <code>MapperFeature</code> 相关的属性。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.core.JsonProcessingException;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.ObjectMapper;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JacksonTests</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> JsonProcessingException &#123;</span><br><span class="line">        <span class="type">Person</span> <span class="variable">person</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&quot;Bob&quot;</span>, <span class="number">1</span>, <span class="number">18</span>, <span class="number">170.5</span>, <span class="number">60.5</span>, <span class="string">&quot;中国&quot;</span>, <span class="string">&quot;13123456789&quot;</span>, <span class="string">&quot;bob@example.com&quot;</span>);</span><br><span class="line">        <span class="type">ObjectMapper</span> <span class="variable">mapper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectMapper</span>();</span><br><span class="line">        System.out.println(mapper.writeValueAsString(person));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的测试用例将输出如下的结果，为了便于查看，输出的结果经过了格式化。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Bob&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;age&quot;</span><span class="punctuation">:</span> <span class="number">18</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;gender&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;weight&quot;</span><span class="punctuation">:</span> <span class="number">60.5</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;email&quot;</span><span class="punctuation">:</span> <span class="string">&quot;bob@example.com&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;address&quot;</span><span class="punctuation">:</span> <span class="string">&quot;中国&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;height&quot;</span><span class="punctuation">:</span> <span class="number">170.5</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;phone&quot;</span><span class="punctuation">:</span> <span class="string">&quot;13123456789&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="排序过程"><a href="#排序过程" class="headerlink" title="排序过程"></a>排序过程</h2><p>与字段排序有关的方法调用过程如下图所示</p>
+<pre><code class="highlight mermaid">sequenceDiagram
+autonumber
+JacksonTests-&gt;&gt;ObjectMapper: writeValueAsString()
+ObjectMapper-&gt;&gt;DefaultSerializerProvider: serializeValue()
+DefaultSerializerProvider-&gt;&gt;BeanSerializerFactory: createSerializer()
+BeanSerializerFactory-&gt;&gt;SerializationConfig: introspect()
+SerializationConfig-&gt;&gt;BasicClassIntrospector: forSerialization()
+BasicClassIntrospector-&gt;&gt;BasicClassIntrospector: collectProperties()
+BeanSerializerFactory-&gt;&gt;BasicBeanDescription: findJsonValueAccessor()
+BasicBeanDescription-&gt;&gt;POJOPropertiesCollector: getJsonValueAccessor()
+POJOPropertiesCollector-&gt;&gt;POJOPropertiesCollector: collectAll()</code></pre>
+
+<p>在这个调用过程中我们需要关注第 ⑥ 步和第 ⑨ 步。第 ⑥ 步的 <code>BasicClassIntrospector#collectProperties</code> 方法会创建一个 <code>POJOPropertiesCollector</code> 对象，这个对象将作为第 ⑤ 步创建 <code>BasicBeanDescription</code> 对象的参数。</p>
+<p>第 ⑨ 步的 <code>POJOPropertiesCollector#collectAll</code> 方法会</p>
+<ol>
+<li>调用 <code>POJOPropertiesCollector#_addFields</code> 方法，这个方法通过反射的方式把类的字段添加到 <code>props</code> 变量中。此时 <code>props</code> 变量中字段的顺序就是在定义类时定义的字段的顺序，如下图中左边灰色部分字段的顺序。</li>
+<li>调用 <code>POJOPropertiesCollector#_sortProperties</code> 方法，这个方法对 <code>props</code> 变量中的字段进行排序。</li>
+</ol>
+<img src="/2025/01/10/jackson-field-sorting-process/before_sorting_vs_after_sorting.drawio.svg" class="">
+
+<p><code>_sortProperties</code> 方法对字段的排序分为如下几步</p>
+<ol>
+<li>从 <code>@JsonPropertyOrder</code> 注解中解析 <code>alphabetic</code> 属性的值，然后解析是否设置了 <code>SORT_PROPERTIES_ALPHABETICALLY</code>，根据这两个值来决定是否使用字典排序。</li>
+<li>看是否有任意一个字段有 <code>@JsonProperty</code> 注解且 <code>index</code> 属性有值，如果是则使用下标排序。</li>
+<li>定义一个类型为 <code>LinkedHashMap</code> 的变量 <code>ordered</code> 来保存排序的结果。</li>
+<li>首先，将 <code>@JsonPropertyOrder</code> 注解的 <code>value</code> 属性中明确定义顺序的字段加入 <code>ordered</code> 中。如上图中红色部分字段的顺序。</li>
+<li>其次，如果需要使用下标排序，则将所有指定了下标的字段按下标从小到大的顺序加入 <code>ordered</code> 中。如上图中黄色部分字段的顺序。</li>
+<li>然后，如果有创建者字段（即通过构造器设置的字段），同时不使用字典排序（第 1 步）或者配置了 <code>SORT_CREATOR_PROPERTIES_FIRST</code>，则根据是否使用字典排序（第 1 步）和是否配置了 <code>SORT_CREATOR_PROPERTIES_BY_DECLARATION_ORDER</code> 决定按照字典顺序或按照声明顺序排序创建者字段。在这个例子中不涉及。</li>
+<li>最后，根据是否使用字典排序（第 1 步）将剩余的字段按字典顺序或则者声明顺序排序后加入 <code>ordered</code> 中。如上图绿色部分字段的顺序。</li>
+</ol>
+<p>以上就是 Jackson 在序列化是对字段的排序过程。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/java/" rel="tag"># java</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/01/01/install-debian-on-virtualbox/" rel="prev" title="在 VirtualBox 中安装 Debian 系统">
+                  <i class="fa fa-angle-left"></i> 在 VirtualBox 中安装 Debian 系统
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">逗号</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.min.js","integrity":"sha256-G8ouPAnw4zzMbnAenHnVz6h9XpKbNdOkrqTh7AadyHs="}}</script>
+  <script src="/js/third-party/tags/mermaid.js"></script>
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
