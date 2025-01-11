@@ -113,3 +113,26 @@ POJOPropertiesCollector->>POJOPropertiesCollector: collectAll()
 7. 最后，根据是否使用字典排序（第 1 步）将剩余的字段按字典顺序或则者声明顺序排序后加入 `ordered` 中。如上图绿色部分字段的顺序。
 
 以上就是 Jackson 在序列化是对字段的排序过程。
+
+## SpringDoc 字段排序过程
+
+[SpringDoc](https://springdoc.org) 在底层依赖了 Jackson 并使用上述排序过程。其中的一条调用链路（简化过）如下图所示
+
+```mermaid
+sequenceDiagram
+autonumber
+HTTPClient->>OpenApiWebMvcResource: /v3/api-docs
+OpenApiWebMvcResource->>OpenApiResource: openapiJson()
+OpenApiResource->>GenericResponseService: build()
+GenericResponseService->>SpringDocAnnotationsUtils: extractSchema()
+SpringDocAnnotationsUtils->>ModelConverters: resolveAsResolvedSchema()
+ModelConverters->>ModelConverterContextImpl: resolve()
+ModelConverterContextImpl->>ModelConverter: resolve()
+ModelConverter->>ObjectMapper: getSerializationConfig()
+ObjectMapper->>DeserializationConfig: introspect()
+ModelConverter->>BasicBeanDescription: findJsonValueAccessor()
+BasicBeanDescription->>POJOPropertiesCollector: getJsonValueAccessor()
+POJOPropertiesCollector->>POJOPropertiesCollector: collectAll()
+```
+
+从调用链路第 ⑧ 步开始的逻辑与 Jackson 序列化对象的逻辑几乎一样，因此我们可以在实体类中配置 `@JsonPropertyOrder` 或 `@JsonProperty` 相关的属性值实现对 SpringDoc 字段显示顺序的控制。
