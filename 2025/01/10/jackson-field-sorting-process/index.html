@@ -115,7 +115,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E7%94%A8%E4%BE%8B"><span class="nav-number">1.</span> <span class="nav-text">测试用例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%92%E5%BA%8F%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">排序过程</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E7%94%A8%E4%BE%8B"><span class="nav-number">1.</span> <span class="nav-text">测试用例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%92%E5%BA%8F%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">排序过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringDoc-%E5%AD%97%E6%AE%B5%E6%8E%92%E5%BA%8F%E8%BF%87%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">SpringDoc 字段排序过程</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -254,6 +254,23 @@ POJOPropertiesCollector-&gt;&gt;POJOPropertiesCollector: collectAll()</code></pr
 <li>最后，根据是否使用字典排序（第 1 步）将剩余的字段按字典顺序或则者声明顺序排序后加入 <code>ordered</code> 中。如上图绿色部分字段的顺序。</li>
 </ol>
 <p>以上就是 Jackson 在序列化是对字段的排序过程。</p>
+<h2 id="SpringDoc-字段排序过程"><a href="#SpringDoc-字段排序过程" class="headerlink" title="SpringDoc 字段排序过程"></a>SpringDoc 字段排序过程</h2><p><a target="_blank" rel="noopener" href="https://springdoc.org/">SpringDoc</a> 在底层依赖了 Jackson 并使用上述排序过程。其中的一条调用链路（简化过）如下图所示</p>
+<pre><code class="highlight mermaid">sequenceDiagram
+autonumber
+HTTPClient-&gt;&gt;OpenApiWebMvcResource: /v3/api-docs
+OpenApiWebMvcResource-&gt;&gt;OpenApiResource: openapiJson()
+OpenApiResource-&gt;&gt;GenericResponseService: build()
+GenericResponseService-&gt;&gt;SpringDocAnnotationsUtils: extractSchema()
+SpringDocAnnotationsUtils-&gt;&gt;ModelConverters: resolveAsResolvedSchema()
+ModelConverters-&gt;&gt;ModelConverterContextImpl: resolve()
+ModelConverterContextImpl-&gt;&gt;ModelConverter: resolve()
+ModelConverter-&gt;&gt;ObjectMapper: getSerializationConfig()
+ObjectMapper-&gt;&gt;DeserializationConfig: introspect()
+ModelConverter-&gt;&gt;BasicBeanDescription: findJsonValueAccessor()
+BasicBeanDescription-&gt;&gt;POJOPropertiesCollector: getJsonValueAccessor()
+POJOPropertiesCollector-&gt;&gt;POJOPropertiesCollector: collectAll()</code></pre>
+
+<p>从调用链路第 ⑧ 步开始的逻辑与 Jackson 序列化对象的逻辑几乎一样，因此我们可以在实体类中配置 <code>@JsonPropertyOrder</code> 或 <code>@JsonProperty</code> 相关的属性值实现对 SpringDoc 字段显示顺序的控制。</p>
 
     </div>
 
