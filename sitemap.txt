@@ -1,4 +1,5 @@
 https://acomma.github.io/tags/index.html
+https://acomma.github.io/2025/01/23/why-doesnt-the-main-method-of-spring-boot-not-exit-directly/
 https://acomma.github.io/2025/01/10/jackson-field-sorting-process/
 https://acomma.github.io/2025/01/01/install-debian-on-virtualbox/
 https://acomma.github.io/2024/11/09/how-to-query-consecutive-record-in-postgresql/
@@ -39,8 +40,8 @@ https://acomma.github.io/tags/OAuth2/
 https://acomma.github.io/tags/Spring-Security/
 https://acomma.github.io/tags/Spring-Cloud/
 https://acomma.github.io/tags/Docker/
-https://acomma.github.io/tags/PostgreSQL/
 https://acomma.github.io/tags/JWT/
+https://acomma.github.io/tags/PostgreSQL/
 https://acomma.github.io/tags/Kettle/
 https://acomma.github.io/tags/GIS/
 https://acomma.github.io/tags/Linux/
