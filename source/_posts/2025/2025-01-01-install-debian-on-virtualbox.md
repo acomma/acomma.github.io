@@ -5,7 +5,7 @@ updated: 2025-01-01 17:13:13
 tags: [Linux, Debian]
 ---
 
-本文是在 Windows 的 VirtualBox 上安装 Debian 11.4.0 系统。安装完成后会传销如下两个用户
+本文是在 Windows 的 VirtualBox 上安装 Debian 11.4.0 系统。安装完成后会创建两个用户
 
 | 用户 | 密码 | 备注 |
 | --- | --- | --- |

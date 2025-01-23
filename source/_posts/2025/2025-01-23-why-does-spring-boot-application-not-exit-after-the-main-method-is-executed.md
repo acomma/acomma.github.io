@@ -1,5 +1,5 @@
 ---
-title: 为什么 Spring Boot 的 main 方法不会直接退出？
+title: 为什么 Spring Boot 应用在 main 方法执行完成后不会退出？
 date: 2025-01-23 20:59:52
 updated: 2025-01-23 20:59:52
 tags: [Spring Boot]
