@@ -22,8 +22,8 @@
 
     <meta name="description" content="在 Java 语言中，当一个程序所有可能的语句都执行完成后程序就会自动退出。也可以调用 System#exit 和 Runtime#exit 方法提前退出当前程序。 1234567public class Application &#123;    public static void main(String[] args) &#123;        &#x2F;&#x2F; System.exit(0);">
 <meta property="og:type" content="article">
-<meta property="og:title" content="为什么 Spring Boot 的 main 方法不会直接退出？">
-<meta property="og:url" content="https://acomma.github.io/2025/01/23/why-doesnt-the-main-method-of-spring-boot-not-exit-directly/index.html">
+<meta property="og:title" content="为什么 Spring Boot 应用在 main 方法执行完成后不会退出？">
+<meta property="og:url" content="https://acomma.github.io/2025/01/23/why-does-spring-boot-application-not-exit-after-the-main-method-is-executed/index.html">
 <meta property="og:site_name" content="逗号的博客">
 <meta property="og:description" content="在 Java 语言中，当一个程序所有可能的语句都执行完成后程序就会自动退出。也可以调用 System#exit 和 Runtime#exit 方法提前退出当前程序。 1234567public class Application &#123;    public static void main(String[] args) &#123;        &#x2F;&#x2F; System.exit(0);">
 <meta property="og:locale" content="zh_CN">
@@ -34,13 +34,13 @@
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://acomma.github.io/2025/01/23/why-doesnt-the-main-method-of-spring-boot-not-exit-directly/">
+<link rel="canonical" href="https://acomma.github.io/2025/01/23/why-does-spring-boot-application-not-exit-after-the-main-method-is-executed/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2025/01/23/why-doesnt-the-main-method-of-spring-boot-not-exit-directly/","path":"2025/01/23/why-doesnt-the-main-method-of-spring-boot-not-exit-directly/","title":"为什么 Spring Boot 的 main 方法不会直接退出？"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2025/01/23/why-does-spring-boot-application-not-exit-after-the-main-method-is-executed/","path":"2025/01/23/why-does-spring-boot-application-not-exit-after-the-main-method-is-executed/","title":"为什么 Spring Boot 应用在 main 方法执行完成后不会退出？"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>为什么 Spring Boot 的 main 方法不会直接退出？ | 逗号的博客</title>
+<title>为什么 Spring Boot 应用在 main 方法执行完成后不会退出？ | 逗号的博客</title>
   
 
 
@@ -167,7 +167,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2025/01/23/why-doesnt-the-main-method-of-spring-boot-not-exit-directly/">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2025/01/23/why-does-spring-boot-application-not-exit-after-the-main-method-is-executed/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -180,12 +180,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="为什么 Spring Boot 的 main 方法不会直接退出？ | 逗号的博客">
+      <meta itemprop="name" content="为什么 Spring Boot 应用在 main 方法执行完成后不会退出？ | 逗号的博客">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          为什么 Spring Boot 的 main 方法不会直接退出？
+          为什么 Spring Boot 应用在 main 方法执行完成后不会退出？
         </h1>
 
         <div class="post-meta-container">

@@ -1,5 +1,5 @@
 https://acomma.github.io/tags/index.html
-https://acomma.github.io/2025/01/23/why-doesnt-the-main-method-of-spring-boot-not-exit-directly/
+https://acomma.github.io/2025/01/23/why-does-spring-boot-application-not-exit-after-the-main-method-is-executed/
 https://acomma.github.io/2025/01/10/jackson-field-sorting-process/
 https://acomma.github.io/2025/01/01/install-debian-on-virtualbox/
 https://acomma.github.io/2024/11/09/how-to-query-consecutive-record-in-postgresql/

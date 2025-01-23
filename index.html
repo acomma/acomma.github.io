@@ -162,7 +162,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2025/01/23/why-doesnt-the-main-method-of-spring-boot-not-exit-directly/">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2025/01/23/why-does-spring-boot-application-not-exit-after-the-main-method-is-executed/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -180,7 +180,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/01/23/why-doesnt-the-main-method-of-spring-boot-not-exit-directly/" class="post-title-link" itemprop="url">为什么 Spring Boot 的 main 方法不会直接退出？</a>
+          <a href="/2025/01/23/why-does-spring-boot-application-not-exit-after-the-main-method-is-executed/" class="post-title-link" itemprop="url">为什么 Spring Boot 应用在 main 方法执行完成后不会退出？</a>
         </h2>
 
         <div class="post-meta-container">
@@ -211,7 +211,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.boot.SpringApplication;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Application</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        SpringApplication.run(Application.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2025/01/23/why-doesnt-the-main-method-of-spring-boot-not-exit-directly/#more" rel="contents">
+              <a class="btn" href="/2025/01/23/why-does-spring-boot-application-not-exit-after-the-main-method-is-executed/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -360,7 +360,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p>本文是在 Windows 的 VirtualBox 上安装 Debian 11.4.0 系统。安装完成后会传销如下两个用户</p>
+          <p>本文是在 Windows 的 VirtualBox 上安装 Debian 11.4.0 系统。安装完成后会创建两个用户</p>
 <table>
 <thead>
 <tr>
