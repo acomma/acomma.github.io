@@ -400,7 +400,7 @@ public class OAuth2ResourceServerConfig {
 
 放行所有请求路径以 `/example-auth` 开头的请求是显而易见的。而额外的 `/oauth2/authorize` 和 `/login` 两个路径也放行就不是那么的显然。
 
-简单的解释就是默认的登录页面和授权页面的表单的 `action` 属性的值分别为 `/login` 和 `/oauth2/authorize`，而点解相应的提交按钮后它们会拼接在网关的地址后面得到 `http://localhost:8080/login` 和 `http://localhost:8080/oauth2/authorize`，不放行它们的话对应的请求在网关就会被拦截，从而返回 `401 Unauthorized`。
+简单的解释就是默认的登录页面和授权页面的表单的 `action` 属性的值分别为 `/login` 和 `/oauth2/authorize`，而点击相应的提交按钮后它们会拼接在网关的地址后面得到 `http://localhost:8080/login` 和 `http://localhost:8080/oauth2/authorize`，不放行它们的话对应的请求在网关就会被拦截，从而返回 `401 Unauthorized`。
 
 ### 重新配置路由转发规则
 
@@ -422,6 +422,12 @@ spring:
 ```
 
 规则中 `/example-auth/**` 是显然的。配置 `/login` 和 `/oauth2/authorize` 的理由是它们是登录表单和授权表单的请求地址，网关无法处理它们，只有授权服务才能处理它们，因此他们也应当转发到授权服务。
+
+## 测试验证
+
+{% asset_img postman-get-new-access-token.png %}
+
+*Auth URL* 和 *Access Token URL* 现在是通过网关进行请求的地址。
 
 ## 源码地址
 
