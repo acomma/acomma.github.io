@@ -278,7 +278,7 @@
 <p>当我们选择好对资源的授权后，点击 <code>Authorize</code> 按钮就会跳转到我们在授权服务器配置类中配置的跳转地址，即 <code>.redirectUris(&quot;https://www.baidu.com&quot;)</code>，只是此时会携带授权码 <a target="_blank" rel="noopener" href="https://www.baidu.com/?code=Conxl4">https://www.baidu.com/?code=Conxl4</a>，<code>Conxl4</code> 就是授权码。</p>
 <img src="/2023/11/04/spring-security-oauth2-practice/authorization-code.png" class="">
 
-<h3 id="申请访问令牌"><a href="#申请访问令牌" class="headerlink" title="申请访问令牌"></a>申请访问令牌</h3><p>使用 Postman 访问 <a target="_blank" rel="noopener" href="http://localhost:9090/oauth/token?grant_type=authorization_code&redirect_uri=https://www.baidu.com&scope=user&code=Conxl4">http://localhost:9090/oauth/token?grant_type&#x3D;authorization_code&amp;redirect_uri&#x3D;https://www.baidu.com&scope=user&code=Conxl4</a> 获取访问令牌</p>
+<h3 id="申请访问令牌"><a href="#申请访问令牌" class="headerlink" title="申请访问令牌"></a>申请访问令牌</h3><p>使用 Postman 访问 <a target="_blank" rel="noopener" href="http://localhost:9090/oauth/token?grant_type=authorization_code&redirect_uri=https://www.baidu.com&scope=user&code=Conxl4">http://localhost:9090/oauth/token?grant_type&#x3D;authorization_code&amp;redirect_uri&#x3D;https://www.baidu.com&amp;scope=user&amp;code=Conxl4</a> 获取访问令牌</p>
 <img src="/2023/11/04/spring-security-oauth2-practice/access-token.png" class="">
 
 <p>注意请求的方法为 <code>POST</code>，<code>grant_type</code> 的值为 <code>authorization_code</code>，<code>redirect_uri</code> 的值为在授权服务器配置类中配置的跳转地址 <code>https://www.baidu.com</code>，<code>scope</code> 的值为 <code>user</code>，<code>code</code> 的值为在前面获取的授权码 <code>Conxl4</code>。另外需要注意需要配置 <code>Authorization</code> 参数，具体的配置如下，<code>Type</code> 需要选择 <code>Basic Auth</code>，<code>Username</code> 和 <code>Password</code> 分别是在授权服务器配置类中配置的客户端 ID 和客户端密码</p>
