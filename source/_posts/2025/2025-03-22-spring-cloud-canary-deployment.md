@@ -21,7 +21,7 @@ Eureka 服务注册中心支持元数据
 >
 >引用自 [Eureka Metadata for Instances and Clients](https://docs.spring.io/spring-cloud-netflix/reference/spring-cloud-netflix.html#_eureka_metadata_for_instances_and_clients)
 
-因此在发布服务十可以在 `application.yml` 文件中增加元数据 `eureka.instance.metadata-map.canary`，值为 `true` 时表示该服务是灰度服务
+因此在发布服务时在 `application.yml` 文件中增加元数据 `eureka.instance.metadata-map.canary`，值为 `true` 时表示该服务是灰度服务
 
 ```yaml
 eureka:
@@ -70,7 +70,7 @@ public Mono<Response<ServiceInstance>> choose(Request request) {
 }
 ```
 
-第二件事情是把灰度服务和正常服务区分开来，这需要用到服务实例的元数据
+第二件事是把灰度服务和正常服务区分开来，这需要用到服务实例的元数据
 
 ```java
 private Response<ServiceInstance> getInstanceResponse(List<ServiceInstance> instances, String canary) {
