@@ -431,7 +431,7 @@ spring:
 
 ## 源码地址
 
-[examples/example-oauth2](https://github.com/acomma/examples/tree/main/example-oauth2)
+[examples/example-cloud](https://github.com/acomma/examples/tree/main/example-cloud)
 
 ## 参考资料
 

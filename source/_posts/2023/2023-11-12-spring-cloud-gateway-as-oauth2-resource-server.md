@@ -21,7 +21,7 @@ example-auth 是一个独立的服务，它不会向服务注册中心注册自�
 
 <!-- more -->
 
-我们将创建一个名称为 `example-oauth2` 的多模块项目，项目的 `pom.xml` 文件的内容如下所示
+我们将创建一个名称为 `example-cloud` 的多模块项目，项目的 `pom.xml` 文件的内容如下所示
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -37,12 +37,12 @@ example-auth 是一个独立的服务，它不会向服务注册中心注册自�
     </parent>
 
     <groupId>com.example</groupId>
-    <artifactId>example-oauth2</artifactId>
+    <artifactId>example-cloud</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>example-oauth2</name>
-    <description>example-oauth2</description>
+    <name>example-cloud</name>
+    <description>example-cloud</description>
 
     <modules>
         <module>example-eureka</module>
@@ -91,7 +91,7 @@ example-auth 是一个独立的服务，它不会向服务注册中心注册自�
 
     <parent>
         <groupId>com.example</groupId>
-        <artifactId>example-oauth2</artifactId>
+        <artifactId>example-cloud</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
@@ -320,7 +320,7 @@ public class ExampleAuthApplication {
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.example</groupId>
-        <artifactId>example-oauth2</artifactId>
+        <artifactId>example-cloud</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
@@ -406,7 +406,7 @@ public class ExampleEurekaApplication {
 
     <parent>
         <groupId>com.example</groupId>
-        <artifactId>example-oauth2</artifactId>
+        <artifactId>example-cloud</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
@@ -537,7 +537,7 @@ public class ExampleGatewayApplication {
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.example</groupId>
-        <artifactId>example-oauth2</artifactId>
+        <artifactId>example-cloud</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
@@ -605,7 +605,7 @@ public class Order {
 
     <parent>
         <groupId>com.example</groupId>
-        <artifactId>example-oauth2</artifactId>
+        <artifactId>example-cloud</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
@@ -698,7 +698,7 @@ public class ExampleUserApplication {
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.example</groupId>
-        <artifactId>example-oauth2</artifactId>
+        <artifactId>example-cloud</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
@@ -809,7 +809,7 @@ public class ExampleProductApplication {
 
     <parent>
         <groupId>com.example</groupId>
-        <artifactId>example-oauth2</artifactId>
+        <artifactId>example-cloud</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
