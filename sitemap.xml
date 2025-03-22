@@ -11,6 +11,15 @@
   </url>
   
   <url>
+    <loc>https://acomma.github.io/2025/03/22/spring-cloud-canary-deployment/</loc>
+    
+    <lastmod>2025-03-22</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://acomma.github.io/2025/01/23/why-does-spring-boot-application-not-exit-after-the-main-method-is-executed/</loc>
     
     <lastmod>2025-01-23</lastmod>
