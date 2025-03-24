@@ -427,7 +427,10 @@ spring:
 
 {% asset_img postman-get-new-access-token.png %}
 
-*Auth URL* 和 *Access Token URL* 现在是通过网关进行请求的地址。
+*Auth URL* 和 *Access Token URL* 现在是通过网关进行请求的地址，它们的值分别为
+
+* Auth URL：`http://localhost:8080/example-auth/oauth2/authorize`
+* Access Token URL：`http://localhost:8080/example-auth/oauth2/token`
 
 ## 源码地址
 
