@@ -340,15 +340,15 @@
 <li>选择 HTTP Method 为 GET，然后输入 URL：<code>http://localhost:8082/product/1</code></li>
 <li>转到 Authorization 选项， 选择 Type 为 OAuth 2.0</li>
 <li>在 Configure New Token 部分：<ol>
-<li>Grant Type: Authorization Code</li>
+<li>Grant Type: <code>Authorization Code</code></li>
 <li>Callback URL: <code>http://127.0.0.1:8082/callback/authorized</code></li>
-<li>Auth URL: <a target="_blank" rel="noopener" href="http://localhost:9191/realms/sivalabs/protocol/openid-connect/auth">http://localhost:9191/realms/sivalabs/protocol/openid-connect/auth</a></li>
-<li>Access Token URL: <a target="_blank" rel="noopener" href="http://localhost:9191/realms/sivalabs/protocol/openid-connect/token">http://localhost:9191/realms/sivalabs/protocol/openid-connect/token</a></li>
-<li>Client ID: messages-webapp</li>
-<li>Client Secret: qVcg0foCUNyYbgF0Sg52zeIhLYyOwXpQ</li>
-<li>Scope: openid profile</li>
-<li>State: randomstring</li>
-<li>Client Authentication: Send as Basic Auth header</li>
+<li>Auth URL: <code>http://localhost:8081/oauth2/authorize</code></li>
+<li>Access Token URL: <code>http://localhost:8081/oauth2/token</code></li>
+<li>Client ID: <code>example-product</code></li>
+<li>Client Secret: <code>example-product-secret</code></li>
+<li>Scope: <code>product</code></li>
+<li>State: <code>965236</code></li>
+<li>Client Authentication: <code>Send as Basic Auth header</code></li>
 </ol>
 </li>
 <li>点击 Get New Access Token 按钮</li>
