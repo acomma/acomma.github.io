@@ -572,15 +572,15 @@ redirect_uri | 回调地址，当授权码申请成功后浏览器会重定向�
 2. 选择 HTTP Method 为 GET，然后输入 URL：`http://localhost:8082/product/1`
 3. 转到 Authorization 选项， 选择 Type 为 OAuth 2.0
 4. 在 Configure New Token 部分：
-    1. Grant Type: Authorization Code
+    1. Grant Type: `Authorization Code`
     2. Callback URL: `http://127.0.0.1:8082/callback/authorized`
-    3. Auth URL: http://localhost:9191/realms/sivalabs/protocol/openid-connect/auth
-    4. Access Token URL: http://localhost:9191/realms/sivalabs/protocol/openid-connect/token
-    5. Client ID: messages-webapp
-    6. Client Secret: qVcg0foCUNyYbgF0Sg52zeIhLYyOwXpQ
-    7. Scope: openid profile
-    8. State: randomstring
-    9. Client Authentication: Send as Basic Auth header
+    3. Auth URL: `http://localhost:8081/oauth2/authorize`
+    4. Access Token URL: `http://localhost:8081/oauth2/token`
+    5. Client ID: `example-product`
+    6. Client Secret: `example-product-secret`
+    7. Scope: `product`
+    8. State: `965236`
+    9. Client Authentication: `Send as Basic Auth header`
 5. 点击 Get New Access Token 按钮
 6. Postman 会弹出 Keycloak 登录页面
     {% asset_img postman-sign-in.png %}
