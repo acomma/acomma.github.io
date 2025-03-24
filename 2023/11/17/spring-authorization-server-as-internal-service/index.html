@@ -290,7 +290,11 @@
 <p>规则中 <code>/example-auth/**</code> 是显然的。配置 <code>/login</code> 和 <code>/oauth2/authorize</code> 的理由是它们是登录表单和授权表单的请求地址，网关无法处理它们，只有授权服务才能处理它们，因此他们也应当转发到授权服务。</p>
 <h2 id="测试验证"><a href="#测试验证" class="headerlink" title="测试验证"></a>测试验证</h2><img src="/2023/11/17/spring-authorization-server-as-internal-service/postman-get-new-access-token.png" class="">
 
-<p><em>Auth URL</em> 和 <em>Access Token URL</em> 现在是通过网关进行请求的地址。</p>
+<p><em>Auth URL</em> 和 <em>Access Token URL</em> 现在是通过网关进行请求的地址，它们的值分别为</p>
+<ul>
+<li>Auth URL：<code>http://localhost:8080/example-auth/oauth2/authorize</code></li>
+<li>Access Token URL：<code>http://localhost:8080/example-auth/oauth2/token</code></li>
+</ul>
 <h2 id="源码地址"><a href="#源码地址" class="headerlink" title="源码地址"></a>源码地址</h2><p><a target="_blank" rel="noopener" href="https://github.com/acomma/examples/tree/main/example-cloud">examples&#x2F;example-cloud</a></p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/hc1285653662/article/details/126633112">oauth2 通过gateway请求授权码不能回调到return_uri</a></li>
