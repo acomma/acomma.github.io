@@ -269,3 +269,22 @@ public Form2()
     this.Location = new Point(x, y);
 }
 ```
+
+## 绘制对话框
+
+这部分内容主要参考了以下资料
+
+1. [教程：使用 .NET 创建 Windows 窗体应用](https://learn.microsoft.com/zh-cn/dotnet/desktop/winforms/get-started/create-app-visual-studio?view=netdesktop-8.0)
+2. [教程：创建数学测验 WinForms 应用](https://learn.microsoft.com/zh-cn/visualstudio/get-started/csharp/tutorial-windows-forms-math-quiz-create-project-add-controls?view=vs-2022)
+3. [控件的位置和布局（Windows 窗体 .NET）](https://learn.microsoft.com/zh-cn/dotnet/desktop/winforms/controls/layout?view=netdesktop-8.0)
+4. [演示：使用捕捉线排列 Windows 窗体上的控件](https://learn.microsoft.com/zh-cn/dotnet/desktop/winforms/controls/walkthrough-arranging-controls-on-windows-forms-using-snaplines?view=netframeworkdesktop-4.8)
+5. [如何：在 Windows 窗体上对齐多个控件](https://learn.microsoft.com/zh-cn/dotnet/desktop/winforms/controls/how-to-align-multiple-controls-on-windows-forms?view=netframeworkdesktop-4.8)
+6. [Winform禁止调整大小](https://blog.csdn.net/csdn_wuwt/article/details/88222159)
+
+主要用到的控件为 *GroupBox*、*CheckBox*、*Label*、*TextBox*、*Button*，成品图如下所示
+
+{% asset_img form2-5.png %}
+
+选中 *Form2*，设置 *Appearance > FormBorderStyle* 为 *FixedSingle*，禁止改变窗口大小
+
+{% asset_img form2-6.png %}
