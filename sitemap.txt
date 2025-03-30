@@ -1,4 +1,5 @@
 https://acomma.github.io/tags/index.html
+https://acomma.github.io/2025/03/29/qq-screen-shot-launcher/
 https://acomma.github.io/2025/03/22/spring-cloud-canary-deployment/
 https://acomma.github.io/2025/01/23/why-does-spring-boot-application-not-exit-after-the-main-method-is-executed/
 https://acomma.github.io/2025/01/10/jackson-field-sorting-process/
@@ -48,3 +49,5 @@ https://acomma.github.io/tags/GIS/
 https://acomma.github.io/tags/Linux/
 https://acomma.github.io/tags/Debian/
 https://acomma.github.io/tags/java/
+https://acomma.github.io/tags/C/
+https://acomma.github.io/tags/WinForms/
