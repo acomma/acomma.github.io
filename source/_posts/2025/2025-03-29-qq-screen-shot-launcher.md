@@ -756,3 +756,13 @@ private void button7_Click(object sender, EventArgs e)
 ```
 
 此时*取消*按钮的功能和窗口的关闭按钮一致。
+
+## 添加 QQImpl 动态链接库
+
+从 [MMMojoCall v3.0.0](https://github.com/EEEEhex/QQImpl/releases/tag/v3.0.0) 下载 [x64-Release.zip](https://github.com/EEEEhex/QQImpl/releases/download/v3.0.0/x64-Release.zip)，解压后将 *MMMojoCall.dll* 复制到 *NTLauncher* 项目目录。在 *Solution Explorer* 选中 *MMMojoCall.dll*，在 *Properties* 设置 *Advanced > Copy to Output Directory* 为 *Copy always*
+
+{% asset_img dll-1.png %}
+
+从 [QQImpl](https://github.com/EEEEhex/QQImpl) 下载 [parent-ipc-core-x64.dll](https://github.com/EEEEhex/QQImpl/blob/main/parent-ipc-core-x64.dll) 并将其复制到 *NTLauncher* 项目目录。在 *Solution Explorer* 选中 *parent-ipc-core-x64.dll*，在 *Properties* 设置 *Advanced > Copy to Output Directory* 为 *Copy always*
+
+{% asset_img dll-2.png %}
