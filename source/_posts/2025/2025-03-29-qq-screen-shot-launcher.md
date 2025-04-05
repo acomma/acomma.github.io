@@ -766,3 +766,201 @@ private void button7_Click(object sender, EventArgs e)
 从 [QQImpl](https://github.com/EEEEhex/QQImpl) 下载 [parent-ipc-core-x64.dll](https://github.com/EEEEhex/QQImpl/blob/main/parent-ipc-core-x64.dll) 并将其复制到 *NTLauncher* 项目目录。在 *Solution Explorer* 选中 *parent-ipc-core-x64.dll*，在 *Properties* 设置 *Advanced > Copy to Output Directory* 为 *Copy always*
 
 {% asset_img dll-2.png %}
+
+## 编译 QQImpl 动态链接库
+
+这部分内容参考了以下资料
+
+1. [DUMPBIN 参考](https://learn.microsoft.com/zh-cn/cpp/build/reference/dumpbin-reference?view=msvc-170)
+2. [Visual Studio 中的 CMake 项目](https://learn.microsoft.com/zh-cn/cpp/build/cmake-projects-in-visual-studio?view=msvc-170)
+3. [用Visual Studio调试CMake项目并生成Visual Studio工程](https://blog.csdn.net/yxstars/article/details/139889358)
+
+从 [QQImpl](https://github.com/EEEEhex/QQImpl) Releases 下载的 *MMMojoCall.dll* 不包含 *qq_mojoipc*，可以通过如下的方式进行验证。在 Visual Studio 菜单栏选择 *View > Terminal* 进入命令提示符
+
+{% asset_img dumpbin-1.png %}
+
+进入 *NTLauncher* 项目所在的目录 *D:\projects\dotnet\QQScreenShotLauncher\NTLauncher* 执行 `dumpbin /EXPORTS .\MMMojoCall.dll` 命令，从结果中未能找到 *qq_mojoipc* 相关的内容。对 *QQScreenShotNT-Plus* 使用的 *MMMojoCall.dll* 执行相同的命令，从结果中可以找到 *qq_mojoipc* 相关的内容，下面是节选的部分内容
+
+```text
+         20   13 00015A70 ?ConnectedToChildProcess@QQIpcParentWrapper@qqipc@qqimpl@@QEAA_NH@Z
+         27   1A 00015B40 ?GetLastErrStr@QQIpcChildWrapper@qqipc@qqimpl@@QEAAPEBDXZ
+         28   1B 00015B40 ?GetLastErrStr@QQIpcParentWrapper@qqipc@qqimpl@@QEAAPEBDXZ
+         31   1E 00015BB0 ?InitEnv@QQIpcChildWrapper@qqipc@qqimpl@@QEAA_NPEBD@Z
+         32   1F 00015D40 ?InitEnv@QQIpcParentWrapper@qqipc@qqimpl@@QEAA_NPEBD@Z
+         33   20 00015ED0 ?InitLog@QQIpcChildWrapper@qqipc@qqimpl@@QEAAXHPEAX@Z
+         34   21 00015F40 ?InitLog@QQIpcParentWrapper@qqipc@qqimpl@@QEAAXHPEAX@Z
+```
+
+因此，我们需要重新编译 QQImpl 项目。
+
+首先，从 [QQImpl](https://github.com/EEEEhex/QQImpl) 克隆项目，比如克隆到 `D:\projects\dotnet` 目录，当前最新的提交为 `3aac297`。解压 *3rdparty* 目录下的 *3rdparty.7z* 文件
+
+{% asset_img dll-3.png %}
+
+解压 *xplugin_protobuf* 目录下的 *google.zip* 文件
+
+{% asset_img dll-4.png %}
+
+从 [CMake](https://cmake.org/) 网站下载 [cmake-3.31.6-windows-x86_64.msi](https://github.com/Kitware/CMake/releases/download/v3.31.6/cmake-3.31.6-windows-x86_64.msi) 进行安装，在终端输入 `cmake -version` 验证安装是否成功。在终端进入 *D:\projects\dotnet\QQImpl\MMMojoCall* 目录，输入如下命令生成解决方案
+
+```shell
+cmake -B build -G "Visual Studio 17 2022" -A x64 -DXPLUGIN_WRAPPER=ON -DBUILD_QQIPC=ON -DBUILD_CPPEXAMPLE=ON -DEXAMPLE_USE_JSON=ON -DBUILD_PURE_C_MODE=ON
+```
+
+等待命令执行完成后，使用 Visual Studio 打开 *build* 目录，即 *D:\projects\dotnet\QQImpl\MMMojoCall\build*，中的解决方案
+
+{% asset_img dll-5.png %}
+
+在弹出的 *Open Project/Solution* 对话中选择刚生成的解决方案
+
+{% asset_img dll-6.png %}
+
+打开解决方案后在工具栏选择 *Release*
+
+{% asset_img dll-7.png %}
+
+随后在菜单栏选择 *Build > Build Solution* 菜单
+
+{% asset_img dll-8.png %}
+
+编译完成后进入 *D:\projects\dotnet\QQImpl\MMMojoCall\build\Release* 目录，用编译好的 *MMMojoCall.dll* 替换 *QQScreenShotLauncher* 中的同名文件
+
+{% asset_img dll-9.png %}
+
+我们也可以使用 `dumpbin /EXPORTS .\MMMojoCall.dll` 命令检查是否有 *qq_mojoipc* 相关的内容
+
+```text
+Microsoft (R) COFF/PE Dumper Version 14.41.34120.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file .\MMMojoCall.dll
+
+File Type: DLL
+
+  Section contains the following exports for MMMojoCall.dll
+
+    00000000 characteristics
+    FFFFFFFF time date stamp
+        0.00 version
+           1 ordinal base
+         105 number of functions
+         105 number of names
+
+    ordinal hint RVA      name
+
+          1    0 00005CE0 ??0OCRManager@mmmojocall@qqimpl@@QEAA@XZ
+          2    1 00007580 ??0PlayerManager@mmmojocall@qqimpl@@QEAA@XZ
+          3    2 0001AC10 ??0QQIpcChildWrapper@qqipc@qqimpl@@QEAA@AEBV012@@Z
+          4    3 0001AC40 ??0QQIpcChildWrapper@qqipc@qqimpl@@QEAA@XZ
+          5    4 0001AC10 ??0QQIpcParentWrapper@qqipc@qqimpl@@QEAA@AEBV012@@Z
+          6    5 0001AC40 ??0QQIpcParentWrapper@qqipc@qqimpl@@QEAA@XZ
+          7    6 0000A1B0 ??0UtilityManager@mmmojocall@qqimpl@@QEAA@XZ
+          8    7 00003240 ??0XPluginManager@mmmojocall@qqimpl@@QEAA@AEBV012@@Z
+          9    8 00003420 ??0XPluginManager@mmmojocall@qqimpl@@QEAA@XZ
+         10    9 00005F60 ??1OCRManager@mmmojocall@qqimpl@@QEAA@XZ
+         11    A 000077E0 ??1PlayerManager@mmmojocall@qqimpl@@QEAA@XZ
+         12    B 0001ADD0 ??1QQIpcChildWrapper@qqipc@qqimpl@@QEAA@XZ
+         13    C 0001ADD0 ??1QQIpcParentWrapper@qqipc@qqimpl@@QEAA@XZ
+         14    D 0000A2C0 ??1UtilityManager@mmmojocall@qqimpl@@QEAA@XZ
+         15    E 00003720 ??1XPluginManager@mmmojocall@qqimpl@@QEAA@XZ
+         16    F 0001AE50 ??4QQIpcChildWrapper@qqipc@qqimpl@@QEAAAEAV012@AEBV012@@Z
+         17   10 0001AE50 ??4QQIpcParentWrapper@qqipc@qqimpl@@QEAAAEAV012@AEBV012@@Z
+         18   11 00003880 ??4XPluginManager@mmmojocall@qqimpl@@QEAAAEAV012@AEBV012@@Z
+         19   12 00003AD0 ?AppendSwitchNativeCmdLine@XPluginManager@mmmojocall@qqimpl@@QEAA_NPEBD0@Z
+         20   13 00006190 ?CallUsrCallback@OCRManager@mmmojocall@qqimpl@@QEAAXHPEBXH@Z
+         21   14 0000A360 ?CallUsrCallback@UtilityManager@mmmojocall@qqimpl@@QEAAXHPEBXHV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z
+         22   15 0001AEA0 ?ConnectedToChildProcess@QQIpcParentWrapper@qqipc@qqimpl@@QEAA_NH@Z
+         23   16 00007AB0 ?CreateCoreStatusSync@PlayerManager@mmmojocall@qqimpl@@AEAAXH@Z
+         24   17 00007B70 ?CreatePlayerCore@PlayerManager@mmmojocall@qqimpl@@QEAAHXZ
+         25   18 00007E20 ?DeleteCoreStatusSync@PlayerManager@mmmojocall@qqimpl@@AEAAXH@Z
+         26   19 00007FC0 ?DestroyPlayerCore@PlayerManager@mmmojocall@qqimpl@@QEAAXH@Z
+         27   1A 000064A0 ?DoOCRTask@OCRManager@mmmojocall@qqimpl@@QEAA_NPEBD@Z
+         28   1B 0000A6E0 ?DoPicQRScan@UtilityManager@mmmojocall@qqimpl@@QEAA_NPEBDH@Z
+         29   1C 0000AAD0 ?DoResampleImage@UtilityManager@mmmojocall@qqimpl@@QEAA_NV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0HH@Z
+         30   1D 00006820 ?GetConnectState@OCRManager@mmmojocall@qqimpl@@QEAA_NXZ
+         31   1E 00008130 ?GetConnectState@PlayerManager@mmmojocall@qqimpl@@QEAA_NXZ
+         32   1F 0000ADF0 ?GetConnectState@UtilityManager@mmmojocall@qqimpl@@QEAA_NXZ
+         33   20 00008140 ?GetCurrentPosition@PlayerManager@mmmojocall@qqimpl@@QEAAHH@Z
+         34   21 000081D0 ?GetIdlePlayerCoreId@PlayerManager@mmmojocall@qqimpl@@AEAAHXZ
+         35   22 00006830 ?GetIdleTaskId@OCRManager@mmmojocall@qqimpl@@AEAAHXZ
+         36   23 0001AF70 ?GetLastErrStr@QQIpcChildWrapper@qqipc@qqimpl@@QEAAPEBDXZ
+         37   24 0001AF70 ?GetLastErrStr@QQIpcParentWrapper@qqipc@qqimpl@@QEAAPEBDXZ
+         38   25 00003CD0 ?GetLastErrStr@XPluginManager@mmmojocall@qqimpl@@QEAAPEBDXZ
+         39   26 00008280 ?GetPlayerCoreNum@PlayerManager@mmmojocall@qqimpl@@QEAAHXZ
+         40   27 00008290 ?GetPlayerCoreStatus@PlayerManager@mmmojocall@qqimpl@@QEAAPEAUCoreStatus@123@H@Z
+         41   28 0001AF80 ?InitChildIpc@QQIpcChildWrapper@qqipc@qqimpl@@QEAAXXZ
+         42   29 0001AFE0 ?InitEnv@QQIpcChildWrapper@qqipc@qqimpl@@QEAA_NPEBD@Z
+         43   2A 0001B180 ?InitEnv@QQIpcParentWrapper@qqipc@qqimpl@@QEAA_NPEBD@Z
+         44   2B 0001B320 ?InitLog@QQIpcChildWrapper@qqipc@qqimpl@@QEAAXHPEAX@Z
+         45   2C 0001B390 ?InitLog@QQIpcParentWrapper@qqipc@qqimpl@@QEAAXHPEAX@Z
+         46   2D 0001B410 ?InitParentIpc@QQIpcParentWrapper@qqipc@qqimpl@@QEAAXXZ
+         47   2E 000082F0 ?InitPlayerCore@PlayerManager@mmmojocall@qqimpl@@QEAAHHPEAUHWND__@@PEBD1_J_N3M3M@Z
+         48   2F 000068E0 ?KillWeChatOCR@OCRManager@mmmojocall@qqimpl@@QEAAXXZ
+         49   30 00008640 ?KillWeChatPlayer@PlayerManager@mmmojocall@qqimpl@@QEAAXXZ
+         50   31 0000AE00 ?KillWeChatUtility@UtilityManager@mmmojocall@qqimpl@@QEAAXXZ
+         51   32 0001B470 ?LaunchChildProcess@QQIpcParentWrapper@qqipc@qqimpl@@QEAAHPEBDP6AXPEAXPEADH2H@Z1PEAPEADH@Z
+         52   33 00008650 ?MuteVideo@PlayerManager@mmmojocall@qqimpl@@QEAA_NH_N@Z
+         53   34 0001B620 ?OnDefaultReceiveMsg@QQIpcParentWrapper@qqipc@qqimpl@@SAXPEAXPEADH1H@Z
+         54   35 000087C0 ?PauseVideo@PlayerManager@mmmojocall@qqimpl@@QEAA_NH@Z
+         55   36 0001B730 ?ReLaunchChildProcess@QQIpcParentWrapper@qqipc@qqimpl@@QEAAHH@Z
+         56   37 00008E80 ?RepeatVideo@PlayerManager@mmmojocall@qqimpl@@QEAA_NH_N@Z
+         57   38 00008FF0 ?ResumeVideo@PlayerManager@mmmojocall@qqimpl@@QEAA_NH@Z
+         58   39 00009140 ?ResziePlayerCore@PlayerManager@mmmojocall@qqimpl@@QEAA_NHHH@Z
+         59   3A 000092C0 ?RunEvent@PlayerManager@mmmojocall@qqimpl@@QEAAXHH@Z
+         60   3B 00009330 ?SeekToVideo@PlayerManager@mmmojocall@qqimpl@@QEAA_NHH@Z
+         61   3C 0001B7E0 ?SendIpcMessage@QQIpcChildWrapper@qqipc@qqimpl@@QEAAXPEBD0H@Z
+         62   3D 0001B860 ?SendIpcMessage@QQIpcParentWrapper@qqipc@qqimpl@@QEAA_NHPEBD0H@Z
+         63   3E 00006A10 ?SendOCRTask@OCRManager@mmmojocall@qqimpl@@AEAA_NIV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z
+         64   3F 00003CE0 ?SendPbSerializedData@XPluginManager@mmmojocall@qqimpl@@QEAAXPEAXHH_NI@Z
+         65   40 00006C90 ?SetCallbackDataMode@OCRManager@mmmojocall@qqimpl@@QEAAX_N@Z
+         66   41 0000AE10 ?SetCallbackDataMode@UtilityManager@mmmojocall@qqimpl@@QEAAX_N@Z
+         67   42 00003D60 ?SetCallbackUsrData@XPluginManager@mmmojocall@qqimpl@@QEAAXPEAX@Z
+         68   43 00003D70 ?SetCallbacks@XPluginManager@mmmojocall@qqimpl@@QEAAXUMMMojoEnvironmentCallbacks@common@mmmojo@@@Z
+         69   44 0001B950 ?SetChildReceiveCallback@QQIpcChildWrapper@qqipc@qqimpl@@QEAAXP6AXPEAXPEADH1H@Z@Z
+         70   45 00006CA0 ?SetConnectState@OCRManager@mmmojocall@qqimpl@@QEAAX_N@Z
+         71   46 00009580 ?SetConnectState@PlayerManager@mmmojocall@qqimpl@@QEAAX_N@Z
+         72   47 0000AE20 ?SetConnectState@UtilityManager@mmmojocall@qqimpl@@QEAAX_N@Z
+         73   48 00003DA0 ?SetExePath@XPluginManager@mmmojocall@qqimpl@@QEAA_NPEBD@Z
+         74   49 00003FE0 ?SetLastErrStr@XPluginManager@mmmojocall@qqimpl@@IEAAXV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z
+         75   4A 0001B9D0 ?SetLogLevel@QQIpcParentWrapper@qqipc@qqimpl@@QEAAXH@Z
+         76   4B 00004080 ?SetOneCallback@XPluginManager@mmmojocall@qqimpl@@QEAAXHPEAX@Z
+         77   4C 00009590 ?SetPlayerCoreIdIdle@PlayerManager@mmmojocall@qqimpl@@AEAA_NH@Z
+         78   4D 0000AEA0 ?SetReadOnPull@UtilityManager@mmmojocall@qqimpl@@QEAAXP6AXHPEBXH@Z@Z
+         79   4E 00006D20 ?SetReadOnPush@OCRManager@mmmojocall@qqimpl@@QEAAXP6AXPEBDPEBXH@Z@Z
+         80   4F 0000AEB0 ?SetReadOnPush@UtilityManager@mmmojocall@qqimpl@@QEAAXP6AXHPEBXH@Z@Z
+         81   50 000095B0 ?SetSpeedVideo@PlayerManager@mmmojocall@qqimpl@@QEAA_NHM@Z
+         82   51 00009730 ?SetSurfaceVideo@PlayerManager@mmmojocall@qqimpl@@QEAA_NHPEAUHWND__@@@Z
+         83   52 000098B0 ?SetSwitchArgs@PlayerManager@mmmojocall@qqimpl@@QEAA_NPEBD00@Z
+         84   53 00006D30 ?SetTaskIdIdle@OCRManager@mmmojocall@qqimpl@@AEAA_NH@Z
+         85   54 00006D50 ?SetUsrLibDir@OCRManager@mmmojocall@qqimpl@@QEAA_NPEBD@Z
+         86   55 0000AEC0 ?SetUsrLibDir@UtilityManager@mmmojocall@qqimpl@@QEAA_NPEBD@Z
+         87   56 00009920 ?SetVolumeVideo@PlayerManager@mmmojocall@qqimpl@@QEAA_NHM@Z
+         88   57 00004100 ?StartMMMojoEnv@XPluginManager@mmmojocall@qqimpl@@QEAA_NXZ
+         89   58 00009AA0 ?StartVideo@PlayerManager@mmmojocall@qqimpl@@QEAA_NH@Z
+         90   59 00006DB0 ?StartWeChatOCR@OCRManager@mmmojocall@qqimpl@@QEAA_NXZ
+         91   5A 00009C00 ?StartWeChatPlayer@PlayerManager@mmmojocall@qqimpl@@QEAA_NXZ
+         92   5B 0000AF20 ?StartWeChatUtility@UtilityManager@mmmojocall@qqimpl@@QEAA_NXZ
+         93   5C 00004830 ?StopMMMojoEnv@XPluginManager@mmmojocall@qqimpl@@QEAAXXZ
+         94   5D 00009C30 ?StopVideo@PlayerManager@mmmojocall@qqimpl@@QEAA_NH@Z
+         95   5E 0001BA40 ?TerminateChildProcess@QQIpcParentWrapper@qqipc@qqimpl@@QEAA_NHH_N@Z
+         96   5F 00009D90 ?WaitEvent@PlayerManager@mmmojocall@qqimpl@@QEAAXHH@Z
+         97   60 000054C0 CallFuncXPluginMgr
+         98   61 00005B70 GetInstanceXPluginMgr
+         99   62 00004C70 GetPbSerializedData
+        100   63 00004CB0 GetReadInfoAttachData
+        101   64 00004CF0 InitMMMojoDLLFuncs
+        102   65 00005450 InitMMMojoGlobal
+        103   66 00005C10 ReleaseInstanceXPluginMgr
+        104   67 00005480 RemoveReadInfo
+        105   68 00005490 ShutdownMMMojoGlobal
+
+  Summary
+
+        8000 .data
+        C000 .pdata
+       38000 .rdata
+        3000 .reloc
+        1000 .rsrc
+       FB000 .text
+```
