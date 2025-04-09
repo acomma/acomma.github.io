@@ -964,3 +964,345 @@ File Type: DLL
         1000 .rsrc
        FB000 .text
 ```
+
+## 包装 QQImpl 动态链接库
+
+### 创建动态链接库
+
+在 *Solution Explorer* 选中 *QQScreenShotLauncher* 解决方案，在右键菜单中选择 *Add > New Project*
+
+{% asset_img create-project-1.png %}
+
+在 *Add a new project* 对话框选择 *C++*、*Windows*、*Library*、*Dynamic-Link Library (DLL)*
+
+{% asset_img wrapper-1.png %}
+
+在 *Configure your new project* 对话框填写 *Project name* 为 *MMMojoCallWrapper*，*Location* 保持默认
+
+{% asset_img wrapper-2.png %}
+
+### 添加 .h 和 .lib 文件
+
+在 *QQImpl* 项目找到 *qq_ipc.h* 文件，把它复制到 *D:\projects\dotnet\QQScreenShotLauncher\MMMojoCallWrapper* 目录
+
+{% asset_img wrapper-3.png %}
+
+在 *QQImpl* 项目找到 *MMMojoCall.lib* 文件，把它复制到 *D:\projects\dotnet\QQScreenShotLauncher\MMMojoCallWrapper* 目录
+
+{% asset_img wrapper-4.png %}
+
+在 *Solution Explorer* 选中 *MMMojoCallWrapper* 项目的 *Header Files*，在右键菜单选择 *Add > Existing Item*
+
+{% asset_img wrapper-5.png %}
+
+在 *Add Existing Item* 对话框选择刚刚添加的 *qq_ipc.h* 文件
+
+{% asset_img wrapper-6.png %}
+
+对 *qq_ipc.h* 头文件依赖的 *mojo_call_export.h* 头文件进行相同的操作。
+
+### 添加动态链接库包装
+
+在 *Solution Explorer* 选中 *MMMojoCallWrapper* 项目，在右键菜单中选择 *Add > Class*
+
+{% asset_img wrapper-7.png %}
+
+在 *Add Class* 对话框输入类名 *MMMojoCallWrapper*，其他保持默认
+
+{% asset_img wrapper-8.png %}
+
+下面的内容参考以下资料
+
+1. [C#与C++交互开发系列（十一）：委托和函数指针传递](https://blog.csdn.net/houbincarson/article/details/143191834)
+2. [将委托作为回调方法进行封送](https://learn.microsoft.com/zh-cn/dotnet/framework/interop/marshalling-a-delegate-as-a-callback-method)
+
+*MMMojoCallWrapper.h* 文件的内容如下所示
+
+```c++
+#pragma once
+
+#ifdef MMMOJOCALLWRAPPER_EXPORTS
+#define MMMOJOCALLWRAPPER_API __declspec(dllexport)
+#else
+#define MMMOJOCALLWRAPPER_API __declspec(dllimport)
+#endif
+
+extern "C"  MMMOJOCALLWRAPPER_API typedef void (*CallbackIpc)(void*, char*, int, char*, int);
+
+// QQIpcParentWrapper
+
+extern "C" MMMOJOCALLWRAPPER_API void* CreateQQIpcParentWrapper();
+
+extern "C" MMMOJOCALLWRAPPER_API void DeleteQQIpcParentWrapper(void* instance);
+
+extern "C" MMMOJOCALLWRAPPER_API void QQIpcParentWrapper_OnDefaultReceiveMsg(void* pArg, char* msg, int arg3, char* addition_msg, int addition_msg_size);
+
+extern "C" MMMOJOCALLWRAPPER_API bool QQIpcParentWrapper_InitEnv(void* instance, const char* dll_path);
+
+extern "C" MMMOJOCALLWRAPPER_API void QQIpcParentWrapper_SetLogLevel(void* instance, int level);
+
+extern "C" MMMOJOCALLWRAPPER_API const char* QQIpcParentWrapper_GetLastErrStr(void* instance);
+
+extern "C" MMMOJOCALLWRAPPER_API void QQIpcParentWrapper_InitLog(void* instance, int level, void* callback);
+
+extern "C" MMMOJOCALLWRAPPER_API void QQIpcParentWrapper_InitParentIpc(void* instance);
+
+extern "C" MMMOJOCALLWRAPPER_API int QQIpcParentWrapper_LaunchChildProcess(void* instance, const char* file_path, CallbackIpc callback, void* cb_arg, char** cmdlines, int cmd_num);
+
+extern "C" MMMOJOCALLWRAPPER_API bool QQIpcParentWrapper_ConnectedToChildProcess(void* instance, int pid);
+
+extern "C" MMMOJOCALLWRAPPER_API bool QQIpcParentWrapper_SendIpcMessage(void* instance, int pid, const char* command, const char* addition_msg, int addition_msg_size);
+
+extern "C" MMMOJOCALLWRAPPER_API bool QQIpcParentWrapper_TerminateChildProcess(void* instance, int pid, int exit_code, bool wait_);
+
+extern "C" MMMOJOCALLWRAPPER_API bool QQIpcParentWrapper_ReLaunchChildProcess(void* instance, int pid);
+
+// QQIpcChildWrapper
+
+extern "C" MMMOJOCALLWRAPPER_API void* CreateQQIpcChildWrapper();
+
+extern "C" MMMOJOCALLWRAPPER_API void DeleteQQIpcChildWrapper(void* instance);
+
+extern "C" MMMOJOCALLWRAPPER_API const char* QQIpcChildWrapper_GetLastErrStr(void* instance);
+
+extern "C" MMMOJOCALLWRAPPER_API bool QQIpcChildWrapper_InitEnv(void* instance, const char* dll_path);
+
+extern "C" MMMOJOCALLWRAPPER_API void QQIpcChildWrapper_InitChildIpc(void* instance);
+
+extern "C" MMMOJOCALLWRAPPER_API void QQIpcChildWrapper_InitLog(void* instance, int level, void* callback);
+
+extern "C" MMMOJOCALLWRAPPER_API void QQIpcChildWrapper_SetChildReceiveCallback(void* instance, CallbackIpc callback);
+
+extern "C" MMMOJOCALLWRAPPER_API void QQIpcChildWrapper_SendIpcMessage(void* instance, const char* command, const char* addition_msg, int addition_msg_size);
+```
+
+*MMMojoCallWrapper.cpp* 文件的内容如下所示
+
+```c++
+#include "pch.h"
+#include "MMMojoCallWrapper.h"
+#include "qq_ipc.h"
+
+#pragma comment(lib, "MMMojoCall.lib")
+
+// QQIpcParentWrapper
+
+MMMOJOCALLWRAPPER_API void* CreateQQIpcParentWrapper()
+{
+	return new qqimpl::qqipc::QQIpcParentWrapper();
+}
+
+MMMOJOCALLWRAPPER_API void DeleteQQIpcParentWrapper(void* instance)
+{
+	qqimpl::qqipc::QQIpcParentWrapper* o = static_cast<qqimpl::qqipc::QQIpcParentWrapper*>(instance);
+	delete o;
+}
+
+MMMOJOCALLWRAPPER_API void QQIpcParentWrapper_OnDefaultReceiveMsg(void* pArg, char* msg, int arg3, char* addition_msg, int addition_msg_size)
+{
+	return qqimpl::qqipc::QQIpcParentWrapper::OnDefaultReceiveMsg(pArg, msg, arg3, addition_msg, addition_msg_size);
+}
+
+MMMOJOCALLWRAPPER_API bool QQIpcParentWrapper_InitEnv(void* instance, const char* dll_path)
+{
+	qqimpl::qqipc::QQIpcParentWrapper* o = static_cast<qqimpl::qqipc::QQIpcParentWrapper*>(instance);
+	return o->InitEnv(dll_path);
+}
+
+MMMOJOCALLWRAPPER_API void QQIpcParentWrapper_SetLogLevel(void* instance, int level)
+{
+	qqimpl::qqipc::QQIpcParentWrapper* o = static_cast<qqimpl::qqipc::QQIpcParentWrapper*>(instance);
+	return o->SetLogLevel(level);
+}
+
+MMMOJOCALLWRAPPER_API const char* QQIpcParentWrapper_GetLastErrStr(void* instance)
+{
+	qqimpl::qqipc::QQIpcParentWrapper* o = static_cast<qqimpl::qqipc::QQIpcParentWrapper*>(instance);
+	return o->GetLastErrStr();
+}
+
+MMMOJOCALLWRAPPER_API void QQIpcParentWrapper_InitLog(void* instance, int level, void* callback)
+{
+	qqimpl::qqipc::QQIpcParentWrapper* o = static_cast<qqimpl::qqipc::QQIpcParentWrapper*>(instance);
+	return o->InitLog(level, callback);
+}
+
+MMMOJOCALLWRAPPER_API void QQIpcParentWrapper_InitParentIpc(void* instance)
+{
+	qqimpl::qqipc::QQIpcParentWrapper* o = static_cast<qqimpl::qqipc::QQIpcParentWrapper*>(instance);
+	return o->InitParentIpc();
+}
+
+MMMOJOCALLWRAPPER_API int QQIpcParentWrapper_LaunchChildProcess(void* instance, const char* file_path, CallbackIpc callback, void* cb_arg, char** cmdlines, int cmd_num)
+{
+	qqimpl::qqipc::QQIpcParentWrapper* o = static_cast<qqimpl::qqipc::QQIpcParentWrapper*>(instance);
+	return o->LaunchChildProcess(file_path, callback, cb_arg, cmdlines, cmd_num);
+}
+
+MMMOJOCALLWRAPPER_API bool QQIpcParentWrapper_ConnectedToChildProcess(void* instance, int pid)
+{
+	qqimpl::qqipc::QQIpcParentWrapper* o = static_cast<qqimpl::qqipc::QQIpcParentWrapper*>(instance);
+	return o->ConnectedToChildProcess(pid);
+}
+
+MMMOJOCALLWRAPPER_API bool QQIpcParentWrapper_SendIpcMessage(void* instance, int pid, const char* command, const char* addition_msg, int addition_msg_size)
+{
+	qqimpl::qqipc::QQIpcParentWrapper* o = static_cast<qqimpl::qqipc::QQIpcParentWrapper*>(instance);
+	return o->SendIpcMessage(pid, command, addition_msg, addition_msg_size);
+}
+
+MMMOJOCALLWRAPPER_API bool QQIpcParentWrapper_TerminateChildProcess(void* instance, int pid, int exit_code, bool wait_)
+{
+	qqimpl::qqipc::QQIpcParentWrapper* o = static_cast<qqimpl::qqipc::QQIpcParentWrapper*>(instance);
+	return o->TerminateChildProcess(pid, exit_code, wait_);
+}
+
+MMMOJOCALLWRAPPER_API bool QQIpcParentWrapper_ReLaunchChildProcess(void* instance, int pid)
+{
+	qqimpl::qqipc::QQIpcParentWrapper* o = static_cast<qqimpl::qqipc::QQIpcParentWrapper*>(instance);
+	return o->ReLaunchChildProcess(pid);
+}
+
+// QQIpcChildWrapper
+
+MMMOJOCALLWRAPPER_API void* CreateQQIpcChildWrapper()
+{
+	return new qqimpl::qqipc::QQIpcChildWrapper();
+}
+
+MMMOJOCALLWRAPPER_API void DeleteQQIpcChildWrapper(void* instance)
+{
+	qqimpl::qqipc::QQIpcChildWrapper* o = static_cast<qqimpl::qqipc::QQIpcChildWrapper*>(instance);
+	delete o;
+}
+
+MMMOJOCALLWRAPPER_API const char* QQIpcChildWrapper_GetLastErrStr(void* instance)
+{
+	qqimpl::qqipc::QQIpcChildWrapper* o = static_cast<qqimpl::qqipc::QQIpcChildWrapper*>(instance);
+	return o->GetLastErrStr();
+}
+
+MMMOJOCALLWRAPPER_API bool QQIpcChildWrapper_InitEnv(void* instance, const char* dll_path)
+{
+	qqimpl::qqipc::QQIpcChildWrapper* o = static_cast<qqimpl::qqipc::QQIpcChildWrapper*>(instance);
+	return o->InitEnv(dll_path);
+}
+
+MMMOJOCALLWRAPPER_API void QQIpcChildWrapper_InitChildIpc(void* instance)
+{
+	qqimpl::qqipc::QQIpcChildWrapper* o = static_cast<qqimpl::qqipc::QQIpcChildWrapper*>(instance);
+	return o->InitChildIpc();
+}
+
+MMMOJOCALLWRAPPER_API void QQIpcChildWrapper_InitLog(void* instance, int level, void* callback)
+{
+	qqimpl::qqipc::QQIpcChildWrapper* o = static_cast<qqimpl::qqipc::QQIpcChildWrapper*>(instance);
+	return o->InitLog(level, callback);
+}
+
+MMMOJOCALLWRAPPER_API void QQIpcChildWrapper_SetChildReceiveCallback(void* instance, CallbackIpc callback)
+{
+	qqimpl::qqipc::QQIpcChildWrapper* o = static_cast<qqimpl::qqipc::QQIpcChildWrapper*>(instance);
+	return o->SetChildReceiveCallback(callback);
+}
+
+MMMOJOCALLWRAPPER_API void QQIpcChildWrapper_SendIpcMessage(void* instance, const char* command, const char* addition_msg, int addition_msg_size)
+{
+	qqimpl::qqipc::QQIpcChildWrapper* o = static_cast<qqimpl::qqipc::QQIpcChildWrapper*>(instance);
+	return o->SendIpcMessage(command, addition_msg, addition_msg_size);
+}
+```
+
+编译 *MMMojoCallWrapper* 项目，在终端进入 *D:\projects\dotnet\QQScreenShotLauncher\x64\Debug* 目录执行 `dumpbin /exports .\MMMojoCallWrapper.dll` 命令
+
+```text
+Microsoft (R) COFF/PE Dumper Version 14.41.34120.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file .\MMMojoCallWrapper.dll
+
+File Type: DLL
+
+  Section contains the following exports for MMMojoCallWrapper.dll
+
+    00000000 characteristics
+    FFFFFFFF time date stamp
+        0.00 version
+           1 ordinal base
+          21 number of functions
+          21 number of names
+
+    ordinal hint RVA      name
+
+          1    0 00011424 CreateQQIpcChildWrapper = @ILT+1055(CreateQQIpcChildWrapper)
+          2    1 000110E1 CreateQQIpcParentWrapper = @ILT+220(CreateQQIpcParentWrapper)
+          3    2 000112F8 DeleteQQIpcChildWrapper = @ILT+755(DeleteQQIpcChildWrapper)
+          4    3 00011375 DeleteQQIpcParentWrapper = @ILT+880(DeleteQQIpcParentWrapper)
+          5    4 000112DA QQIpcChildWrapper_GetLastErrStr = @ILT+725(QQIpcChildWrapper_GetLastErrStr)
+          6    5 00011460 QQIpcChildWrapper_InitChildIpc = @ILT+1115(QQIpcChildWrapper_InitChildIpc)
+          7    6 00011244 QQIpcChildWrapper_InitEnv = @ILT+575(QQIpcChildWrapper_InitEnv)
+          8    7 000111A4 QQIpcChildWrapper_InitLog = @ILT+415(QQIpcChildWrapper_InitLog)
+          9    8 0001146F QQIpcChildWrapper_SendIpcMessage = @ILT+1130(QQIpcChildWrapper_SendIpcMessage)
+         10    9 00011014 QQIpcChildWrapper_SetChildReceiveCallback = @ILT+15(QQIpcChildWrapper_SetChildReceiveCallback)
+         11    A 000112D5 QQIpcParentWrapper_ConnectedToChildProcess = @ILT+720(QQIpcParentWrapper_ConnectedToChildProcess)
+         12    B 000112C6 QQIpcParentWrapper_GetLastErrStr = @ILT+705(QQIpcParentWrapper_GetLastErrStr)
+         13    C 000113BB QQIpcParentWrapper_InitEnv = @ILT+950(QQIpcParentWrapper_InitEnv)
+         14    D 0001112C QQIpcParentWrapper_InitLog = @ILT+295(QQIpcParentWrapper_InitLog)
+         15    E 000112B2 QQIpcParentWrapper_InitParentIpc = @ILT+685(QQIpcParentWrapper_InitParentIpc)
+         16    F 00011113 QQIpcParentWrapper_LaunchChildProcess = @ILT+270(QQIpcParentWrapper_LaunchChildProcess)
+         17   10 0001143D QQIpcParentWrapper_OnDefaultReceiveMsg = @ILT+1080(QQIpcParentWrapper_OnDefaultReceiveMsg)
+         18   11 00011302 QQIpcParentWrapper_ReLaunchChildProcess = @ILT+765(QQIpcParentWrapper_ReLaunchChildProcess)
+         19   12 000113D4 QQIpcParentWrapper_SendIpcMessage = @ILT+975(QQIpcParentWrapper_SendIpcMessage)
+         20   13 000110BE QQIpcParentWrapper_SetLogLevel = @ILT+185(QQIpcParentWrapper_SetLogLevel)
+         21   14 000110F0 QQIpcParentWrapper_TerminateChildProcess = @ILT+235(QQIpcParentWrapper_TerminateChildProcess)
+
+  Summary
+
+        1000 .00cfg
+        1000 .data
+        2000 .idata
+        1000 .msvcjmc
+        3000 .pdata
+        4000 .rdata
+        1000 .reloc
+        1000 .rsrc
+        A000 .text
+       10000 .textbss
+```
+
+## 实现 QQ 截图功能
+
+这部分内容参考以下资料
+
+1. [使用非托管 DLL 函数](https://learn.microsoft.com/zh-cn/dotnet/framework/interop/consuming-unmanaged-dll-functions)
+2. [用vs完整的搭建一个项目流程(包括多个项目之间的依赖) 方法一](https://blog.csdn.net/qq_38409301/article/details/121869272)
+3. [Visual Studio 2019：引用动态DLL项目](https://blog.csdn.net/zhizhengguan/article/details/112764805)
+
+### 添加项目依赖
+
+在 *Solution Explorer* 选中 *NTLauncher* 项目，在右键菜单中选择 *Build Dependencies > Project Dependencies*
+
+{% asset_img shot-1.png %}
+
+在弹出的 *Project Dependencies* 对话框中选中 *MMMojoCallWrapper*
+
+{% asset_img shot-2.png %}
+
+选中 *NTLauncher* 项目，在右键菜单中选择 *Properties*
+
+{% asset_img add-icon-1.png %}
+
+选中 *Build > Events*，在 *Post-build event* 输入 `xcopy /y /d "$(SolutionDir)x64\$(Configuration)\$(IntDir)MMMojoCallWrapper.dll" "$(OutDir)"`
+
+{% asset_img shot-3.png %}
+
+### 实现动态链接库包装
+
+在 *Solution Explorer* 选中 *NTLauncher* 项目，在右键菜单中选择 *Add Class*
+
+{% asset_img shot-4.png %}
+
+在弹出的 *Add New Item* 对话框中创建一个 *Class*，名称为 *QQIpcWrapper.cs*
+
+{% asset_img shot-5.png %}
