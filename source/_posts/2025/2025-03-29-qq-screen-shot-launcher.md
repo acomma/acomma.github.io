@@ -1306,3 +1306,188 @@ File Type: DLL
 在弹出的 *Add New Item* 对话框中创建一个 *Class*，名称为 *QQIpcWrapper.cs*
 
 {% asset_img shot-5.png %}
+
+*QQIpcWrapper.cs* 的实现如下所示，注意以下事项：
+
+* `void*` 在 C# 中通常是 `IntPtr`。
+* 请求参数 `char*` 映射为 `string`，并默认认定为 UTF-8 字符串。如果需要其他编码，可以进一步处理。
+* 响应参数为 `bool` 时需要加上 `[return: MarshalAs(UnmanagedType.I1)]` 标记，表示 C++ 的 `bool` 只占一个字节。
+* `CallbackIpc` 使用 `[UnmanagedFunctionPointer]` 指定调用约定为 `CallingConvention.Cdecl`。
+* `cmdlines` 参数为 `char**`，可以传递一个 `string[]`，由 C# 处理自动封送到非托管代码中。
+* 对 `QQIpcParentWrapper_GetLastErrStr` 函数的响应参数采用 `IntPtr` 是因为该函数返回的是一个指向 C++ 字符串的指针 (`const char*`)。在 C# 中，我们无法直接对指针类型的数据进行处理，并且不能知道返回的字符串是如何管理内存的（例如：是否是动态分配的、是否需要释放）。因此将返回值指定为 `IntPtr`，并根据需要在 C# 中手动解析它为字符串。返回的字符串以 ANSI 编码表示时使用 `Marshal.PtrToStringAnsi(ptr)`，返回的字符串以 UTF-8 编码表示时使用 `Marshal.PtrToStringUTF8(ptr)`（适用 .NET 5 或更高版本）。
+
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace NTLauncher
+{
+    public class QQIpcWrapper
+    {
+        // Typedef 对应的委托
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void CallbackIpc(IntPtr pArg, string msg, int arg3, string addition_msg, int addition_msg_size);
+
+        // QQIpcParentWrapper
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "CreateQQIpcParentWrapper", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr CreateQQIpcParentWrapper();
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "DeleteQQIpcParentWrapper", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void DeleteQQIpcParentWrapper(IntPtr instance);
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "QQIpcParentWrapper_OnDefaultReceiveMsg", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void QQIpcParentWrapper_OnDefaultReceiveMsg(IntPtr pArg, string msg, int arg3, string addition_msg, int addition_msg_size);
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "QQIpcParentWrapper_InitEnv", CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        public static extern bool QQIpcParentWrapper_InitEnv(IntPtr instance, string dll_path);
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "QQIpcParentWrapper_SetLogLevel", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void QQIpcParentWrapper_SetLogLevel(IntPtr instance, int level);
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "QQIpcParentWrapper_GetLastErrStr", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr QQIpcParentWrapper_GetLastErrStr(IntPtr instance);
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "QQIpcParentWrapper_InitLog", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void QQIpcParentWrapper_InitLog(IntPtr instance, int level, IntPtr callback);
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "QQIpcParentWrapper_InitParentIpc", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void QQIpcParentWrapper_InitParentIpc(IntPtr instance);
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "QQIpcParentWrapper_LaunchChildProcess", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int QQIpcParentWrapper_LaunchChildProcess(IntPtr instance, string file_path, CallbackIpc callback, IntPtr cb_arg, string[] cmdlines, int cmd_num);
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "QQIpcParentWrapper_ConnectedToChildProcess", CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        public static extern bool QQIpcParentWrapper_ConnectedToChildProcess(IntPtr instance, int pid);
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "QQIpcParentWrapper_SendIpcMessage", CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        public static extern bool QQIpcParentWrapper_SendIpcMessage(IntPtr instance, int pid, string command, string addition_msg, int addition_msg_size);
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "QQIpcParentWrapper_TerminateChildProcess", CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        public static extern bool QQIpcParentWrapper_TerminateChildProcess(IntPtr instance, int pid, int exit_code, bool wait_);
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "QQIpcParentWrapper_ReLaunchChildProcess", CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        public static extern bool QQIpcParentWrapper_ReLaunchChildProcess(IntPtr instance, int pid);
+
+        // QQIpcChildWrapper
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "CreateQQIpcChildWrapper", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr CreateQQIpcChildWrapper();
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "DeleteQQIpcChildWrapper", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void DeleteQQIpcChildWrapper(IntPtr instance);
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "QQIpcChildWrapper_GetLastErrStr", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr QQIpcChildWrapper_GetLastErrStr(IntPtr instance);
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "QQIpcChildWrapper_InitEnv", CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        public static extern bool QQIpcChildWrapper_InitEnv(IntPtr instance, string dll_path);
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "QQIpcChildWrapper_InitChildIpc", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void QQIpcChildWrapper_InitChildIpc(IntPtr instance);
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "QQIpcChildWrapper_InitLog", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void QQIpcChildWrapper_InitLog(IntPtr instance, int level, IntPtr callback);
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "QQIpcChildWrapper_SetChildReceiveCallback", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void QQIpcChildWrapper_SetChildReceiveCallback(IntPtr instance, CallbackIpc callback);
+
+        [DllImport("MMMojoCallWrapper.dll", EntryPoint = "QQIpcChildWrapper_SendIpcMessage", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void QQIpcChildWrapper_SendIpcMessage(IntPtr instance, string command, string addition_msg, int addition_msg_size);
+    }
+}
+```
+
+### 定义 IPC 回调
+
+在 *Form1.cs* 中定义 IPC 回调
+
+```csharp
+private QQIpcWrapper.CallbackIpc callbackIpc = (IntPtr pArg, string msg, int arg3, string addition_msg, int addition_msg_size) =>
+{
+    //string message = $"进程消息：{msg}，大小：{arg3}\n附加消息：{addition_msg}，大小：{addition_msg_size}";
+    //MessageBox.Show(message, "回调提示");
+};
+```
+
+目前忽略所有的回调消息。
+
+### 初始化 QQ 截图进程
+
+在 *Form1.cs* 的构造函数中初始化 QQ 截图进程，我们定义两个变量 `IntPtr parent` 和 `int pid` 用来保存实例化后的 `QQIpcParentWrapper` 和子进程的进程 ID
+
+```csharp
+private IntPtr parent;
+private int pid;
+
+public Form1()
+{
+    // 省略了...
+
+    this.parent = QQIpcWrapper.CreateQQIpcParentWrapper();
+    bool success = QQIpcWrapper.QQIpcParentWrapper_InitEnv(this.parent, Application.StartupPath + "parent-ipc-core-x64.dll");
+    if (!success)
+    {
+        IntPtr ptr = QQIpcWrapper.QQIpcParentWrapper_GetLastErrStr(this.parent);
+        string? msg = Marshal.PtrToStringAnsi(ptr);
+        MessageBox.Show(msg, "启动错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+        QQIpcWrapper.DeleteQQIpcChildWrapper(this.parent);
+
+        Environment.Exit(0);
+    }
+    //QQIpcWrapper.QQIpcParentWrapper_SetLogLevel(this.parent, 0);
+    QQIpcWrapper.QQIpcParentWrapper_InitLog(this.parent, 0, IntPtr.Zero);
+    QQIpcWrapper.QQIpcParentWrapper_InitParentIpc(this.parent);
+    this.pid = QQIpcWrapper.QQIpcParentWrapper_LaunchChildProcess(this.parent, this.config.QQScreenShot, callbackIpc, IntPtr.Zero, [], 0);
+    QQIpcWrapper.QQIpcParentWrapper_ConnectedToChildProcess(this.parent, this.pid);
+}
+```
+
+### 点击托盘图标开启截图
+
+在 *Form1.cs* 选中 *notifyIcon1*，然后在 *Properties* 设置 *Action > MouseClick* 为 *notifyIcon1_MouseClick*
+
+{% asset_img shot-6.png %}
+
+*notifyIcon1_MouseClick* 方法的实现如下所示，发送给子进程的命令为 `screenShot`，命令内容来自 `QQScreenShotNT-Lite`
+
+```csharp
+private void notifyIcon1_MouseClick(object sender, MouseEventArgs e)
+{
+    if (e.Button == MouseButtons.Left && this.config.EnableScreenShot == "true")
+    {
+        QQIpcWrapper.QQIpcParentWrapper_SendIpcMessage(this.parent, this.pid, "screenShot", "", 0);
+    }
+}
+```
+
+### 退出应用时结束子进程
+
+修改 *Form1.cs* 中的方法 *toolStripMenuItem7_Click*，退出应用时结束子进程并清理资源，如第 3~10 行所示
+
+```csharp
+private void toolStripMenuItem7_Click(object sender, EventArgs e)
+{
+    if (this.parent != IntPtr.Zero)
+    {
+        if (pid > 0)
+        {
+            QQIpcWrapper.QQIpcParentWrapper_TerminateChildProcess(this.parent, this.pid, 0, true);
+        }
+        QQIpcWrapper.DeleteQQIpcParentWrapper(this.parent);
+    }
+
+    Application.Exit();
+}
+```
