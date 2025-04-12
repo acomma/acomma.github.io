@@ -1460,7 +1460,7 @@ public Form1()
 
 {% asset_img shot-6.png %}
 
-*notifyIcon1_MouseClick* 方法的实现如下所示，发送给子进程的命令为 `screenShot`，命令内容来自 `QQScreenShotNT-Lite`
+*notifyIcon1_MouseClick* 方法的实现如下所示，发送给子进程的命令为 `screenShot`，命令内容来自 `QQScreenShotNT-Lite` 项目
 
 ```csharp
 private void notifyIcon1_MouseClick(object sender, MouseEventArgs e)
@@ -1490,4 +1490,164 @@ private void toolStripMenuItem7_Click(object sender, EventArgs e)
 
     Application.Exit();
 }
+```
+
+## 实现热键截图功能
+
+这部分内容参考以下资料
+
+1. [在 WinForms 项目中使用全局快捷键](https://www.cnblogs.com/zhangyunxi/p/register-hotkey-withcsharp-on-windows.html)
+2. [WM_HOTKEY消息](https://learn.microsoft.com/zh-cn/windows/win32/inputdev/wm-hotkey)
+2. [RegisterHotKey 函数 （winuser.h）](https://learn.microsoft.com/zh-cn/windows/win32/api/winuser/nf-winuser-registerhotkey)
+3. [Virtual-Key 代码](https://learn.microsoft.com/zh-cn/windows/win32/inputdev/virtual-key-codes)
+
+由于 Windows Forms 没有提供全局热键功能，因此要使用 *user32.dll*。在 *NTLauncher* 中创建 *HotKey.cs*
+
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace NTLauncher
+{
+    public class HotKey
+    {
+        public const int WM_HOTKEY = 0x0312;
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool RegisterHotKey(IntPtr hWnd, int id, KeyModifiers fsModifiers, Keys vk);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+    }
+
+    [Flags]
+    public enum KeyModifiers
+    {
+        None = 0x00,
+        Alt = 0x01,
+        Ctrl = 0x02,
+        Shift = 0x04,
+        Windows = 0x08,
+        NoRepeat = 0x4000,
+    }
+}
+```
+
+在 *Form1.cs* 的构造函数中注册热键，变量 `ID_SCREENSHOTHOTKEY` 的值来自 `QQScreenShotNT-Lite` 项目
+
+```csharp
+private int ID_SCREENSHOTHOTKEY = 61166;
+public Form1()
+{
+    // 省略了...
+
+    if (this.config.EnableHotKey == "true")
+    {
+        string[] hotKey = this.config.HotKey.Split('+');
+        Keys vk = (Keys)Enum.Parse(typeof(Keys), hotKey[2]);
+        success = HotKey.RegisterHotKey(this.Handle, ID_SCREENSHOTHOTKEY, KeyModifiers.Ctrl | KeyModifiers.Alt, vk);
+        if (!success)
+        {
+            int error = Marshal.GetLastWin32Error();
+            if (error == 1409)
+            {
+                MessageBox.Show("热键被占用！", "热键提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("注册热键失败！错误代码：" + error, "热键提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+    }
+}
+```
+
+重写窗体的处理函数，把热键消息拿出来单独处理
+
+```csharp
+protected override void WndProc(ref Message m)
+{
+    switch (m.Msg)
+    {
+        case HotKey.WM_HOTKEY:
+            if (m.WParam.ToInt32() == ID_SCREENSHOTHOTKEY && this.config.EnableScreenShot == "true")
+            {
+                QQIpcWrapper.QQIpcParentWrapper_SendIpcMessage(this.parent, this.pid, "screenShot", "", 0);
+            }
+            break;
+        default:
+            base.WndProc(ref m);
+            break;
+    }
+}
+```
+
+退出应用程序时取消热键，如下面代码的第 5 行所示
+
+```csharp
+private void toolStripMenuItem7_Click(object sender, EventArgs e)
+{
+    if (this.parent != IntPtr.Zero)
+    {
+        HotKey.UnregisterHotKey(this.Handle, ID_SCREENSHOTHOTKEY);
+        if (pid > 0)
+        {
+            QQIpcWrapper.QQIpcParentWrapper_TerminateChildProcess(this.parent, this.pid, 0, true);
+        }
+        QQIpcWrapper.DeleteQQIpcParentWrapper(this.parent);
+    }
+
+    Application.Exit();
+}
+```
+
+## 实现清空截图缓存功能
+
+实现退出时自动清空截图缓存需要修改 *toolStripMenuItem7_Click* 方法
+
+```csharp
+private void toolStripMenuItem7_Click(object sender, EventArgs e)
+{
+    // 省略了...
+
+    if (this.config.AutoExitClear == "true")
+    {
+        string folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Temp\\Capture";
+        if (Directory.Exists(folder))
+        {
+            string[] files = Directory.GetFiles(folder);
+            foreach (string file in files)
+            {
+                File.Delete(file);
+            }
+        }
+    }
+
+    Application.Exit();
+}
+```
+
+实现点击*清空截图缓存*按钮清空截图缓存需要在 *Form2.cs* 选中*清空截图缓存*按钮，修改 *Action > MouseClick* 为 *button5_MouseClick*
+
+{% asset_img shot-7.png %}
+
+*button5_MouseClick* 方法的实现如下所示
+
+```csharp
+        private void button5_MouseClick(object sender, MouseEventArgs e)
+        {
+            string folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Temp\\Capture";
+            if (Directory.Exists(folder))
+            {
+                string[] files = Directory.GetFiles(folder);
+                foreach (string file in files)
+                {
+                    File.Delete(file);
+                }
+            }
+        }
 ```
