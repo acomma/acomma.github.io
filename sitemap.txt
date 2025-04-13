@@ -35,9 +35,9 @@ https://acomma.github.io/tags/SQL/
 https://acomma.github.io/tags/SpringDoc/
 https://acomma.github.io/tags/Spring-Boot/
 https://acomma.github.io/tags/Jackson/
+https://acomma.github.io/tags/Java/
 https://acomma.github.io/tags/Knife4j/
 https://acomma.github.io/tags/Nginx/
-https://acomma.github.io/tags/Java/
 https://acomma.github.io/tags/OAuth2/
 https://acomma.github.io/tags/Spring-Security/
 https://acomma.github.io/tags/Spring-Cloud/
