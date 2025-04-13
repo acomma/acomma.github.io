@@ -1638,16 +1638,109 @@ private void toolStripMenuItem7_Click(object sender, EventArgs e)
 *button5_MouseClick* 方法的实现如下所示
 
 ```csharp
-        private void button5_MouseClick(object sender, MouseEventArgs e)
+private void button5_MouseClick(object sender, MouseEventArgs e)
+{
+    string folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Temp\\Capture";
+    if (Directory.Exists(folder))
+    {
+        string[] files = Directory.GetFiles(folder);
+        foreach (string file in files)
         {
-            string folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Temp\\Capture";
-            if (Directory.Exists(folder))
+            File.Delete(file);
+        }
+    }
+}
+```
+
+## 实现启动成功气泡提示
+
+这个功能非常简单，只需要在 *Form1.cs* 的构造函数的最后增加如下代码即可，如第 5~8 行所示
+
+```csharp
+public Form1()
+{
+    // 省略了...
+
+    if (this.config.RunTip == "true")
+    {
+        notifyIcon1.ShowBalloonTip(3000, "信息", "NTLauncher启动成功！", ToolTipIcon.Info);
+    }
+}
+```
+
+## 实现开机自启功能
+
+这部分功能参考以下资料
+
+1. [C#/WPF程序实现软件开机自动启动的两种常用方法](https://blog.csdn.net/liyu3519/article/details/81257839)
+2. [C#客户端（WinForm）开机自动启动实现](https://www.cnblogs.com/mqxs/p/9475581.html)
+
+当前选择通过注册表的方式来实现开机自启功能，因此需要在 *Form1.cs* 引入 `using Microsoft.Win32;`，在退出程序时判断*开启自启*选项是否勾选，如果勾选则注册注册表，否则删除注册表
+
+```csharp
+private void toolStripMenuItem7_Click(object sender, EventArgs e)
+{
+    // 省略了...
+
+    if (this.config.AutoRun == "true")
+    {
+        RegistryKey cu = Registry.CurrentUser;
+        RegistryKey? key = cu.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
+        if (key == null)
+        {
+            RegistryKey k1 = cu.CreateSubKey("Software");
+            RegistryKey k2 = k1.CreateSubKey("Microsoft");
+            RegistryKey k3 = k2.CreateSubKey("Windows");
+            RegistryKey k4 = k3.CreateSubKey("CurrentVersion");
+            RegistryKey k5 = k4.CreateSubKey("Run");
+            key = k5;
+        }
+        bool exist = false;
+        string[] names = key.GetValueNames();
+        foreach (string name in names)
+        {
+            if (name.ToUpper() == "QQSSL_NTLauncher".ToUpper())
             {
-                string[] files = Directory.GetFiles(folder);
-                foreach (string file in files)
-                {
-                    File.Delete(file);
-                }
+                exist = true;
+                break;
             }
         }
+        if (!exist)
+        {
+            key.SetValue("QQSSL_NTLauncher", Application.ExecutablePath);
+        }
+        key.Close();
+    }
+    else
+    {
+        RegistryKey cu = Registry.CurrentUser;
+        RegistryKey? key = cu.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
+        if (key == null)
+        {
+            RegistryKey k1 = cu.CreateSubKey("Software");
+            RegistryKey k2 = k1.CreateSubKey("Microsoft");
+            RegistryKey k3 = k2.CreateSubKey("Windows");
+            RegistryKey k4 = k3.CreateSubKey("CurrentVersion");
+            RegistryKey k5 = k4.CreateSubKey("Run");
+            key = k5;
+        }
+        bool exist = false;
+        string[] names = key.GetValueNames();
+        foreach (string name in names)
+        {
+            if (name.ToUpper() == "QQSSL_NTLauncher".ToUpper())
+            {
+                exist = true;
+                break;
+            }
+        }
+        if (exist)
+        {
+            key.DeleteValue("QQSSL_NTLauncher");
+        }
+        key.Close();
+    }
+
+    Application.Exit();
+}
 ```
