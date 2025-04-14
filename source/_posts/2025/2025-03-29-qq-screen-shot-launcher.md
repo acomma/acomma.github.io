@@ -1675,72 +1675,86 @@ public Form1()
 1. [C#/WPF程序实现软件开机自动启动的两种常用方法](https://blog.csdn.net/liyu3519/article/details/81257839)
 2. [C#客户端（WinForm）开机自动启动实现](https://www.cnblogs.com/mqxs/p/9475581.html)
 
-当前选择通过注册表的方式来实现开机自启功能，因此需要在 *Form1.cs* 引入 `using Microsoft.Win32;`，在退出程序时判断*开启自启*选项是否勾选，如果勾选则注册注册表，否则删除注册表
+当前选择通过注册表的方式来实现开机自启功能，因此需要在 *Form1.cs* 引入 `using Microsoft.Win32;`，在保存配置时判断*开启自启*选项是否勾选，如果勾选则注册注册表，否则删除注册表，如下代码第 13~70 行所示
 
 ```csharp
-private void toolStripMenuItem7_Click(object sender, EventArgs e)
+private void toolStripMenuItem2_Click(object sender, EventArgs e)
 {
-    // 省略了...
-
-    if (this.config.AutoRun == "true")
+    if (this.form2 == null || this.form2.IsDisposed)
     {
-        RegistryKey cu = Registry.CurrentUser;
-        RegistryKey? key = cu.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
-        if (key == null)
+        this.form2 = new Form2(this.config);
+        this.form2.FormClosed += (s, _) =>
         {
-            RegistryKey k1 = cu.CreateSubKey("Software");
-            RegistryKey k2 = k1.CreateSubKey("Microsoft");
-            RegistryKey k3 = k2.CreateSubKey("Windows");
-            RegistryKey k4 = k3.CreateSubKey("CurrentVersion");
-            RegistryKey k5 = k4.CreateSubKey("Run");
-            key = k5;
-        }
-        bool exist = false;
-        string[] names = key.GetValueNames();
-        foreach (string name in names)
+            this.form2?.Dispose(); // 显式释放资源
+            this.form2 = null;     // 强制置空
+        };
+        if (this.form2.ShowDialog() == DialogResult.OK)
         {
-            if (name.ToUpper() == "QQSSL_NTLauncher".ToUpper())
+            if (this.config.AutoRun == "true")
             {
-                exist = true;
-                break;
+                RegistryKey cu = Registry.CurrentUser;
+                RegistryKey? key = cu.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
+                if (key == null)
+                {
+                    RegistryKey k1 = cu.CreateSubKey("Software");
+                    RegistryKey k2 = k1.CreateSubKey("Microsoft");
+                    RegistryKey k3 = k2.CreateSubKey("Windows");
+                    RegistryKey k4 = k3.CreateSubKey("CurrentVersion");
+                    RegistryKey k5 = k4.CreateSubKey("Run");
+                    key = k5;
+                }
+                bool exist = false;
+                string[] names = key.GetValueNames();
+                foreach (string name in names)
+                {
+                    if (name.ToUpper() == "QQSSL_NTLauncher".ToUpper())
+                    {
+                        exist = true;
+                        break;
+                    }
+                }
+                if (!exist)
+                {
+                    key.SetValue("QQSSL_NTLauncher", Application.ExecutablePath);
+                }
+                key.Close();
             }
+            else
+            {
+                RegistryKey cu = Registry.CurrentUser;
+                RegistryKey? key = cu.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
+                if (key == null)
+                {
+                    RegistryKey k1 = cu.CreateSubKey("Software");
+                    RegistryKey k2 = k1.CreateSubKey("Microsoft");
+                    RegistryKey k3 = k2.CreateSubKey("Windows");
+                    RegistryKey k4 = k3.CreateSubKey("CurrentVersion");
+                    RegistryKey k5 = k4.CreateSubKey("Run");
+                    key = k5;
+                }
+                bool exist = false;
+                string[] names = key.GetValueNames();
+                foreach (string name in names)
+                {
+                    if (name.ToUpper() == "QQSSL_NTLauncher".ToUpper())
+                    {
+                        exist = true;
+                        break;
+                    }
+                }
+                if (exist)
+                {
+                    key.DeleteValue("QQSSL_NTLauncher");
+                }
+                key.Close();
+            }
+
+            this.handler.Write(this.config);
         }
-        if (!exist)
-        {
-            key.SetValue("QQSSL_NTLauncher", Application.ExecutablePath);
-        }
-        key.Close();
     }
     else
     {
-        RegistryKey cu = Registry.CurrentUser;
-        RegistryKey? key = cu.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
-        if (key == null)
-        {
-            RegistryKey k1 = cu.CreateSubKey("Software");
-            RegistryKey k2 = k1.CreateSubKey("Microsoft");
-            RegistryKey k3 = k2.CreateSubKey("Windows");
-            RegistryKey k4 = k3.CreateSubKey("CurrentVersion");
-            RegistryKey k5 = k4.CreateSubKey("Run");
-            key = k5;
-        }
-        bool exist = false;
-        string[] names = key.GetValueNames();
-        foreach (string name in names)
-        {
-            if (name.ToUpper() == "QQSSL_NTLauncher".ToUpper())
-            {
-                exist = true;
-                break;
-            }
-        }
-        if (exist)
-        {
-            key.DeleteValue("QQSSL_NTLauncher");
-        }
-        key.Close();
+        this.form2.Activate();
     }
-
-    Application.Exit();
 }
 ```
