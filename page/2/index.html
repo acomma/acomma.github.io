@@ -122,7 +122,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-count">31</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -153,6 +153,94 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2024/05/24/the-timestamp-in-postgresql/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="逗号">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逗号的博客">
+      <meta itemprop="description" content="这里是站点描述，但我没有写">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | 逗号的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2024/05/24/the-timestamp-in-postgresql/" class="post-title-link" itemprop="url">PostgreSQL 中的时间戳</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-05-24 22:13:06" itemprop="dateCreated datePublished" datetime="2024-05-24T22:13:06+08:00">2024-05-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2024-05-30 22:13:06" itemprop="dateModified" datetime="2024-05-30T22:13:06+08:00">2024-05-30</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>最近读到一篇非常好的文章 <a target="_blank" rel="noopener" href="https://blog.japinli.top/2023/03/postgresql-timestamp/">PostgreSQL 中 timestamp 与 timestamptz 的区别</a>，也可以访问 <a target="_blank" rel="noopener" href="https://japinli.github.io/2023/03/postgresql-timestamp/">https://japinli.github.io/2023/03/postgresql-timestamp/</a>，读完这篇文章后学习到了两点</p>
+<ol>
+<li>PostgreSQL 存在两个纪元，Unix 纪元（1970-01-01 00:00:00）和 PostgreSQL 纪元（2000-01-01 00:00:00），在底层存储系统存储的是时间相对于 PostgreSQL 纪元的数值。<code>EXTRACT(EPOCH FROM source)</code> 是基于 Unix 纪元的结果。</li>
+<li>顺藤摸瓜可以阅读 <code>src/backend/utils/adt/timestamp.c</code> 文件中的 <code>timestamp_in</code> 和 <code>timestamp_out</code> 函数，从源码上理解时间字符串的输入和输出逻辑。</li>
+</ol>
+<p>因此本文的逻辑是基于显示的结果而言，从显示的结果推论可能的原因，只是为了方便理解。推荐阅读它而不是本文。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2024/05/24/the-timestamp-in-postgresql/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -912,84 +1000,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2023/11/05/spring-authorization-server-practice/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="逗号">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逗号的博客">
-      <meta itemprop="description" content="这里是站点描述，但我没有写">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | 逗号的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2023/11/05/spring-authorization-server-practice/" class="post-title-link" itemprop="url">Spring Authorization Server 实践</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2023-11-05 20:17:01" itemprop="dateCreated datePublished" datetime="2023-11-05T20:17:01+08:00">2023-11-05</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p><a target="_blank" rel="noopener" href="https://spring.io/projects/spring-security-oauth">Spring Security OAuth</a> 的生命周期已经结束，现在推荐使用 <a target="_blank" rel="noopener" href="https://spring.io/projects/spring-authorization-server">Spring Authorization Server</a>。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/11/05/spring-authorization-server-practice/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>
