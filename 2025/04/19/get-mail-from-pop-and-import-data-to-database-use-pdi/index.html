@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="msvalidate.01" content="09940DFE4C5DA4E85A7117EF7EEC3933">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"acomma.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Kettle 是 PDI 的旧称，在这里我们会不加区别地使用它们。我们将模拟一套生产环境用来实现以下需求  使用数据库保存作业和转换； 在 Windows 上编辑作业和转换，在 Linux 上执行作业和转换； 使用 POP 收信下载 Excel 附件； 将 Excel 数据导入数据库； 把 Excel 文件备份到另一个目录。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 Kettle 实现收取邮件并将数据导入数据库">
+<meta property="og:url" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/index.html">
+<meta property="og:site_name" content="逗号的博客">
+<meta property="og:description" content="Kettle 是 PDI 的旧称，在这里我们会不加区别地使用它们。我们将模拟一套生产环境用来实现以下需求  使用数据库保存作业和转换； 在 Windows 上编辑作业和转换，在 Linux 上执行作业和转换； 使用 POP 收信下载 Excel 附件； 将 Excel 数据导入数据库； 把 Excel 文件备份到另一个目录。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/repo-1.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/repo-2.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/repo-3.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/repo-4.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/repo-5.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/repo-6.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/repo-7.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/repo-8.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/carte-1.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/carte-2.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/carte-3.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/carte-1.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/db-1.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/db-2.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/mail-1.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/mail-3.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/mail-2.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/excel-1.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-1.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-2.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-3.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-4.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-5.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-6.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-7.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-8.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-9.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-10.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-11.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-12.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-13.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-14.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-15.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-16.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-17.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-18.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-19.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-20.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-21.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/result-1.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/result-2.png">
+<meta property="article:published_time" content="2025-04-19T08:41:44.000Z">
+<meta property="article:modified_time" content="2025-04-19T08:41:44.000Z">
+<meta property="article:author" content="逗号">
+<meta property="article:tag" content="Kettle">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/repo-1.png">
+
+
+<link rel="canonical" href="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/","path":"2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/","title":"使用 Kettle 实现收取邮件并将数据导入数据库"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>使用 Kettle 实现收取邮件并将数据导入数据库 | 逗号的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">逗号的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里有一句格言，但我还没想好</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BD%9C%E4%B8%BA%E4%BB%93%E5%BA%93"><span class="nav-number">1.</span> <span class="nav-text">使用数据库作为仓库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8-Linux-%E5%AE%89%E8%A3%85-PDI"><span class="nav-number">2.</span> <span class="nav-text">在 Linux 安装 PDI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8-Linux-%E5%BC%80%E5%90%AF-Carte-%E6%9C%8D%E5%8A%A1"><span class="nav-number">3.</span> <span class="nav-text">在 Linux 开启 Carte 服务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E5%AD%90%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">4.</span> <span class="nav-text">添加子服务器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B0%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5"><span class="nav-number">5.</span> <span class="nav-text">新建数据库连接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%80%E5%90%AF%E9%82%AE%E7%AE%B1%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%8D%8F%E8%AE%AE"><span class="nav-number">6.</span> <span class="nav-text">开启邮箱客户端协议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%86%E5%A4%87-Excel-%E6%96%87%E4%BB%B6%E5%92%8C%E4%BA%8B%E4%BB%B6%E8%A1%A8"><span class="nav-number">7.</span> <span class="nav-text">准备 Excel 文件和事件表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E4%BD%9C%E4%B8%9A"><span class="nav-number">8.</span> <span class="nav-text">创建作业</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E6%8A%A5%E5%91%8A%E6%97%A5%E6%9C%9F"><span class="nav-number">8.1.</span> <span class="nav-text">设置报告日期</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#POP-%E6%94%B6%E4%BF%A1"><span class="nav-number">8.2.</span> <span class="nav-text">POP 收信</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A3%80%E6%9F%A5%E6%98%AF%E5%90%A6%E6%AD%A3%E7%A1%AE%E4%B8%8B%E8%BD%BD%E9%99%84%E4%BB%B6"><span class="nav-number">8.3.</span> <span class="nav-text">检查是否正确下载附件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B8%85%E7%A9%BA%E8%A1%A8"><span class="nav-number">8.4.</span> <span class="nav-text">清空表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E5%AF%BC%E5%85%A5"><span class="nav-number">8.5.</span> <span class="nav-text">文件导入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%87%E4%BB%BD%E6%96%87%E4%BB%B6"><span class="nav-number">8.6.</span> <span class="nav-text">备份文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AC%E7%A7%BB%E6%95%B0%E6%8D%AE"><span class="nav-number">8.7.</span> <span class="nav-text">转移数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E8%BF%90%E8%A1%8C%E9%85%8D%E7%BD%AE"><span class="nav-number">9.</span> <span class="nav-text">添加运行配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E4%BD%9C%E4%B8%9A"><span class="nav-number">10.</span> <span class="nav-text">运行作业</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C"><span class="nav-number">11.</span> <span class="nav-text">运行结果</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">逗号</p>
+  <div class="site-description" itemprop="description">这里是站点描述，但我没有写</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/acomma" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;acomma" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:acomma@yeah.net" title="E-Mail → mailto:acomma@yeah.net" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="逗号">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逗号的博客">
+      <meta itemprop="description" content="这里是站点描述，但我没有写">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="使用 Kettle 实现收取邮件并将数据导入数据库 | 逗号的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用 Kettle 实现收取邮件并将数据导入数据库
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-04-19 16:41:44" itemprop="dateCreated datePublished" datetime="2025-04-19T16:41:44+08:00">2025-04-19</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Kettle 是 <a target="_blank" rel="noopener" href="https://docs.hitachivantara.com/r/en-us/pentaho-data-integration-and-analytics/9.4.x/mk-95pdia003">PDI</a> 的旧称，在这里我们会不加区别地使用它们。我们将模拟一套生产环境用来实现以下需求</p>
+<ol>
+<li>使用数据库保存作业和转换；</li>
+<li>在 Windows 上编辑作业和转换，在 Linux 上执行作业和转换；</li>
+<li>使用 POP 收信下载 Excel 附件；</li>
+<li>将 Excel 数据导入数据库；</li>
+<li>把 Excel 文件备份到另一个目录。</li>
+</ol>
+<span id="more"></span>
+
+<h2 id="使用数据库作为仓库"><a href="#使用数据库作为仓库" class="headerlink" title="使用数据库作为仓库"></a>使用数据库作为仓库</h2><p>首先，准备一个 PostgreSQL 数据库实例，创建一个名为 <em>kettle</em> 的数据库用来作为数据库仓库。在 Windows 打开 Kettle 应用，点击右上角 <em>Connect</em> 按钮。如果已经有了一个或多个仓库这里将显示下拉框，此时选择 <em>Repository Manager</em> 选项</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/repo-1.png" class="">
+
+<p>在 <em>Repositories</em> 对话框点击 <em>Add</em> 按钮，在弹出的菜单项中选择 <em>Database Repository</em></p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/repo-2.png" class="">
+
+<p>在 <em>Database Repository</em> 对话框点击 <em>Create</em> 按钮</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/repo-3.png" class="">
+
+<p>在<em>数据库连接</em>对话框选择<em>一般</em>，<em>连接名称</em>填 <em>postgresql</em> 或者你认为合适的名称，<em>连接类型</em>选 <em>PostgreSQL</em>，<em>连接方式</em>选 <em>Native (JDBC)</em>，在<em>设置</em>里填写数据库连接信息。这一步有两点需要注意，一是要记一下<em>连接名称</em>的值，马上就会用到它；二是要注意填写的<em>数据库名称</em>，要与前面准备的数据库名称一致</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/repo-4.png" class="">
+
+<p>点击<em>确认</em>按钮回到 <em>Database Repository</em> 对话框，填写 <em>Display name</em>，在 <em>Create</em> 下拉框选择刚创建的数据库连接 <em>postgresql</em></p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/repo-5.png" class="">
+
+<p>点击 <em>Save</em> 按钮后回到 <em>Repositories</em> 对话框，可以看到刚刚创建的 <em>Database</em> 仓库</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/repo-6.png" class="">
+
+<p>如果是第一次创建数据库仓库，PDI 会在 <em>kettle</em> 数据库中初始化一系列的表。可以在这个对话框选中 <em>Database</em> 仓库，然后点击右侧的 <em>Connect</em> 按钮连接仓库，也可以稍后在主界面右上角点击 <em>Connect</em> 下拉框连接 <em>Database</em> 仓库</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/repo-7.png" class="">
+
+<p>Kettle 默认会创建两个用户：<em>admin</em> 和 <em>guest</em>，它们的密码分别为 <em>admin</em> 和 <em>guest</em></p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/repo-8.png" class="">
+
+<h2 id="在-Linux-安装-PDI"><a href="#在-Linux-安装-PDI" class="headerlink" title="在 Linux 安装 PDI"></a>在 Linux 安装 PDI</h2><p>首先在 Linux 上安装 JDK，可以使用 <code>java -version</code> 检查 JDK 是否可用，不再赘述。把下载好的 <em>pdi-ce-9.4.0.0-343.zip</em> 文件上传到用户主目录 <em>&#x2F;home&#x2F;acomma</em>，执行 <code>unzip pdi-ce-9.4.0.0-343.zip -d .</code> 命令将文件解压到当前目录，解压完成后在当前目录可以看到 <em>data-integration</em> 子目录</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">drwxr-xr-x 15 acomma acomma      4096 2022年11月 9日 data-integration</span><br><span class="line">-rw-r--r--  1 acomma acomma 168621798  4月19日 21:29 jdk-11.0.21_linux-x64_bin.tar.gz</span><br><span class="line">-rw-r--r--  1 acomma acomma 385517733  4月19日 21:29 pdi-ce-9.4.0.0-343.zip</span><br></pre></td></tr></table></figure>
+
+<p>执行 <code>./data-integration/kitchen.sh</code> 命令，如果显示以下信息则表示 PDI 安装成功</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">$ ./data-integration/kitchen.sh </span><br><span class="line"><span class="comment">#######################################################################</span></span><br><span class="line">WARNING:  no libwebkitgtk-1.0 detected, some features will be unavailable</span><br><span class="line">    Consider installing the package with apt-get or yum.</span><br><span class="line">    e.g. <span class="string">&#x27;sudo apt-get install libwebkitgtk-1.0-0&#x27;</span></span><br><span class="line"><span class="comment">#######################################################################</span></span><br><span class="line">Options:</span><br><span class="line">  -rep            = Repository name</span><br><span class="line">  -user           = Repository username</span><br><span class="line">  -trustuser      = !Kitchen.ComdLine.RepUsername!</span><br><span class="line">  -pass           = Repository password</span><br><span class="line">  -job            = The name of the job to launch</span><br><span class="line">  -<span class="built_in">dir</span>            = The directory (dont forget the leading /)</span><br><span class="line">  -file           = The filename (Job XML) to launch</span><br><span class="line">  -level          = The logging level (Basic, Detailed, Debug, Rowlevel, Error, Minimal, Nothing)</span><br><span class="line">  -logfile        = The logging file to write to</span><br><span class="line">  -listdir        = List the directories <span class="keyword">in</span> the repository</span><br><span class="line">  -listjobs       = List the <span class="built_in">jobs</span> <span class="keyword">in</span> the specified directory</span><br><span class="line">  -listrep        = List the available repositories</span><br><span class="line">  -norep          = Do not <span class="built_in">log</span> into the repository</span><br><span class="line">  -version        = show the version, revision and build <span class="built_in">date</span></span><br><span class="line">  -param          = Set a named parameter &lt;NAME&gt;=&lt;VALUE&gt;. For example -param:FILE=customers.csv</span><br><span class="line">  -listparam      = List information concerning the defined parameters <span class="keyword">in</span> the specified job.</span><br><span class="line">  -<span class="built_in">export</span>         = Exports all linked resources of the specified job. The argument is the name of a ZIP file.</span><br><span class="line">  -custom         = Set a custom plugin specific option as a String value <span class="keyword">in</span> the job using &lt;NAME&gt;=&lt;Value&gt;, <span class="keyword">for</span> example: -custom:COLOR=Red</span><br><span class="line">  -maxloglines    = The maximum number of <span class="built_in">log</span> lines that are kept internally by Kettle. Set to 0 to keep all rows (default)</span><br><span class="line">  -maxlogtimeout  = The maximum age (<span class="keyword">in</span> minutes) of a <span class="built_in">log</span> line <span class="keyword">while</span> being kept internally by Kettle. Set to 0 to keep all rows indefinitely (default)</span><br></pre></td></tr></table></figure>
+
+<p>这个命令同时会在用户主目录创建 <em>.kettle</em> 和 <em>.pentaho</em> 两个隐藏目录。为了让 Linux 上的 PDI 连接上数据库仓库，需要将 Windows 上的配置好的 <em>repositories.xml</em> 文件上传到 Linux 的 <em>.kettle</em> 目录，在 Windows 上这个文件的位置为 <em>C:\Users\nuc\.kettle\repositories.xml</em>，上传好的效果如下所示</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">ls</span> -l .kettle/</span><br><span class="line">总计 8</span><br><span class="line">-rw-r--r-- 1 acomma acomma  274  4月19日 22:58 kettle.properties</span><br><span class="line">-rw-r--r-- 1 acomma acomma 1763  4月19日 23:14 repositories.xml</span><br></pre></td></tr></table></figure>
+
+<p>从 Windows 上传 <em>repositories.xml</em> 文件最简单。如果 Linux 有 GUI 也可以执行 <code>./data-integration/spoon.sh</code> 命令启动 PDI，然后采用和 Windows 类似的方式创建数据库仓库。另一种方式是手工创建 <em>repositories.xml</em> 文件，只是目前还不知道 <em>repositories &gt; connection &gt; password</em> 项该如何填写。无论采用哪种方式，最终的目标是让 Windows 和 Linux 使用相同的数据库仓库。目前经过格式化处理后的 <em>repositories.xml</em> 文件的内容如下所示</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">repositories</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">connection</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>postgresql<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">server</span>&gt;</span>192.168.1.4<span class="tag">&lt;/<span class="name">server</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">type</span>&gt;</span>POSTGRESQL<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">access</span>&gt;</span>Native<span class="tag">&lt;/<span class="name">access</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">database</span>&gt;</span>kettle<span class="tag">&lt;/<span class="name">database</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">port</span>&gt;</span>5432<span class="tag">&lt;/<span class="name">port</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">username</span>&gt;</span>postgres<span class="tag">&lt;/<span class="name">username</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">password</span>&gt;</span>Encrypted 2be98afc86aa7f2e4cb79ff228dc6fa8c<span class="tag">&lt;/<span class="name">password</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">servername</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">data_tablespace</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">index_tablespace</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">attributes</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">attribute</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">code</span>&gt;</span>FORCE_IDENTIFIERS_TO_LOWERCASE<span class="tag">&lt;/<span class="name">code</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">attribute</span>&gt;</span>N<span class="tag">&lt;/<span class="name">attribute</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">attribute</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">attribute</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">code</span>&gt;</span>FORCE_IDENTIFIERS_TO_UPPERCASE<span class="tag">&lt;/<span class="name">code</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">attribute</span>&gt;</span>N<span class="tag">&lt;/<span class="name">attribute</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">attribute</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">attribute</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">code</span>&gt;</span>IS_CLUSTERED<span class="tag">&lt;/<span class="name">code</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">attribute</span>&gt;</span>N<span class="tag">&lt;/<span class="name">attribute</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">attribute</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">attribute</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">code</span>&gt;</span>PORT_NUMBER<span class="tag">&lt;/<span class="name">code</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">attribute</span>&gt;</span>5432<span class="tag">&lt;/<span class="name">attribute</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">attribute</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">attribute</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">code</span>&gt;</span>PRESERVE_RESERVED_WORD_CASE<span class="tag">&lt;/<span class="name">code</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">attribute</span>&gt;</span>Y<span class="tag">&lt;/<span class="name">attribute</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">attribute</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">attribute</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">code</span>&gt;</span>QUOTE_ALL_FIELDS<span class="tag">&lt;/<span class="name">code</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">attribute</span>&gt;</span>N<span class="tag">&lt;/<span class="name">attribute</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">attribute</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">attribute</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">code</span>&gt;</span>SUPPORTS_BOOLEAN_DATA_TYPE<span class="tag">&lt;/<span class="name">code</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">attribute</span>&gt;</span>Y<span class="tag">&lt;/<span class="name">attribute</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">attribute</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">attribute</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">code</span>&gt;</span>SUPPORTS_TIMESTAMP_DATA_TYPE<span class="tag">&lt;/<span class="name">code</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">attribute</span>&gt;</span>Y<span class="tag">&lt;/<span class="name">attribute</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">attribute</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">attribute</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">code</span>&gt;</span>USE_POOLING<span class="tag">&lt;/<span class="name">code</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">attribute</span>&gt;</span>N<span class="tag">&lt;/<span class="name">attribute</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">attribute</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">attributes</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">connection</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">repository</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">id</span>&gt;</span>KettleDatabaseRepository<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>Database<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">description</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">is_default</span>&gt;</span>false<span class="tag">&lt;/<span class="name">is_default</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">connection</span>&gt;</span>postgresql<span class="tag">&lt;/<span class="name">connection</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">repository</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">repositories</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="在-Linux-开启-Carte-服务"><a href="#在-Linux-开启-Carte-服务" class="headerlink" title="在 Linux 开启 Carte 服务"></a>在 Linux 开启 Carte 服务</h2><p>目前我们只是想让 Carte 执行作业和转换，并不是搭建一套完整的 Carte 集群，因此我们只启动一个 Carte 服务。</p>
+<p>使用命令 <code>vi ./data-integration/pwd/carte-config-master-8080.xml</code> 编辑 <em>carte-config-master-8080.xml</em> 文件，修改 <em>hostname</em> 为 Linux 服务器的 IP 地址 <em>192.168.56.101</em>，其他内容保持不变，修改后的文件内容如下所示</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">slave_config</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- </span></span><br><span class="line"><span class="comment">     Document description...</span></span><br><span class="line"><span class="comment">     </span></span><br><span class="line"><span class="comment">     - masters: You can list the slave servers to which this slave has to report back to.</span></span><br><span class="line"><span class="comment">                If this is a master, we will contact the other masters to get a list of all the slaves in the cluster.</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">     - report_to_masters : send a message to the defined masters to let them know we exist (Y/N)</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">     - slaveserver : specify the slave server details of this carte instance.</span></span><br><span class="line"><span class="comment">                     IMPORTANT : the username and password specified here are used by the master instances to connect to this slave.</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">  --&gt;</span> </span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">slaveserver</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>master1<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">hostname</span>&gt;</span>192.168.56.101<span class="tag">&lt;/<span class="name">hostname</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">port</span>&gt;</span>8080<span class="tag">&lt;/<span class="name">port</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">master</span>&gt;</span>Y<span class="tag">&lt;/<span class="name">master</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">slaveserver</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">slave_config</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>使用命令 <code>./data-integration/carte.sh pwd/carte-config-master-8080.xml</code> 启动 CCarte 服务，没什么问题的话将输出如下内容</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#######################################################################</span><br><span class="line">WARNING:  no libwebkitgtk-1.0 detected, some features will be unavailable</span><br><span class="line">    Consider installing the package with apt-get or yum.</span><br><span class="line">    e.g. &#x27;sudo apt-get install libwebkitgtk-1.0-0&#x27;</span><br><span class="line">#######################################################################</span><br><span class="line">2025/04/20 00:18:52 - Carte - Installing timer to purge stale objects after 1440 minutes.</span><br><span class="line">2025/04/20 00:18:52 - Carte - 创建 web 服务监听器 @ 地址: 192.168.56.101:8080</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加子服务器"><a href="#添加子服务器" class="headerlink" title="添加子服务器"></a>添加子服务器</h2><p>在菜单栏依次选择<em>工具 &gt; 资源库 &gt; 探索资源库</em></p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/carte-1.png" class="">
+
+<p>在弹出的对话框选择<em>子服务器</em>标签页，点击 <em>+</em> 按钮</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/carte-2.png" class="">
+
+<p>在<em>子服务器对话框</em>选择<em>服务</em>标签页，填写先前启动的 Carte 服务的信息，<em>服务名称</em>随便填；<em>主机名称或IP地址</em>填启动 Carte 服务的 Linux 的 IP 地址；<em>端口号</em>填 Carte 服务的端口号；<em>用户名</em>和<em>密码</em>都是 <em>cluster</em>；勾选<em>是否主服务器吗？</em>，因为 Carte 服务配置了 <code>&lt;master&gt;Y&lt;/master&gt;</code></p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/carte-3.png" class="">
+
+<h2 id="新建数据库连接"><a href="#新建数据库连接" class="headerlink" title="新建数据库连接"></a>新建数据库连接</h2><p>在 PostgreSQL 创建一个名为 <em>example</em> 的数据库用来保存我们的业务数据。在菜单栏依次选择工具 &gt; 资源库 &gt; 探索资源库</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/carte-1.png" class="">
+
+<p>在弹出的对话框选择<em>连接</em>标签页，点击 <em>+</em> 按钮</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/db-1.png" class="">
+
+<p>填写数据库连接信息，注意<em>数据库名称</em>要与刚刚创建的数据库一致</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/db-2.png" class="">
+
+<h2 id="开启邮箱客户端协议"><a href="#开启邮箱客户端协议" class="headerlink" title="开启邮箱客户端协议"></a>开启邮箱客户端协议</h2><p>我使用网易邮箱作为邮件服务器，因此参考<a target="_blank" rel="noopener" href="https://help.mail.163.com/faqDetail.do?code=d7a5dc8471cd0c0e8b4b8f4f8e49998b374173cfe9171305fa1ce630d7f67ac2a5feb28b66796d3b">如何开启客户端协议？</a>开启邮箱的客户端协议，开通完成后需要记住授权码</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/mail-1.png" class="">
+
+<p>同时也要记住邮箱服务器的地址信息，我当前使用的是 <em>yeah.net</em> 邮箱，地址信息如下所示</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/mail-3.png" class="">
+
+<p>至于端口号信息可以参考网易 163 邮箱</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/mail-2.png" class="">
+
+<p>这些信息在配置 PDI 的 <em>POP 收信</em>功能时需要用到。</p>
+<h2 id="准备-Excel-文件和事件表"><a href="#准备-Excel-文件和事件表" class="headerlink" title="准备 Excel 文件和事件表"></a>准备 Excel 文件和事件表</h2><p>要导入的 Excel 文件样例如下所示</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/excel-1.png" class="">
+
+<p>有三个地方需要注意，一是<em>开始时间</em>列是日期格式，而<em>结束时间</em>列是文本格式；二是<em>组织者</em>列使用了英文 <em>ORGANIZER</em>；三是时间是乱序的，而 Excel 表没有标识事件顺序的列。</p>
+<p>在 <em>example</em> 数据库创建一个事件表 <code>event_excel</code> 用来保存 Excel 的原始数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create table</span> event_excel</span><br><span class="line">(</span><br><span class="line">    &quot;seq_no&quot;    serial4,</span><br><span class="line">    &quot;事件名称&quot;  <span class="type">varchar</span>,</span><br><span class="line">    &quot;事件类型&quot;  <span class="type">varchar</span>,</span><br><span class="line">    &quot;详细描述&quot;  <span class="type">varchar</span>,</span><br><span class="line">    &quot;开始时间&quot;  <span class="type">varchar</span>,</span><br><span class="line">    &quot;结束时间&quot;  <span class="type">varchar</span>,</span><br><span class="line">    &quot;事件地点&quot;  <span class="type">varchar</span>,</span><br><span class="line">    &quot;ORGANIZER&quot; <span class="type">varchar</span>,</span><br><span class="line">    &quot;优先级&quot;    int2</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>有三个地方需要注意，一是 <code>event_excel</code> 表的列名和顺序和 Excel 文件一致（也可以不一致，只是会影响后面<em>文件导入</em>，因此这里保持一致是有意为之的），在第一列添加了 <code>seq_no</code> 列来表示事件在 Excel 文件中的顺序；二是虽然在 Excel 文件中<em>开始时间</em>列的类型是日期，但是在 <code>event_excel</code> 表中<code>开始时间</code>列的类型是 <code>varchar</code>；三是在 <code>event_excel</code> 表中<code>优先级</code>列的类型是 <code>int2</code>。</p>
+<p>再创建一个事件表 <code>event</code> 用来保存原始数据经过转换后符合数据库表设计规范且便于业务方使用的事件数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create table</span> event</span><br><span class="line">(</span><br><span class="line">    event_id    serial8,     <span class="comment">--事件ID</span></span><br><span class="line">    event_name  <span class="type">varchar</span>,     <span class="comment">--事件名称</span></span><br><span class="line">    event_type  <span class="type">varchar</span>,     <span class="comment">--事件类型</span></span><br><span class="line">    description <span class="type">varchar</span>,     <span class="comment">--详细描述</span></span><br><span class="line">    start_time  timestamptz, <span class="comment">--开始时间</span></span><br><span class="line">    end_time    timestamptz, <span class="comment">--结束时间</span></span><br><span class="line">    location    <span class="type">varchar</span>,     <span class="comment">--事件地点</span></span><br><span class="line">    organizer   <span class="type">varchar</span>,     <span class="comment">--组织者</span></span><br><span class="line">    priority    int2,        <span class="comment">--优先级</span></span><br><span class="line">    seq_no      int4,        <span class="comment">--顺序号</span></span><br><span class="line">    report_date <span class="type">varchar</span>,     <span class="comment">--报告日期</span></span><br><span class="line">    sync_time   timestamptz, <span class="comment">--同步时间</span></span><br><span class="line">    <span class="keyword">primary key</span> (event_id)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建作业"><a href="#创建作业" class="headerlink" title="创建作业"></a>创建作业</h2><p>先来看看创建好的作业长什么样子，然后再看看每一步的构成和设置是什么样的</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-1.png" class="">
+
+<h3 id="设置报告日期"><a href="#设置报告日期" class="headerlink" title="设置报告日期"></a>设置报告日期</h3><img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-2.png" class="">
+
+<p>这里需要注意的是<em>数据库连接</em></p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-3.png" class="">
+
+<p>这里需要注意的是<em>变量名</em> <code>REPORT_DATE</code>，后面会多次使用它</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-4.png" class="">
+
+<h3 id="POP-收信"><a href="#POP-收信" class="headerlink" title="POP 收信"></a>POP 收信</h3><p>从前面我们知道 <em>yeah.net</em> 邮箱的 IMAP 地址是 <em>imap.yeah.net</em>，但是我的虚拟电脑暂时无法解析域名，所以<em>源主机</em>填写的是 IP 地址；<em>密码</em>是先前生成的授权码；<em>附件通配符</em>填写的是<em>每日事件信息${REPORT_DATE}.xlsx</em>，其中 <code>$&#123;REPORT_DATE&#125;</code> 作为变量会被替换</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-5.png" class="">
+
+<p><em>IMAP文件夹</em>可以通过右边的<em>选择一个文件选择</em>来选择，几乎所有邮箱服务器都有 <em>INBOX</em> 文件夹；<em>收取邮件</em>选择的是<em>获取未读邮件</em></p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-6.png" class="">
+
+<p><em>主题</em>填写的是<em>每日事件报告</em></p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-7.png" class="">
+
+<p>通过这些配置我们实现了收取主题中包含<em>每日事件报告</em>的未读邮件，下载附件中模式为<em>每日事件信息${REPORT_DATE}.xlsx</em> 的 Excel 附件，并把附件保存到 <em>&#x2F;home&#x2F;acomma&#x2F;excel</em> 目录。</p>
+<h3 id="检查是否正确下载附件"><a href="#检查是否正确下载附件" class="headerlink" title="检查是否正确下载附件"></a>检查是否正确下载附件</h3><p>注意<em>文件名</em>的值，我们添加了一个变量 <code>$&#123;REPORT_DATE&#125;</code>，这个变量在运行时会被替换，即我们只处理这个日期的文件</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-8.png" class="">
+
+<h3 id="清空表"><a href="#清空表" class="headerlink" title="清空表"></a>清空表</h3><img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-9.png" class="">
+
+<h3 id="文件导入"><a href="#文件导入" class="headerlink" title="文件导入"></a>文件导入</h3><img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-10.png" class="">
+
+<p>注意<em>选中的文件</em>表格里的值，我们添加了一个变量 <code>$&#123;REPORT_DATE&#125;</code>，这个变量在运行时会被替换，即我们只处理这个日期的文件</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-11.png" class="">
+
+<p>注意工作表的名称</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-12.png" class="">
+
+<p>这里要注意两个地方，一是<em>去除空格类型</em>由于 PDI 的 BUG 是无法选择<em>去除两边空格</em>的；二是<em>开始时间</em>的格式 <em>MM-dd-yy</em>，这是为了测试目的特殊选择的</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-13.png" class="">
+
+<p>为了解决无法选择<em>去除两边空格</em>问题，我们需要在一个 <em>File Repository</em> 中创建一个转换，将 <em>Microsoft Excel input</em> 这一项拷贝这个转换里，然后在文件夹中找到这个转换，用文本编辑器打开这个转换，将 <em>none</em> 值修改为 <em>both</em>，参考 <a target="_blank" rel="noopener" href="https://blog.csdn.net/sptoor/article/details/24427627">kettle输入“去除空格类型”设置不上的办法</a></p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-14.png" class="">
+
+<p>这里要注意<em>数据库字段</em>标签页下 <em>“ORGANIZER”</em> 字段添加了英文双引号</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-15.png" class="">
+
+<h3 id="备份文件"><a href="#备份文件" class="headerlink" title="备份文件"></a>备份文件</h3><p>如果备份目录存在同名文件则删除</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-16.png" class="">
+
+<p>将文件移动到备份目录</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-17.png" class="">
+
+<h3 id="转移数据"><a href="#转移数据" class="headerlink" title="转移数据"></a>转移数据</h3><img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-18.png" class="">
+
+<h2 id="添加运行配置"><a href="#添加运行配置" class="headerlink" title="添加运行配置"></a>添加运行配置</h2><p>选中作业下的 <em>Run Configuration</em>，在右键菜单中点击 <em>New</em></p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-19.png" class="">
+
+<p>在弹出的对话框中 <em>Name</em> 随便填写，这里填写的名称和<em>子服务器</em>名称一样 <em>vbox-8080</em>，在 <em>Settings</em> 选中 <em>Slave server</em>，在 <em>Location</em> 选择<em>子服务器</em></p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-20.png" class="">
+
+<h2 id="运行作业"><a href="#运行作业" class="headerlink" title="运行作业"></a>运行作业</h2><p>在 <em>Run Configuration</em> 处选择刚刚添加的运行配置</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-21.png" class="">
+
+<h2 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h2><p>进入 <code>event_excel</code> 表的内容如下所示</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/result-1.png" class="">
+
+<p>进入 <code>event</code> 表的内容如下所示</p>
+<img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/result-2.png" class="">
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Kettle/" rel="tag"># Kettle</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/04/18/install-debian-on-virtualbox-v2/" rel="prev" title="在 VirtualBox 中安装 Debian 系统（第二版）">
+                  <i class="fa fa-angle-left"></i> 在 VirtualBox 中安装 Debian 系统（第二版）
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">逗号</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.min.js","integrity":"sha256-G8ouPAnw4zzMbnAenHnVz6h9XpKbNdOkrqTh7AadyHs="}}</script>
+  <script src="/js/third-party/tags/mermaid.js"></script>
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

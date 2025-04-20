@@ -1,4 +1,5 @@
 https://acomma.github.io/tags/index.html
+https://acomma.github.io/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/
 https://acomma.github.io/2025/04/18/install-debian-on-virtualbox-v2/
 https://acomma.github.io/2025/03/29/qq-screen-shot-launcher/
 https://acomma.github.io/2025/03/22/spring-cloud-canary-deployment/
