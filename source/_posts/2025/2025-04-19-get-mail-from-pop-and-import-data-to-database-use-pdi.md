@@ -322,7 +322,7 @@ create table event
 
 ### POP 收信
 
-从前面我们知道 *yeah.net* 邮箱的 IMAP 地址是 *imap.yeah.net*，但是我的虚拟电脑暂时无法解析域名，所以*源主机*填写的是 IP 地址；*密码*是先前生成的授权码；*附件通配符*填写的是*每日事件信息${REPORT_DATE}.xlsx*，其中 `${REPORT_DATE}` 作为变量会被替换
+*源主机*填写的是 *yeah.net* 邮箱的 IMAP 地址是 *imap.yeah.net*；*密码*是先前生成的授权码；*附件通配符*填写的是*每日事件信息${REPORT_DATE}.xlsx*，其中 `${REPORT_DATE}` 作为变量会被替换
 
 {% asset_img job-5.png %}
 
