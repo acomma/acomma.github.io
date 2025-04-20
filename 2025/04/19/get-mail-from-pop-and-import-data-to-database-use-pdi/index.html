@@ -353,7 +353,7 @@
 <p>这里需要注意的是<em>变量名</em> <code>REPORT_DATE</code>，后面会多次使用它</p>
 <img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-4.png" class="">
 
-<h3 id="POP-收信"><a href="#POP-收信" class="headerlink" title="POP 收信"></a>POP 收信</h3><p>从前面我们知道 <em>yeah.net</em> 邮箱的 IMAP 地址是 <em>imap.yeah.net</em>，但是我的虚拟电脑暂时无法解析域名，所以<em>源主机</em>填写的是 IP 地址；<em>密码</em>是先前生成的授权码；<em>附件通配符</em>填写的是<em>每日事件信息${REPORT_DATE}.xlsx</em>，其中 <code>$&#123;REPORT_DATE&#125;</code> 作为变量会被替换</p>
+<h3 id="POP-收信"><a href="#POP-收信" class="headerlink" title="POP 收信"></a>POP 收信</h3><p><em>源主机</em>填写的是 <em>yeah.net</em> 邮箱的 IMAP 地址是 <em>imap.yeah.net</em>；<em>密码</em>是先前生成的授权码；<em>附件通配符</em>填写的是<em>每日事件信息${REPORT_DATE}.xlsx</em>，其中 <code>$&#123;REPORT_DATE&#125;</code> 作为变量会被替换</p>
 <img src="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/job-5.png" class="">
 
 <p><em>IMAP文件夹</em>可以通过右边的<em>选择一个文件选择</em>来选择，几乎所有邮箱服务器都有 <em>INBOX</em> 文件夹；<em>收取邮件</em>选择的是<em>获取未读邮件</em></p>
