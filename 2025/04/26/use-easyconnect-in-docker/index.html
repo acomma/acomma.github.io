@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="msvalidate.01" content="09940DFE4C5DA4E85A7117EF7EEC3933">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"acomma.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在这篇文章中只介绍在 Windows 下使用 Docker 封印 EasyConnect 的操作步骤。我们会使用到 4 个软件：Docker Desktop、VNC Viewer、Clash for Windows、Wintun 和 1 个镜像：docker-easyconnect。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 Docker 封印 EasyConnect">
+<meta property="og:url" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/index.html">
+<meta property="og:site_name" content="逗号的博客">
+<meta property="og:description" content="在这篇文章中只介绍在 Windows 下使用 Docker 封印 EasyConnect 的操作步骤。我们会使用到 4 个软件：Docker Desktop、VNC Viewer、Clash for Windows、Wintun 和 1 个镜像：docker-easyconnect。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/version-1.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/login-1.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/login-2.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/login-3.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/login-4.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/login-5.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/login-6.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/proxy-1.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/proxy-2.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/proxy-3.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/proxy-4.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/tun-1.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/tun-2.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/tun-3.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/tun-4.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/tun-5.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/tun-6.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/tun-7.png">
+<meta property="og:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/tun-8.png">
+<meta property="article:published_time" content="2025-04-26T01:00:26.000Z">
+<meta property="article:modified_time" content="2025-04-26T01:00:26.000Z">
+<meta property="article:author" content="逗号">
+<meta property="article:tag" content="EasyConnect">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/version-1.png">
+
+
+<link rel="canonical" href="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/","path":"2025/04/26/use-easyconnect-in-docker/","title":"使用 Docker 封印 EasyConnect"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>使用 Docker 封印 EasyConnect | 逗号的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">逗号的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里有一句格言，但我还没想好</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BD-docker-easyconnect-%E9%95%9C%E5%83%8F"><span class="nav-number">1.</span> <span class="nav-text">下载 docker-easyconnect 镜像</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8-docker-easyconnect-%E5%AE%B9%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">启动 docker-easyconnect 容器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-VNC-Viewer-%E7%99%BB%E5%BD%95-EasyConnect"><span class="nav-number">3.</span> <span class="nav-text">使用 VNC Viewer 登录 EasyConnect</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Clash-for-Windows-%E9%85%8D%E7%BD%AE%E4%BB%A3%E7%90%86"><span class="nav-number">4.</span> <span class="nav-text">使用 Clash for Windows 配置代理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TUN-%E6%A8%A1%E5%BC%8F"><span class="nav-number">5.</span> <span class="nav-text">TUN 模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">逗号</p>
+  <div class="site-description" itemprop="description">这里是站点描述，但我没有写</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/acomma" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;acomma" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:acomma@yeah.net" title="E-Mail → mailto:acomma@yeah.net" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="逗号">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逗号的博客">
+      <meta itemprop="description" content="这里是站点描述，但我没有写">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="使用 Docker 封印 EasyConnect | 逗号的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用 Docker 封印 EasyConnect
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-04-26 09:00:26" itemprop="dateCreated datePublished" datetime="2025-04-26T09:00:26+08:00">2025-04-26</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在这篇文章中只介绍在 Windows 下使用 Docker 封印 EasyConnect 的操作步骤。我们会使用到 4 个软件：<a target="_blank" rel="noopener" href="https://www.docker.com/products/docker-desktop/">Docker Desktop</a>、<a target="_blank" rel="noopener" href="https://www.realvnc.com/en/connect/download/viewer/">VNC Viewer</a>、<a target="_blank" rel="noopener" href="https://archive.org/download/clash_for_windows_pkg">Clash for Windows</a>、<a target="_blank" rel="noopener" href="https://www.wintun.net/">Wintun</a> 和 1 个镜像：<a target="_blank" rel="noopener" href="https://github.com/docker-easyconnect/docker-easyconnect">docker-easyconnect</a>。</p>
+<span id="more"></span>
+
+<h2 id="下载-docker-easyconnect-镜像"><a href="#下载-docker-easyconnect-镜像" class="headerlink" title="下载 docker-easyconnect 镜像"></a>下载 docker-easyconnect 镜像</h2><p>为了确定要下载的镜像版本请在浏览器地址栏输入 <em>https:&#x2F;&#x2F;服务端地址&#x2F;por&#x2F;ec_pkg.csp?platform&#x3D;liunx</em>，请根据实际情况替换<em>服务端地址</em>部分</p>
+<img src="/2025/04/26/use-easyconnect-in-docker/version-1.png" class="">
+
+<p>根据浏览器输出并结合 <a target="_blank" rel="noopener" href="https://github.com/docker-easyconnect/docker-easyconnect/blob/master/doc/usage.md#easyconnect-%E7%89%88%E6%9C%AC%E9%80%89%E6%8B%A9">EasyConnect 版本选择</a>当前我们应该选择 <em>7.6.3</em> 版本</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull hagb/docker-easyconnect:7.6.3</span><br></pre></td></tr></table></figure>
+
+<h2 id="启动-docker-easyconnect-容器"><a href="#启动-docker-easyconnect-容器" class="headerlink" title="启动 docker-easyconnect 容器"></a>启动 docker-easyconnect 容器</h2><p>根据<a target="_blank" rel="noopener" href="https://github.com/docker-easyconnect/docker-easyconnect#%E5%9B%BE%E5%BD%A2%E7%95%8C%E9%9D%A2%E7%89%88-easyconnectx86amd64arm64mips64el-%E6%9E%B6%E6%9E%84">图形界面版 EasyConnect</a> 的说明我们启动容器的命令如下，替换 <code>$HOME</code> 变量为 Windows 下的用户目录 <em>C:\Users\nuc</em>，<code>PASSWORD</code> 设置为 <em>123456</em>，其他保持不变</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --rm --device /dev/net/tun --cap-add NET_ADMIN -ti -e PASSWORD=123456 -e URLWIN=1 -v C:\Users\nuc\.ecdata:/root -p 127.0.0.1:5901:5901 -p 127.0.0.1:1080:1080 -p 127.0.0.1:8888:8888 hagb/docker-easyconnect:7.6.3</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用-VNC-Viewer-登录-EasyConnect"><a href="#使用-VNC-Viewer-登录-EasyConnect" class="headerlink" title="使用 VNC Viewer 登录 EasyConnect"></a>使用 VNC Viewer 登录 EasyConnect</h2><p>打开 VNC Viewer 软件，在菜单栏选择 <em>File &gt; New connection</em></p>
+<img src="/2025/04/26/use-easyconnect-in-docker/login-1.png" class="">
+
+<p>在弹出的对话框中，<em>VNC Server</em> 项输入在启动容器由参数 <code>-p 127.0.0.1:5901:5901</code> 设置地址和端口 <em>127.0.0.1:5901</em>；<em>Name</em> 项取一个自己容易识别的名字，比如 <em>Docker EasyConnect</em></p>
+<img src="/2025/04/26/use-easyconnect-in-docker/login-2.png" class="">
+
+<p>在 VNC Viewer 主界面双击刚创建的 <em>VNC Server</em></p>
+<img src="/2025/04/26/use-easyconnect-in-docker/login-3.png" class="">
+
+<p>在弹出的 <em>Encryption</em> 确认框中点击 <em>Continue</em> 按钮忽略未加密连接警告</p>
+<img src="/2025/04/26/use-easyconnect-in-docker/login-4.png" class="">
+
+<p>在弹出的 <em>Authentication</em> 对话框中，<em>Password</em> 项输入启动容器时通过 <code>-e PASSWORD=123456</code> 参数设置的密码 <em>123456</em></p>
+<img src="/2025/04/26/use-easyconnect-in-docker/login-5.png" class="">
+
+<p>如果没什么意外将看到 Easy Connect 连接界面，输入<em>服务器地址</em>、<em>用户名</em>、<em>密码</em>进行正常的登录</p>
+<img src="/2025/04/26/use-easyconnect-in-docker/login-6.png" class="">
+
+<h2 id="使用-Clash-for-Windows-配置代理"><a href="#使用-Clash-for-Windows-配置代理" class="headerlink" title="使用 Clash for Windows 配置代理"></a>使用 Clash for Windows 配置代理</h2><p>打开 Clash for Windows 软件，选择 <em>Profilees</em>，点击 <em>&lt;&gt;</em> 按钮开始编辑</p>
+<img src="/2025/04/26/use-easyconnect-in-docker/proxy-1.png" class="">
+
+<p><em>config.yaml</em> 配置的 1 ~ 4 行为原始内容，5 ~ 18 行为新增内容。第 8 ~ 9 行是在启动容器时通过 <code>-p 127.0.0.1:1080:1080</code> 参数设置地址和端口；第 16 ~ 18 行 <em>rules</em> 部分请根据自己实际进行配置</p>
+<img src="/2025/04/26/use-easyconnect-in-docker/proxy-2.png" class="">
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">mixed-port:</span> <span class="number">7890</span></span><br><span class="line"><span class="attr">allow-lan:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">external-controller:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:58547</span></span><br><span class="line"><span class="attr">secret:</span> <span class="string">e0449ccf-90d3-42d7-b814-3a885827271b</span></span><br><span class="line"><span class="attr">proxies:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Docker</span> <span class="string">EasyConnect</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">socks5</span></span><br><span class="line">    <span class="attr">server:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">1080</span></span><br><span class="line"><span class="attr">proxy-groups:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">内部网络</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">select</span></span><br><span class="line">    <span class="attr">proxies:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">Docker</span> <span class="string">EasyConnect</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN,domain1,内部网络</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN,domain2,内部网络</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">IP-CIDR,xxx.yyy.0.0/16,内部网络</span></span><br></pre></td></tr></table></figure>
+
+<p>现在打开 <em>Proxies</em>，应该就可以看到前面配置的代理</p>
+<img src="/2025/04/26/use-easyconnect-in-docker/proxy-3.png" class="">
+
+<p>为了使代理生效需要在 <em>General</em> 中打开 <em>System Proxy</em></p>
+<img src="/2025/04/26/use-easyconnect-in-docker/proxy-4.png" class="">
+
+<p>经过以上的配置已经可以在浏览器访问内网应用。</p>
+<h2 id="TUN-模式"><a href="#TUN-模式" class="headerlink" title="TUN 模式"></a>TUN 模式</h2><p>选择 <em>General</em>，点击 <em>Open Folder</em> 打开 <em>Home Directory</em></p>
+<img src="/2025/04/26/use-easyconnect-in-docker/tun-1.png" class="">
+
+<p>将 <em>wintun.dll</em> 拷贝到 <em>Home Directory</em></p>
+<img src="/2025/04/26/use-easyconnect-in-docker/tun-2.png" class="">
+
+<p>拷贝完成后的效果如下图所示</p>
+<img src="/2025/04/26/use-easyconnect-in-docker/tun-3.png" class="">
+
+<p>选择 <em>General</em>，点击 <em>Service Mode</em> 右边的 <em>Manage</em> 按钮</p>
+<img src="/2025/04/26/use-easyconnect-in-docker/tun-4.png" class="">
+
+<p>在 <em>Service Management</em> 弹框可以看到当前状态是 <em>Inactive</em>，点击 <em>Install</em> 按钮</p>
+<img src="/2025/04/26/use-easyconnect-in-docker/tun-5.png" class="">
+
+<p>Clash for Windows 会重启一下，安装完成后的效果</p>
+<img src="/2025/04/26/use-easyconnect-in-docker/tun-6.png" class="">
+
+<p>选择 <em>General</em>，打开 <em>TUN Mode</em></p>
+<img src="/2025/04/26/use-easyconnect-in-docker/tun-7.png" class="">
+
+<p>在<em>控制面板 &gt; 网络和 Internet &gt; 网络连接</em>可以看到新加入的 <em>Clash</em> 连接</p>
+<img src="/2025/04/26/use-easyconnect-in-docker/tun-8.png" class="">
+
+<p>开始愉快地玩耍吧！</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/zz153417230/article/details/134491639">Windows 的 WSL 中运行 EasyConnect</a></li>
+<li><a target="_blank" rel="noopener" href="https://coast23.github.io/2025/03/01/Windows%E4%B8%8B%E4%BD%BF%E7%94%A8Docker%E5%B0%81%E5%8D%B0EasyConnect/">Windows下使用Docker封印EasyConnect</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.ning.moe/posts/fuck-easyconnect/">封印 Easyconnect</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/485984805">新时代的快乐科研：WSL2+Docker+EasyConnect+Clash</a></li>
+<li><a target="_blank" rel="noopener" href="https://vccv.cc/article/docker-easyconnect.html">解决EasyConnect的毒瘤行为</a></li>
+<li><a target="_blank" rel="noopener" href="https://a76yyyy.github.io/clash/zh_CN/configuration/rules.html">Rules 规则</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/679435342">记一次Windows下使用docker封印Easyconnect的过程</a></li>
+<li><a target="_blank" rel="noopener" href="https://cfw.tigr.icu/">Clash for Windows</a></li>
+<li><a target="_blank" rel="noopener" href="https://a76yyyy.github.io/clash/zh_CN/configuration/configuration-reference.html">参考配置</a></li>
+<li><a target="_blank" rel="noopener" href="https://vpsgongyi.com/p/2396/">深入理解Clash配置文件</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/Naylor_5/article/details/135648311">解决挂着Clash的时候git操作push失败的问题</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/caiji00001/article/details/142302401">Github可以访问，但是git clone报错443端口连接超时</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.yoojia.com/article/10074187826780876479.html">开clash后Git依然超时的解决方法</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/389894063">用docker封印EasyConnect并连接远程桌面和数据库</a></li>
+<li><a target="_blank" rel="noopener" href="https://vccv.cc/article/docker-easyconnect.html">解决EasyConnect的毒瘤行为</a></li>
+<li><a target="_blank" rel="noopener" href="https://note.chilfish.top/blogs/2023/CFW_TUN.html">Clash for Windows 使用 TUN 模式实现网卡级代理</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.dejavu.moe/posts/cfw-tun/">Clash for Windows 优雅地使用 TUN 模式接管系统流量</a></li>
+<li><a target="_blank" rel="noopener" href="https://doc.miyun.app/app/clash-for-windows-tun/">最新 clash for windows 设置TUN模式实现真全局模式(有限真全局)</a></li>
+<li><a target="_blank" rel="noopener" href="https://dp0d.github.io/clashtun/">TUN模式 Clash for windows 配置教程</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/EasyConnect/" rel="tag"># EasyConnect</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/04/19/get-mail-from-pop-and-import-data-to-database-use-pdi/" rel="prev" title="使用 Kettle 实现收取邮件并将数据导入数据库">
+                  <i class="fa fa-angle-left"></i> 使用 Kettle 实现收取邮件并将数据导入数据库
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">逗号</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.min.js","integrity":"sha256-G8ouPAnw4zzMbnAenHnVz6h9XpKbNdOkrqTh7AadyHs="}}</script>
+  <script src="/js/third-party/tags/mermaid.js"></script>
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
