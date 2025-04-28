@@ -132,6 +132,84 @@ Clash for Windows 会重启一下，安装完成后的效果
 
 开始愉快地玩耍吧！
 
+## TUN 模式（v2rayN）
+
+我们使用 [6.58](https://github.com/2dust/v2rayN/releases/tag/6.58) 版本的 [v2rayN-With-Core.zip](https://github.com/2dust/v2rayN/releases/download/6.58/v2rayN-With-Core.zip)。在 [6.60](https://github.com/2dust/v2rayN/releases/tag/6.60) 版本的  [v2rayN-With-Core.zip](https://github.com/2dust/v2rayN/releases/download/6.60/v2rayN-With-Core.zip) 和 [7.11.3](https://github.com/2dust/v2rayN/releases/tag/7.11.3) 版本的 [v2rayN-windows-64.zip](https://github.com/2dust/v2rayN/releases/download/7.11.3/v2rayN-windows-64.zip) 未能测试通过，其他版本未进行测试。
+
+### 新增订阅分组
+
+首先，新建一个别名为*内部网络*的订阅分组
+
+{% asset_img v2rayn-1.png %}
+
+### 新增 SOCKS 配置文件
+
+选中刚创建的*内部网络*订阅分组，点击*服务器 > 添加[Socks]服务器*
+
+{% asset_img v2rayn-2.png %}
+
+*服务器*选 *sing_box*，*别名*填 *Docker EasyConnect*，*地址*填 *127.0.0.1*，*端口*填 *1080*，其中地址和端口是在启动容器时通过 `-p 127.0.0.1:1080:1080` 参数设置地址和端口，其他保持不变
+
+{% asset_img v2rayn-3.png %}
+
+### 配置 Tun 模式设置
+
+点击*设置 > 参数设置*
+
+{% asset_img v2rayn-4.png %}
+
+选中 *Tun 模式设置*标签页，关闭 *Strict Route*，*Stack* 选择 *gvisor*，其他保持默认
+
+{% asset_img v2rayn-5.png %}
+
+### 配置路由设置
+
+点击*设置 > 路由设置*
+
+{% asset_img v2rayn-6.png %}
+
+在路由设置对话框点击*高级功能 > 添加规则集*
+
+{% asset_img v2rayn-7.png %}
+
+在规则集设置对话框填写*别名*为*内部网络*，其他保持不变，然后点击*添加规则*按钮
+
+{% asset_img v2rayn-8.png %}
+
+在路由规则集详情设置对话框 *outboundTag* 选择 *proxy*，其他保持不变；*Domain* 根据自己实际填写
+
+{% asset_img v2rayn-9.png %}
+
+以相同的方式配置 *IP 或 IP CIDR* 规则集
+
+{% asset_img v2rayn-10.png %}
+
+为了能够正确地访问外部网络需要把 *V3-绕过大陆(Whitelist)* 规则集里 *outboundTag* 为 *direct* 的规则复制一份到我们的内部网络（可能需要去掉 `geoip:private,` 部分），配置完成后我们的内部网络规则集如下所示
+
+{% asset_img v2rayn-11.png %}
+
+### 配置 DNS 设置
+
+点击*设置 > DNS 设置*
+
+{% asset_img v2rayn-12.png %}
+
+在 DNS 设置对话框选择 *sing-box DNS设置*标签页，点击*点击导入默认DNS配置*按钮
+
+{% asset_img v2rayn-13.png %}
+
+### 启用 TUN 模式
+
+选择*内部网络*订阅分组，将别名为 *Docker EasyConnect* 设置为*活动服务器*，打开*启用Tun模式*开关，*系统代理*选择*自动配置系统代理*，*路由*选择*内部网络*。如果不是*以管理员身份*运行 v2rayN 会自动重启一次
+
+{% asset_img v2rayn-14.png %}
+
+在*控制面板 > 网络和 Internet > 网络连接*可以看到新加入的 *singbox_tun* 连接
+
+{% asset_img v2rayn-15.png %}
+
+开始愉快地玩耍吧！
+
 ## 参考资料
 
 1. [Windows 的 WSL 中运行 EasyConnect](https://blog.csdn.net/zz153417230/article/details/134491639)
