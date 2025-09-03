@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="msvalidate.01" content="09940DFE4C5DA4E85A7117EF7EEC3933">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"acomma.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.24.1","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="创建一个最简 Spring AI 项目，只引入 spring-ai-starter-mcp-server-webmvc 依赖，版本为 1.0.1，spring.ai.mcp.server.type 配置为 SYNC，然后定义一个 MCP 工具，准备工作就完成了 123456789101112131415@Servicepublic class WeatherService &#123;    @T">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring AI 源码分析">
+<meta property="og:url" content="https://acomma.github.io/2025/09/03/spring-ai-invocation-process/index.html">
+<meta property="og:site_name" content="逗号的博客">
+<meta property="og:description" content="创建一个最简 Spring AI 项目，只引入 spring-ai-starter-mcp-server-webmvc 依赖，版本为 1.0.1，spring.ai.mcp.server.type 配置为 SYNC，然后定义一个 MCP 工具，准备工作就完成了 123456789101112131415@Servicepublic class WeatherService &#123;    @T">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://acomma.github.io/2025/09/03/spring-ai-invocation-process/router-functions.png">
+<meta property="article:published_time" content="2025-09-03T13:45:47.000Z">
+<meta property="article:modified_time" content="2025-09-03T13:45:47.000Z">
+<meta property="article:author" content="逗号">
+<meta property="article:tag" content="Spring AI">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://acomma.github.io/2025/09/03/spring-ai-invocation-process/router-functions.png">
+
+
+<link rel="canonical" href="https://acomma.github.io/2025/09/03/spring-ai-invocation-process/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2025/09/03/spring-ai-invocation-process/","path":"2025/09/03/spring-ai-invocation-process/","title":"Spring AI 源码分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Spring AI 源码分析 | 逗号的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.9.0/mermaid.min.js","integrity":"sha256-Cz7UN0EXNjgV2u/a38wg/3BNfdRRO1XtgDq93L2GqJg="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">逗号的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里有一句格言，但我还没想好</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#MCP-%E4%BC%A0%E8%BE%93%E5%B1%82"><span class="nav-number">1.</span> <span class="nav-text">MCP 传输层</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MCP-%E5%A4%84%E7%90%86%E5%99%A8%E6%98%A0%E5%B0%84"><span class="nav-number">2.</span> <span class="nav-text">MCP 处理器映射</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MCP-%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">MCP 服务器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5"><span class="nav-number">4.</span> <span class="nav-text">建立连接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%84%E7%90%86%E6%B6%88%E6%81%AF"><span class="nav-number">5.</span> <span class="nav-text">处理消息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring-AI-Alibaba-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">6.</span> <span class="nav-text">Spring AI Alibaba 源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MCP-%E7%BD%91%E5%85%B3%E5%B7%A5%E5%85%B7%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">6.1.</span> <span class="nav-text">MCP 网关工具初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MCP-%E7%BD%91%E5%85%B3%E5%B7%A5%E5%85%B7%E6%9B%B4%E6%96%B0"><span class="nav-number">6.2.</span> <span class="nav-text">MCP 网关工具更新</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">逗号</p>
+  <div class="site-description" itemprop="description">这里是站点描述，但我没有写</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/acomma" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;acomma" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:acomma@yeah.net" title="E-Mail → mailto:acomma@yeah.net" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2025/09/03/spring-ai-invocation-process/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="逗号">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逗号的博客">
+      <meta itemprop="description" content="这里是站点描述，但我没有写">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Spring AI 源码分析 | 逗号的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spring AI 源码分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-09-03 21:45:47" itemprop="dateCreated datePublished" datetime="2025-09-03T21:45:47+08:00">2025-09-03</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>创建一个最简 Spring AI 项目，只引入 <code>spring-ai-starter-mcp-server-webmvc</code> 依赖，版本为 1.0.1，<code>spring.ai.mcp.server.type</code> 配置为 <code>SYNC</code>，然后定义一个 MCP 工具，准备工作就完成了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WeatherService</span> &#123;</span><br><span class="line">    <span class="meta">@Tool(description = &quot;Get weather information by city name&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getWeather</span><span class="params">(String cityName)</span> &#123;</span><br><span class="line">        <span class="comment">// Implementation</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">McpServerConfiguration</span> &#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> ToolCallbackProvider <span class="title function_">weatherTools</span><span class="params">(WeatherService weatherService)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> MethodToolCallbackProvider.builder().toolObjects(weatherService).build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>后续分析只关注与工具调用相关的源码。</p>
+<span id="more"></span>
+
+<h2 id="MCP-传输层"><a href="#MCP-传输层" class="headerlink" title="MCP 传输层"></a>MCP 传输层</h2><p>实现类为 <code>WebMvcSseServerTransportProvider</code>，在 <code>McpWebMvcServerAutoConfiguration</code> 自动配置，调用的构造器如下所示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">WebMvcSseServerTransportProvider</span><span class="params">(ObjectMapper objectMapper, String baseUrl, String messageEndpoint, String sseEndpoint)</span> &#123;</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line">    <span class="built_in">this</span>.objectMapper = objectMapper;</span><br><span class="line">    <span class="built_in">this</span>.baseUrl = baseUrl;</span><br><span class="line">    <span class="built_in">this</span>.messageEndpoint = messageEndpoint;</span><br><span class="line">    <span class="built_in">this</span>.sseEndpoint = sseEndpoint;</span><br><span class="line">    <span class="built_in">this</span>.routerFunction = RouterFunctions.route()</span><br><span class="line">        .GET(<span class="built_in">this</span>.sseEndpoint, <span class="built_in">this</span>::handleSseConnection)</span><br><span class="line">        .POST(<span class="built_in">this</span>.messageEndpoint, <span class="built_in">this</span>::handleMessage)</span><br><span class="line">        .build();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>messageEndpoint</code> 默认为 <code>/mcp/message，sseEndpoint</code> 默认为 <code>/sse</code>，第 7~10 行构建这两个端点的处理器</p>
+<pre><code class="highlight mermaid">sequenceDiagram
+autonumber
+BeanFactory-&gt;&gt;McpWebMvcServerAutoConfiguration: webMvcSseServerTransportProvider(ObjectProvider&lt;ObjectMapper&gt;, McpServerProperties)
+McpWebMvcServerAutoConfiguration-&gt;&gt;WebMvcSseServerTransportProvider: new WebMvcSseServerTransportProvider(ObjectMapper, String, String, String)
+WebMvcSseServerTransportProvider-&gt;&gt;RouterFunctions: route()
+RouterFunctions--&gt;&gt;WebMvcSseServerTransportProvider: RouterFunctionBuilder
+WebMvcSseServerTransportProvider-&gt;&gt;RouterFunctionBuilder: GET(String, HandlerFunction)
+RouterFunctionBuilder-&gt;&gt;RouterFunctions: route(RequestPredicate, HandlerFunction)
+RouterFunctions--&gt;&gt;RouterFunctionBuilder: DefaultRouterFunction
+RouterFunctionBuilder--&gt;&gt;WebMvcSseServerTransportProvider: RouterFunctionBuilder
+WebMvcSseServerTransportProvider-&gt;&gt;RouterFunctionBuilder: POST(String, HandlerFunction)
+RouterFunctionBuilder-&gt;&gt;RouterFunctions: route(RequestPredicate, HandlerFunction)
+RouterFunctions--&gt;&gt;RouterFunctionBuilder: DefaultRouterFunction
+RouterFunctionBuilder--&gt;&gt;WebMvcSseServerTransportProvider: RouterFunctionBuilder
+WebMvcSseServerTransportProvider-&gt;&gt;RouterFunctionBuilder: build()
+RouterFunctionBuilder--&gt;&gt;WebMvcSseServerTransportProvider: BuiltRouterFunction
+WebMvcSseServerTransportProvider--&gt;&gt;McpWebMvcServerAutoConfiguration: WebMvcSseServerTransportProvider
+McpWebMvcServerAutoConfiguration--&gt;&gt;BeanFactory: WebMvcSseServerTransportProvider</code></pre>
+
+<p>第 3~14 步对应上面代码的第 7~10 行。</p>
+<h2 id="MCP-处理器映射"><a href="#MCP-处理器映射" class="headerlink" title="MCP 处理器映射"></a>MCP 处理器映射</h2><p><code>McpWebMvcServerAutoConfiguration</code> 自动配置创建 <code>RouterFunction</code>，实际类型为 <code>BuiltRouterFunction</code></p>
+<pre><code class="highlight mermaid">sequenceDiagram
+autonumber
+BeanFactory-&gt;&gt;McpWebMvcServerAutoConfiguration: mvcMcpRouterFunction(WebMvcSseServerTransportProvider)
+McpWebMvcServerAutoConfiguration--&gt;&gt;BeanFactory: BuiltRouterFunction</code></pre>
+
+<p><code>RouterFunctionMapping</code> 在实例化后会从 <code>BeanFactory</code> 中获取所有的 <code>RouterFunction</code> 对象，其中就包括 <code>BuiltRouterFunction</code></p>
+<img src="/2025/09/03/spring-ai-invocation-process/router-functions.png" class="">
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">initRouterFunctions</span><span class="params">()</span> &#123;</span><br><span class="line">    List&lt;RouterFunction&lt;?&gt;&gt; routerFunctions = obtainApplicationContext()</span><br><span class="line">            .getBeanProvider(RouterFunction.class)</span><br><span class="line">            .orderedStream()</span><br><span class="line">            .map(router -&gt; (RouterFunction&lt;?&gt;) router)</span><br><span class="line">            .collect(Collectors.toList());</span><br><span class="line"></span><br><span class="line">    <span class="type">ApplicationContext</span> <span class="variable">parentContext</span> <span class="operator">=</span> obtainApplicationContext().getParent();</span><br><span class="line">    <span class="keyword">if</span> (parentContext != <span class="literal">null</span> &amp;&amp; !<span class="built_in">this</span>.detectHandlerFunctionsInAncestorContexts) &#123;</span><br><span class="line">        parentContext.getBeanProvider(RouterFunction.class).stream().forEach(routerFunctions::remove);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">this</span>.routerFunction = routerFunctions.stream().reduce(RouterFunction::andOther).orElse(<span class="literal">null</span>);</span><br><span class="line">    logRouterFunctions(routerFunctions);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="MCP-服务器"><a href="#MCP-服务器" class="headerlink" title="MCP 服务器"></a>MCP 服务器</h2><p>实现类为 <code>McpSyncServer</code>，在 <code>McpServerAutoConfiguration</code> 自动配置</p>
+<pre><code class="highlight mermaid">sequenceDiagram
+autonumber
+BeanFactory-&gt;&gt;McpServerAutoConfiguration: mcpSyncServer(McpServerTransportProvider, ..., List&lt;ToolCallbackProvider&gt;)
+McpServerAutoConfiguration-&gt;&gt;McpServer: sync(McpServerTransportProvider)
+McpServer--&gt;&gt;McpServerAutoConfiguration: SyncSpecification
+rect rgb(191, 223, 255)
+McpServerAutoConfiguration-&gt;&gt;MethodToolCallbackProvider: getToolCallbacks()
+MethodToolCallbackProvider-&gt;&gt;MethodToolCallback.Builder: build()
+MethodToolCallback.Builder-&gt;&gt;MethodToolCallback: new MethodToolCallback(ToolDefinition, ToolMetadata, Method, Object, ToolCallResultConverter)
+MethodToolCallback--&gt;&gt;MethodToolCallback.Builder: MethodToolCallback
+MethodToolCallback.Builder--&gt;&gt;MethodToolCallbackProvider: MethodToolCallback
+MethodToolCallbackProvider--&gt;&gt;McpServerAutoConfiguration: ToolCallback[]
+end
+rect rgb(200, 150, 255)
+McpServerAutoConfiguration-&gt;&gt;McpToolUtils: toSyncToolSpecification(ToolCallback, MimeType)
+McpToolUtils--&gt;&gt;McpServerAutoConfiguration: McpServerFeatures.SyncToolSpecification
+end
+McpServerAutoConfiguration-&gt;&gt;SyncSpecification: tools(List&lt;McpServerFeatures.SyncToolSpecification&gt;)
+SyncSpecification--&gt;&gt;McpServerAutoConfiguration: SyncSpecification
+McpServerAutoConfiguration-&gt;&gt;SyncSpecification: build()
+SyncSpecification-&gt;&gt;McpServerFeatures.Sync: new McpServerFeatures.Sync(..., List&lt;McpServerFeatures.SyncToolSpecification&gt;, ...)
+McpServerFeatures.Sync--&gt;&gt;SyncSpecification: McpServerFeatures.Sync
+SyncSpecification-&gt;&gt;McpServerFeatures.Async: fromSync(McpServerFeatures.Sync)
+McpServerFeatures.Async--&gt;&gt;SyncSpecification: McpServerFeatures.Async
+rect rgb(164, 198, 57)
+SyncSpecification-&gt;&gt;McpAsyncServer: new McpAsyncServer(McpServerTransportProvider, ..., McpServerFeatures.Async, ...)
+McpAsyncServer-&gt;&gt;McpAsyncServer: initializeRequestHandler()
+McpAsyncServer-&gt;&gt;WebMvcSseServerTransportProvider: setSessionFactory(McpServerSession.Factory)
+WebMvcSseServerTransportProvider--&gt;&gt;McpAsyncServer: void
+McpAsyncServer--&gt;&gt;SyncSpecification: McpAsyncServer
+end
+SyncSpecification-&gt;&gt;McpSyncServer: new McpSyncServer(McpAsyncServer)
+McpSyncServer--&gt;&gt;SyncSpecification: McpSyncServer
+SyncSpecification--&gt;&gt;McpServerAutoConfiguration: McpSyncServer
+McpServerAutoConfiguration--&gt;&gt;BeanFactory: McpSyncServer</code></pre>
+
+<p><code>McpToolUtils#toSyncToolSpecification</code> 方法返回 <code>McpServerFeatures.SyncToolSpecification</code>，后者的第二个参数实现了工具调用逻辑：1、转换请求参数；2、调用工具回调方法；3、包装响应结果。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> McpServerFeatures.SyncToolSpecification <span class="title function_">toSyncToolSpecification</span><span class="params">(ToolCallback toolCallback, MimeType mimeType)</span> &#123;</span><br><span class="line">    <span class="type">var</span> <span class="variable">tool</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">McpSchema</span>.Tool(toolCallback.getToolDefinition().name(), toolCallback.getToolDefinition().description(), toolCallback.getToolDefinition().inputSchema());</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">McpServerFeatures</span>.SyncToolSpecification(tool, (exchange, request) -&gt; &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">callResult</span> <span class="operator">=</span> toolCallback.call(ModelOptionsUtils.toJsonString(request), <span class="keyword">new</span> <span class="title class_">ToolContext</span>(Map.of(TOOL_CONTEXT_MCP_EXCHANGE_KEY, exchange)));</span><br><span class="line">            <span class="keyword">if</span> (mimeType != <span class="literal">null</span> &amp;&amp; mimeType.toString().startsWith(<span class="string">&quot;image&quot;</span>)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">McpSchema</span>.CallToolResult(List.of(<span class="keyword">new</span> <span class="title class_">McpSchema</span>.ImageContent(List.of(Role.ASSISTANT), <span class="literal">null</span>, callResult, mimeType.toString())), <span class="literal">false</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">McpSchema</span>.CallToolResult(List.of(<span class="keyword">new</span> <span class="title class_">McpSchema</span>.TextContent(callResult)), <span class="literal">false</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">McpSchema</span>.CallToolResult(List.of(<span class="keyword">new</span> <span class="title class_">McpSchema</span>.TextContent(e.getMessage())), <span class="literal">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在 <code>McpAsyncServer</code> 构造器中会初始化请求处理器 <code>McpServerSession.RequestHandler</code>，如第 9~10 行所示，在上图使用 <code>initializeRequestHandler</code> 表示；同时为 <code>WebMvcSseServerTransportProvider</code> 设置会话工厂 <code>McpServerSession.Factory</code>，如第 13 行所示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">McpAsyncServer(McpServerTransportProvider mcpTransportProvider, ObjectMapper objectMapper, McpServerFeatures.Async features, Duration requestTimeout, McpUriTemplateManagerFactory uriTemplateManagerFactory) &#123;</span><br><span class="line">    <span class="built_in">this</span>.mcpTransportProvider = mcpTransportProvider;</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line">    <span class="built_in">this</span>.tools.addAll(features.tools());</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line">    Map&lt;String, McpServerSession.RequestHandler&lt;?&gt;&gt; requestHandlers = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">this</span>.serverCapabilities.tools() != <span class="literal">null</span>) &#123;</span><br><span class="line">        requestHandlers.put(McpSchema.METHOD_TOOLS_LIST, toolsListRequestHandler());</span><br><span class="line">        requestHandlers.put(McpSchema.METHOD_TOOLS_CALL, toolsCallRequestHandler());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line">    mcpTransportProvider.setSessionFactory(transport -&gt; <span class="keyword">new</span> <span class="title class_">McpServerSession</span>(UUID.randomUUID().toString(), requestTimeout, transport, <span class="built_in">this</span>::asyncInitializeRequestHandler, Mono::empty, requestHandlers, notificationHandlers));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="建立连接"><a href="#建立连接" class="headerlink" title="建立连接"></a>建立连接</h2><pre><code class="highlight mermaid">sequenceDiagram
+autonumber
+actor Client
+Client-&gt;&gt;DispatcherServlet: /sse
+rect rgb(191, 223, 255)
+DispatcherServlet-&gt;&gt;AbstractHandlerMapping: getHandler(HttpServletRequest)
+AbstractHandlerMapping-&gt;&gt;RouterFunctionMapping: getHandlerInternal(HttpServletRequest)
+RouterFunctionMapping-&gt;&gt;BuiltRouterFunction: route(ServerRequest)
+BuiltRouterFunction-&gt;&gt;DefaultRouterFunction: route(ServerRequest)
+DefaultRouterFunction--&gt;&gt;BuiltRouterFunction: HandlerFunction&lt;ServerResponse&gt;
+BuiltRouterFunction--&gt;&gt;RouterFunctionMapping: HandlerFunction&lt;ServerResponse&gt;
+RouterFunctionMapping--&gt;&gt;AbstractHandlerMapping: HandlerFunction&lt;ServerResponse&gt;
+AbstractHandlerMapping-&gt;&gt;AbstractHandlerMapping: getHandlerExecutionChain(HandlerFunction, HttpServletRequest)
+AbstractHandlerMapping--&gt;&gt;DispatcherServlet: HandlerExecutionChain
+DispatcherServlet-&gt;&gt;DispatcherServlet: getHandlerAdapter(HandlerFunction)
+end
+DispatcherServlet-&gt;&gt;HandlerFunctionAdapter: handle(HttpServletRequest, HttpServletResponse, HandlerFunction)
+rect rgb(200, 150, 255)
+HandlerFunctionAdapter-&gt;&gt;SseConnectionHandlerFunction: handle(ServerRequest), i.e. WebMvcSseServerTransportProvider#35;handleSseConnection(ServerRequest)
+SseConnectionHandlerFunction-&gt;&gt;SseConnectionHandlerFunction: createSessionId()
+SseConnectionHandlerFunction-&gt;&gt;ServerResponse: sse(Consumer&lt;SseBuilder&gt;, Duration)
+ServerResponse-&gt;&gt;SseServerResponse: create(Consumer&lt;SseBuilder&gt;, Duration)
+SseServerResponse--&gt;&gt;ServerResponse: SseServerResponse
+ServerResponse--&gt;&gt;SseConnectionHandlerFunction: SseServerResponse
+SseConnectionHandlerFunction--&gt;&gt;HandlerFunctionAdapter: SseServerResponse
+end
+HandlerFunctionAdapter-&gt;&gt;AbstractServerResponse: writeTo(HttpServletRequest, HttpServletResponse, Context)
+rect rgb(164, 198, 57)
+AbstractServerResponse-&gt;&gt;SseServerResponse: writeToInternal(HttpServletRequest, HttpServletResponse, Context)
+SseServerResponse-&gt;&gt;DefaultSseBuilder: DefaultSseBuilder(HttpServletResponse, Context, DeferredResult&lt;?&gt;, HttpHeaders)
+DefaultSseBuilder--&gt;&gt;SseServerResponse: DefaultSseBuilder
+SseServerResponse-&gt;&gt;SseConsumer: accept(DefaultSseBuilder), i.e. Consumer created in handleSseConnection
+SseConsumer-&gt;&gt;WebMvcMcpSessionTransport: WebMvcMcpSessionTransport(String, DefaultSseBuilder)
+WebMvcMcpSessionTransport--&gt;&gt;SseConsumer: WebMvcMcpSessionTransport
+SseConsumer-&gt;&gt;McpServerSession.Factory: create(WebMvcMcpSessionTransport)
+McpServerSession.Factory--&gt;&gt;SseConsumer: McpServerSession
+SseConsumer-&gt;&gt;WebMvcSseServerTransportProvider: setMcpServerSession() by sessionId
+WebMvcSseServerTransportProvider--&gt;&gt;SseConsumer: void
+SseConsumer-&gt;&gt;DefaultSseBuilder: data(String), i.e. http://domain:port/mcp/message?sessionId=xxxxxxxx-xxxx-xxxx-xxxxxx-xxxxxxxxxx
+DefaultSseBuilder--&gt;&gt;SseConsumer: void
+SseConsumer--&gt;&gt;SseServerResponse: void
+SseServerResponse--&gt;&gt;AbstractServerResponse: ModelAndView
+end
+AbstractServerResponse--&gt;&gt;HandlerFunctionAdapter: ModelAndView
+HandlerFunctionAdapter--&gt;&gt;DispatcherServlet: ModelAndView
+%%DispatcherServlet-&gt;&gt;DispatcherServlet: render(ModelAndView, HttpServletRequest, HttpServletResponse)
+DispatcherServlet--&gt;&gt;Client: /mcp/message?sessionId=xxxxxxxx-xxxx-xxxx-xxxxxx-xxxxxxxxxx</code></pre>
+
+<ol>
+<li><em>SseConnectionHandlerFunction</em> 是由 <code>WebMvcSseServerTransportProvider#handleSseConnection</code> 创建的函数对象；</li>
+<li><em>SseConsumer</em> 是在 <code>WebMvcSseServerTransportProvider#handleSseConnection</code> 由 <code>ServerResponse#sse</code> 创建的函数对象。</li>
+</ol>
+<p>MCP 客户端向 MCP 服务器发起 <code>/sse</code> 请求，<code>DispatcherServlet</code> 找到对应的端点处理器，即 <code>WebMvcSseServerTransportProvider#handleSseConnection</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> ServerResponse <span class="title function_">handleSseConnection</span><span class="params">(ServerRequest request)</span> &#123;</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">sessionId</span> <span class="operator">=</span> UUID.randomUUID().toString();</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> ServerResponse.sse(sseBuilder -&gt; &#123;</span><br><span class="line">            <span class="comment">// 省略了...</span></span><br><span class="line">            <span class="type">WebMvcMcpSessionTransport</span> <span class="variable">sessionTransport</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">WebMvcMcpSessionTransport</span>(sessionId, sseBuilder);</span><br><span class="line">            <span class="type">McpServerSession</span> <span class="variable">session</span> <span class="operator">=</span> sessionFactory.create(sessionTransport);</span><br><span class="line">            <span class="built_in">this</span>.sessions.put(sessionId, session);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                sseBuilder.id(sessionId)</span><br><span class="line">                    .event(ENDPOINT_EVENT_TYPE)</span><br><span class="line">                    .data(<span class="built_in">this</span>.baseUrl + <span class="built_in">this</span>.messageEndpoint + <span class="string">&quot;?sessionId=&quot;</span> + sessionId);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                <span class="comment">// 省略了...</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, Duration.ZERO);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="comment">// 省略了...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个处理器会：1、生成会话 ID <code>sessionId</code>；2、创建服务端会话 <code>McpServerSession</code>；3、返回消息端点 <code>/mcp/message?sessionId=xxxxxxxx-xxxx-xxxx-xxxxxx-xxxxxxxxxx</code>。</p>
+<h2 id="处理消息"><a href="#处理消息" class="headerlink" title="处理消息"></a>处理消息</h2><p>MCP 客户端向 MCP 服务器发起 <code>/mcp/message?sessionId=xxxxxxxx-xxxx-xxxx-xxxxxx-xxxxxxxxxx</code> 请求，<code>DispatcherServlet</code> 找到对应的端点处理器，即 <code>WebMvcSseServerTransportProvider#handleMessage</code>，找的过程和 <code>/sse</code> 类似，这里直接看处理器的处理过程</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> ServerResponse <span class="title function_">handleMessage</span><span class="params">(ServerRequest request)</span> &#123;</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">sessionId</span> <span class="operator">=</span> request.param(<span class="string">&quot;sessionId&quot;</span>).get();</span><br><span class="line">    <span class="type">McpServerSession</span> <span class="variable">session</span> <span class="operator">=</span> sessions.get(sessionId);</span><br><span class="line">    <span class="comment">// 省略了...</span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">body</span> <span class="operator">=</span> request.body(String.class);</span><br><span class="line">        McpSchema.<span class="type">JSONRPCMessage</span> <span class="variable">message</span> <span class="operator">=</span> McpSchema.deserializeJsonRpcMessage(objectMapper, body);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Process the message through the session&#x27;s handle method</span></span><br><span class="line">        session.handle(message).block(); <span class="comment">// Block for WebMVC compatibility</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ServerResponse.ok().build();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IllegalArgumentException | IOException e) &#123;</span><br><span class="line">        <span class="comment">// 省略了...</span></span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="comment">// 省略了...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个处理器会：1、根据会话 ID <code>sessionId</code> 找到对应的 <code>McpServerSession</code>；2、解析 JSON-RPC 消息；3、处理 JSON-RPC 消息。如果是消息类型是 <code>McpSchema.JSONRPCRequest</code> 则调用 <code>McpServerSession#handleIncomingRequest</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Mono&lt;McpSchema.JSONRPCResponse&gt; handleIncomingRequest(McpSchema.JSONRPCRequest request) &#123;</span><br><span class="line">    <span class="keyword">return</span> Mono.defer(() -&gt; &#123;</span><br><span class="line">        Mono&lt;?&gt; resultMono;</span><br><span class="line">        <span class="keyword">if</span> (McpSchema.METHOD_INITIALIZE.equals(request.method())) &#123;</span><br><span class="line">            <span class="comment">// 省略了...</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="type">var</span> <span class="variable">handler</span> <span class="operator">=</span> <span class="built_in">this</span>.requestHandlers.get(request.method());</span><br><span class="line">            <span class="comment">// 省略了...</span></span><br><span class="line">            resultMono = <span class="built_in">this</span>.exchangeSink.asMono().flatMap(exchange -&gt; handler.handle(exchange, request.params()));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> resultMono</span><br><span class="line">            .map(result -&gt; <span class="keyword">new</span> <span class="title class_">McpSchema</span>.JSONRPCResponse(McpSchema.JSONRPC_VERSION, request.id(), result, <span class="literal">null</span>))</span><br><span class="line">            .onErrorResume(error -&gt; Mono.just(<span class="keyword">new</span> <span class="title class_">McpSchema</span>.JSONRPCResponse(McpSchema.JSONRPC_VERSION, request.id(), <span class="literal">null</span>, <span class="keyword">new</span> <span class="title class_">McpSchema</span>.JSONRPCResponse.JSONRPCError(McpSchema.ErrorCodes.INTERNAL_ERROR, error.getMessage(), <span class="literal">null</span>))));</span><br><span class="line">        <span class="comment">// <span class="doctag">TODO:</span> add error message through the data field</span></span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第 7 行根据方法名找到对应的请求处理器，这些处理器在 <code>McpAsyncServer</code> 构造器中创建；第 9 行执行请求处理器。工具调用请求处理器为 <code>McpAsyncServer#toolsCallRequestHandler</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> McpServerSession.RequestHandler&lt;CallToolResult&gt; <span class="title function_">toolsCallRequestHandler</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> (exchange, params) -&gt; &#123;</span><br><span class="line">        McpSchema.<span class="type">CallToolRequest</span> <span class="variable">callToolRequest</span> <span class="operator">=</span> objectMapper.convertValue(params, <span class="keyword">new</span> <span class="title class_">TypeReference</span>&lt;McpSchema.CallToolRequest&gt;() &#123;&#125;);</span><br><span class="line"></span><br><span class="line">        Optional&lt;McpServerFeatures.AsyncToolSpecification&gt; toolSpecification = <span class="built_in">this</span>.tools.stream()</span><br><span class="line">            .filter(tr -&gt; callToolRequest.name().equals(tr.tool().name()))</span><br><span class="line">            .findAny();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (toolSpecification.isEmpty()) &#123;</span><br><span class="line">            <span class="keyword">return</span> Mono.error(<span class="keyword">new</span> <span class="title class_">McpError</span>(<span class="string">&quot;Tool not found: &quot;</span> + callToolRequest.name()));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> toolSpecification.map(tool -&gt; tool.call().apply(exchange, callToolRequest.arguments()))</span><br><span class="line">            .orElse(Mono.error(<span class="keyword">new</span> <span class="title class_">McpError</span>(<span class="string">&quot;Tool not found: &quot;</span> + callToolRequest.name())));</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>工具调用请求处理器会：1、解析请求参数；2、根据工具名称找到工具规格；3、调用工具，即 <code>MethodToolCallback#call</code>。</p>
+<pre><code class="highlight mermaid">sequenceDiagram
+autonumber
+rect rgb(191, 223, 255)
+MessageHandlerFunction-&gt;&gt;WebMvcSseServerTransportProvider: Get McpServerSession by sessionId
+WebMvcSseServerTransportProvider--&gt;&gt;MessageHandlerFunction: McpServerSession
+end
+MessageHandlerFunction-&gt;&gt;McpSchema: deserializeJsonRpcMessage(ObjectMapper, String)
+McpSchema--&gt;&gt;MessageHandlerFunction: McpSchema.JSONRPCMessage
+MessageHandlerFunction-&gt;&gt;McpServerSession: handle(McpSchema.JSONRPCMessage)
+rect rgb(200, 150, 255)
+McpServerSession-&gt;&gt;McpServerSession: Get RequestHandler by method e.g. tools/call
+end
+McpServerSession-&gt;&gt;ToolsCallRequestHandler: handle(McpAsyncServerExchange, Object)
+ToolsCallRequestHandler-&gt;&gt;ObjectMapper: convertValue(Map&lt;String, Object&gt;, TypeReference&lt;McpSchema.CallToolRequest&gt;)
+ObjectMapper--&gt;&gt;ToolsCallRequestHandler: McpSchema.CallToolRequest
+rect rgb(200, 150, 255)
+ToolsCallRequestHandler-&gt;&gt;ToolsCallRequestHandler: Get AsyncToolSpecification by tool name e.g. getWeather
+end
+ToolsCallRequestHandler-&gt;&gt;McpServerFeatures.AsyncToolSpecification: call()
+McpServerFeatures.AsyncToolSpecification--&gt;&gt;ToolsCallRequestHandler: ToolCallbackFunction
+ToolsCallRequestHandler-&gt;&gt;ToolCallbackFunction: apply(McpSyncServerExchange, Map&lt;String, Object&gt;)
+rect rgb(164, 198, 57)
+ToolCallbackFunction-&gt;&gt;MethodToolCallback: call(String, ToolContext)
+MethodToolCallback--&gt;&gt;ToolCallbackFunction: String
+end
+ToolCallbackFunction-&gt;&gt;McpSchema.TextContent: new McpSchema.TextContent(String)
+McpSchema.TextContent--&gt;&gt;ToolCallbackFunction:McpSchema.TextContent
+ToolCallbackFunction-&gt;&gt;McpSchema.CallToolResult: new McpSchema.CallToolResult(List&lt;Content&gt;, Boolean)
+McpSchema.CallToolResult--&gt;&gt;ToolCallbackFunction: McpSchema.CallToolResult
+ToolCallbackFunction--&gt;&gt;ToolsCallRequestHandler: McpSchema.CallToolResult
+ToolsCallRequestHandler--&gt;&gt;McpServerSession: McpSchema.CallToolResult
+McpServerSession-&gt;&gt;McpSchema.JSONRPCResponse: new McpSchema.JSONRPCResponse(String, Object, Object, JSONRPCError)
+McpSchema.JSONRPCResponse--&gt;&gt;McpServerSession: McpSchema.JSONRPCResponse
+McpServerSession--&gt;&gt;MessageHandlerFunction: McpSchema.JSONRPCResponse
+MessageHandlerFunction-&gt;&gt;WebMvcMcpSessionTransport: sendMessage(McpSchema.JSONRPCMessage)
+WebMvcMcpSessionTransport--&gt;&gt;MessageHandlerFunction: void</code></pre>
+
+<ol>
+<li><em>MessageHandlerFunction</em> 是由 <code>WebMvcSseServerTransportProvider#handleMessage</code> 创建的函数对象；</li>
+<li><em>ToolsCallRequestHandler</em> 是由 <code>McpAsyncServer#toolsCallRequestHandler</code> 创建的函数对象；</li>
+<li><em>ToolCallbackFunction</em> 是在 <code>McpToolUtils#toSyncToolSpecification</code> 创建的函数对象。</li>
+</ol>
+<h2 id="Spring-AI-Alibaba-源码分析"><a href="#Spring-AI-Alibaba-源码分析" class="headerlink" title="Spring AI Alibaba 源码分析"></a>Spring AI Alibaba 源码分析</h2><h3 id="MCP-网关工具初始化"><a href="#MCP-网关工具初始化" class="headerlink" title="MCP 网关工具初始化"></a>MCP 网关工具初始化</h3><pre><code class="highlight mermaid">sequenceDiagram
+autonumber
+McpGatewayToolCallbackProvider-&gt;&gt;NacosMcpGatewayToolsInitializer: initializeTools()
+NacosMcpGatewayToolsInitializer-&gt;&gt;NacosMcpGatewayProperties: getServiceNames()
+NacosMcpGatewayProperties--&gt;&gt;NacosMcpGatewayToolsInitializer: List&lt;String&gt;
+NacosMcpGatewayToolsInitializer-&gt;&gt;NacosMcpOperationService: getServerDetail()
+NacosMcpOperationService--&gt;&gt;NacosMcpGatewayToolsInitializer: McpServerDetailInfo
+NacosMcpGatewayToolsInitializer-&gt;&gt;NacosMcpGatewayToolsInitializer: parseToolsFromMcpServerDetailInfo
+NacosMcpGatewayToolsInitializer--&gt;&gt;McpGatewayToolCallbackProvider: List&lt;ToolCallback&gt;</code></pre>
+
+<h3 id="MCP-网关工具更新"><a href="#MCP-网关工具更新" class="headerlink" title="MCP 网关工具更新"></a>MCP 网关工具更新</h3><pre><code class="highlight mermaid">sequenceDiagram
+autonumber
+ScheduledExecutorService-&gt;&gt;NacosMcpGatewayToolsWatcher: watch()
+NacosMcpGatewayToolsWatcher-&gt;&gt;NacosMcpGatewayProperties: getServiceNames()
+NacosMcpGatewayProperties--&gt;&gt;NacosMcpGatewayToolsWatcher: List&lt;String&gt;
+NacosMcpGatewayToolsWatcher-&gt;&gt;NacosMcpOperationService: getServerDetail(String)
+NacosMcpOperationService--&gt;&gt;NacosMcpGatewayToolsWatcher: McpServerDetailInfo
+NacosMcpGatewayToolsWatcher-&gt;&gt;NacosMcpGatewayToolsWatcher: compareToolsChange
+NacosMcpGatewayToolsWatcher-&gt;&gt;NacosMcpAsyncGatewayToolsProvider: addTool(McpGatewayToolDefinition)
+NacosMcpAsyncGatewayToolsProvider-&gt;&gt;NacosMcpAsyncGatewayToolsProvider:removeTool(String)
+NacosMcpAsyncGatewayToolsProvider-&gt;&gt;McpAsyncServer: addTool(McpServerFeatures.AsyncToolSpecification)
+McpAsyncServer--&gt;&gt;NacosMcpAsyncGatewayToolsProvider: Mono&lt;Void&gt;
+NacosMcpAsyncGatewayToolsProvider--&gt;&gt;NacosMcpGatewayToolsWatcher: void
+NacosMcpGatewayToolsWatcher-&gt;&gt;NacosMcpAsyncGatewayToolsProvider: removeTool(String)
+NacosMcpAsyncGatewayToolsProvider-&gt;&gt;McpAsyncServer: removeTool(String)
+McpAsyncServer--&gt;&gt;NacosMcpAsyncGatewayToolsProvider: Mono&lt;Void&gt;
+NacosMcpAsyncGatewayToolsProvider--&gt;&gt;NacosMcpGatewayToolsWatcher: void
+NacosMcpGatewayToolsWatcher-&gt;&gt;NacosMcpGatewayToolsWatcher: cleanupStaleServices(Set&lt;String&gt;)
+NacosMcpGatewayToolsWatcher--&gt;&gt;ScheduledExecutorService: void</code></pre>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Spring-AI/" rel="tag"># Spring AI</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/08/30/use-qianxin-in-vm/" rel="prev" title="一种在虚拟机安装奇安信产品访问内网的方法">
+                  <i class="fa fa-angle-left"></i> 一种在虚拟机安装奇安信产品访问内网的方法
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">逗号</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
