@@ -11,9 +11,9 @@
   </url>
   
   <url>
-    <loc>https://acomma.github.io/2025/09/03/spring-ai-invocation-process/</loc>
+    <loc>https://acomma.github.io/2025/09/03/spring-ai-mcp-invocation-process/</loc>
     
-    <lastmod>2025-09-03</lastmod>
+    <lastmod>2025-09-06</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -518,6 +518,13 @@
   
   <url>
     <loc>https://acomma.github.io/tags/Spring-AI/</loc>
+    <lastmod>2025-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://acomma.github.io/tags/MCP/</loc>
     <lastmod>2025-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
