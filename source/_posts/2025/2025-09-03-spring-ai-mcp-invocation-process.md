@@ -1,8 +1,8 @@
 ---
-title: Spring AI 源码分析
+title: Spring AI MCP 源码分析
 date: 2025-09-03 21:45:47
-updated: 2025-09-03 21:45:47
-tags: [Spring AI]
+updated: 2025-09-07 00:10:57
+tags: [Spring AI, MCP]
 ---
 
 创建一个最简 Spring AI 项目，只引入 `spring-ai-starter-mcp-server-webmvc` 依赖，版本为 1.0.1，`spring.ai.mcp.server.type` 配置为 `SYNC`，然后定义一个 MCP 工具，准备工作就完成了
