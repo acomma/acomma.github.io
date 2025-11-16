@@ -18,7 +18,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"acomma.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"acomma.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
 
     <meta name="description" content="这里是站点描述，但我没有写">
 <meta property="og:type" content="website">
@@ -143,7 +143,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-count">36</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -177,6 +177,85 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2023/12/18/postgresql-two-adjacent-single-quotes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="逗号">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逗号的博客">
+      <meta itemprop="description" content="这里是站点描述，但我没有写">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | 逗号的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2023/12/18/postgresql-two-adjacent-single-quotes/" class="post-title-link" itemprop="url">如何理解 PostgreSQL 中两个邻近的单引号</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-12-18 20:09:24" itemprop="dateCreated datePublished" datetime="2023-12-18T20:09:24+08:00">2023-12-18</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在 PostgreSQL 中执行如下的 SQL 语句</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="string">&#x27;AND c1 = &#x27;&#x27;&#x27;</span> <span class="operator">||</span> <span class="number">5</span> <span class="operator">||</span> <span class="string">&#x27;&#x27;&#x27;&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>将输出 <code>AND c1 = &#39;5&#39;</code>。我们的疑问是 <code>5</code> 两边的单引号 <code>&#39;</code> 是怎么得到的？</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/12/18/postgresql-two-adjacent-single-quotes/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -915,89 +994,6 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2023/10/29/springboot-offsetdatetime/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2023/10/28/return-non-null/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="逗号">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逗号的博客">
-      <meta itemprop="description" content="这里是站点描述，但我没有写">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | 逗号的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2023/10/28/return-non-null/" class="post-title-link" itemprop="url">基于请求参数动态控制是否返回值为空的字段</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2023-10-28 17:39:02" itemprop="dateCreated datePublished" datetime="2023-10-28T17:39:02+08:00">2023-10-28</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>在 SpringBoot 应用中可以使用以下几种方式来控制是否返回值为空的字段</p>
-<ol>
-<li>在配置文件 <code>application.yml</code> 中配置全局自动忽略 <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">jackson:</span></span><br><span class="line">    <span class="attr">default-property-inclusion:</span> <span class="string">NON_NULL</span></span><br></pre></td></tr></table></figure></li>
-<li>在类或字段上添加注解 <code>@JsonInclude(JsonInclude.Include.NON_NULL)</code></li>
-<li>实现一个 <code>Jackson2ObjectMapperBuilderCustomizer</code> 定制器 <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">@Bean</span></span><br><span class="line"><span class="string">public</span> <span class="string">Jackson2ObjectMapperBuilderCustomizer</span> <span class="string">jackson2ObjectMapperBuilderCustomizer()</span> &#123;</span><br><span class="line">    <span class="string">return</span> <span class="string">jacksonObjectMapperBuilder</span> <span class="string">-&gt;</span> &#123;</span><br><span class="line">        <span class="string">jacksonObjectMapperBuilder.serializationInclusion(JsonInclude.Include.NON_NULL);</span></span><br><span class="line">    &#125;<span class="string">;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>参考 <code>JacksonObjectMapperConfiguration</code> 自定义一个 <code>ObjectMapper</code>，覆盖默认的定义 <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">@Bean</span></span><br><span class="line"><span class="string">@Primary</span></span><br><span class="line"><span class="string">@ConditionalOnMissingBean</span></span><br><span class="line"><span class="string">public</span> <span class="string">ObjectMapper</span> <span class="string">jacksonObjectMapper(Jackson2ObjectMapperBuilder</span> <span class="string">builder)</span> &#123;</span><br><span class="line">    <span class="string">ObjectMapper</span> <span class="string">mapper</span> <span class="string">=</span> <span class="string">builder.createXmlMapper(false).build();</span></span><br><span class="line">    <span class="string">mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);</span></span><br><span class="line">    <span class="string">return</span> <span class="string">mapper;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ol>
-<p>这 4 种方式要么是全局的要么是局部的，它们都是一次性的，设置后就不能改变，每次请求都会返回相同的结果。现在我们要实现根据请求参数中是否包含某个值动态的设置是否返回值为空的字段，具体的说我们要根据请求头中是否包含 <code>X-Include-Non-Null</code> 来控制是否返回值为空的字段。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/10/28/return-non-null/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
