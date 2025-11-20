@@ -20,33 +20,29 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"acomma.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="在我们的场景中访问内网资源需要通过奇安信天信，一个零信任网络访问系统，功能类似 EasyConnect，同时也需要安装奇安信天擎和微步两个软件。我们都知道奇安信天擎等产品一旦安装想要卸载非常麻烦，而奇安信天信目前还没有类似 docker-easyconnect 的软件，经过实践把这三个软件安装在虚拟机中，然后在虚拟机中安装 3proxy 代理服务器，在主机中通过 Clash.for.Windows">
+    <meta name="description" content="假设有如图一所示的线串，它在线段 2 和 6 处相交，如何把相交的部分删除得到如图三所示的简单线串呢？">
 <meta property="og:type" content="article">
-<meta property="og:title" content="一种在虚拟机安装奇安信产品访问内网的方法">
-<meta property="og:url" content="https://acomma.github.io/2025/08/30/use-qianxin-in-vm/index.html">
+<meta property="og:title" content="如何在 PostGIS 中删除 LINESTRING 自相交部分">
+<meta property="og:url" content="https://acomma.github.io/2025/11/19/how-to-remove-self-intersect-part-in-postgis/index.html">
 <meta property="og:site_name" content="逗号的博客">
-<meta property="og:description" content="在我们的场景中访问内网资源需要通过奇安信天信，一个零信任网络访问系统，功能类似 EasyConnect，同时也需要安装奇安信天擎和微步两个软件。我们都知道奇安信天擎等产品一旦安装想要卸载非常麻烦，而奇安信天信目前还没有类似 docker-easyconnect 的软件，经过实践把这三个软件安装在虚拟机中，然后在虚拟机中安装 3proxy 代理服务器，在主机中通过 Clash.for.Windows">
+<meta property="og:description" content="假设有如图一所示的线串，它在线段 2 和 6 处相交，如何把相交的部分删除得到如图三所示的简单线串呢？">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://acomma.github.io/2025/08/30/use-qianxin-in-vm/architecture.drawio.svg">
-<meta property="og:image" content="https://acomma.github.io/2025/08/30/use-qianxin-in-vm/network-setting.png">
-<meta property="article:published_time" content="2025-08-30T05:03:02.000Z">
-<meta property="article:modified_time" content="2025-08-30T05:03:02.000Z">
+<meta property="og:image" content="https://acomma.github.io/2025/11/19/how-to-remove-self-intersect-part-in-postgis/self-intersect.drawio.svg">
+<meta property="article:published_time" content="2025-11-19T12:59:53.000Z">
+<meta property="article:modified_time" content="2025-11-19T12:59:53.000Z">
 <meta property="article:author" content="逗号">
-<meta property="article:tag" content="3proxy">
-<meta property="article:tag" content="Clash">
-<meta property="article:tag" content="VirtualBox">
-<meta property="article:tag" content="Qianxin">
+<meta property="article:tag" content="PostGIS">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://acomma.github.io/2025/08/30/use-qianxin-in-vm/architecture.drawio.svg">
+<meta name="twitter:image" content="https://acomma.github.io/2025/11/19/how-to-remove-self-intersect-part-in-postgis/self-intersect.drawio.svg">
 
 
-<link rel="canonical" href="https://acomma.github.io/2025/08/30/use-qianxin-in-vm/">
+<link rel="canonical" href="https://acomma.github.io/2025/11/19/how-to-remove-self-intersect-part-in-postgis/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2025/08/30/use-qianxin-in-vm/","path":"2025/08/30/use-qianxin-in-vm/","title":"一种在虚拟机安装奇安信产品访问内网的方法"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2025/11/19/how-to-remove-self-intersect-part-in-postgis/","path":"2025/11/19/how-to-remove-self-intersect-part-in-postgis/","title":"如何在 PostGIS 中删除 LINESTRING 自相交部分"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>一种在虚拟机安装奇安信产品访问内网的方法 | 逗号的博客</title>
+<title>如何在 PostGIS 中删除 LINESTRING 自相交部分 | 逗号的博客</title>
   
 
 
@@ -196,7 +192,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2025/08/30/use-qianxin-in-vm/">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2025/11/19/how-to-remove-self-intersect-part-in-postgis/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -209,12 +205,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="一种在虚拟机安装奇安信产品访问内网的方法 | 逗号的博客">
+      <meta itemprop="name" content="如何在 PostGIS 中删除 LINESTRING 自相交部分 | 逗号的博客">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          一种在虚拟机安装奇安信产品访问内网的方法
+          如何在 PostGIS 中删除 LINESTRING 自相交部分
         </h1>
 
         <div class="post-meta-container">
@@ -225,7 +221,7 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2025-08-30 13:03:02" itemprop="dateCreated datePublished" datetime="2025-08-30T13:03:02+08:00">2025-08-30</time>
+      <time title="创建时间：2025-11-19 20:59:53" itemprop="dateCreated datePublished" datetime="2025-11-19T20:59:53+08:00">2025-11-19</time>
     </span>
 
   
@@ -237,21 +233,13 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>在我们的场景中访问内网资源需要通过<em>奇安信天信</em>，一个零信任网络访问系统，功能类似 <em>EasyConnect</em>，同时也需要安装<em>奇安信天擎</em>和<em>微步</em>两个软件。我们都知道<em>奇安信天擎</em>等产品一旦安装想要卸载非常麻烦，而<em>奇安信天信</em>目前还没有类似 <em>docker-easyconnect</em> 的软件，经过实践把这三个软件安装在虚拟机中，然后在虚拟机中安装 <em><a target="_blank" rel="noopener" href="https://github.com/3proxy/3proxy">3proxy</a></em> 代理服务器，在主机中通过 <em>Clash.for.Windows</em> 连接代理服务器从而避免在主机中安装<em>奇安信天擎</em>等产品</p>
-<img src="/2025/08/30/use-qianxin-in-vm/architecture.drawio.svg" class="">
+    <div class="post-body" itemprop="articleBody"><p>假设有如图一所示的线串，它在线段 2 和 6 处相交，如何把相交的部分删除得到如图三所示的简单线串呢？</p>
+<img src="/2025/11/19/how-to-remove-self-intersect-part-in-postgis/self-intersect.drawio.svg" class="">
 
 <span id="more"></span>
 
-<p>虚拟机和主机之间的网络选择<em>桥接模式</em>或者其他等价设置</p>
-<img src="/2025/08/30/use-qianxin-in-vm/network-setting.png" class="">
-
-<p>在配置安装配置 <em>3proxy</em> 时要在它的 <em>bin</em> 目录创建一个 <em>3proxy.cfg</em> 文件，使用 <em>socks</em> 方式，文件内容如下所示</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">nserver 8.8.8.8</span><br><span class="line">nserver 8.8.4.4</span><br><span class="line">nscache 65536</span><br><span class="line">auth none</span><br><span class="line">socks -p1080</span><br></pre></td></tr></table></figure>
-
-<p>注意配置的 <em>socks</em> 端口在 <em>Clash.for.Windows</em> 中会用到，后者的配置和使用方法参考<a href="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/">使用 Docker 封印 EasyConnect</a> 一文，下面的例子在前文的基础上增加了 <em>VirtualBox 3proxy</em>，第 12 行是虚拟机的 IP 地址，第 13 行是 <em>3proxy</em> 配置的端口</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">mixed-port:</span> <span class="number">7890</span></span><br><span class="line"><span class="attr">allow-lan:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">external-controller:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:58547</span></span><br><span class="line"><span class="attr">secret:</span> <span class="string">e0449ccf-90d3-42d7-b814-3a885827271b</span></span><br><span class="line"><span class="attr">proxies:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Docker</span> <span class="string">EasyConnect</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">socks5</span></span><br><span class="line">    <span class="attr">server:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">1080</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">VirtualBox</span> <span class="string">3proxy</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">socks5</span></span><br><span class="line">    <span class="attr">server:</span> <span class="number">192.168</span><span class="number">.1</span><span class="number">.5</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">1080</span></span><br><span class="line"><span class="attr">proxy-groups:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">内部网络</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">select</span></span><br><span class="line">    <span class="attr">proxies:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">Docker</span> <span class="string">EasyConnect</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">VirtualBox</span> <span class="string">3proxy</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN,domain1,内部网络</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN,domain2,内部网络</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">IP-CIDR,xxx.yyy.0.0/16,内部网络</span></span><br></pre></td></tr></table></figure>
-
-<p>完~</p>
+<p>一种处理方式是遍历每一条线段并判断该线段是否与后面的线段相交，如果相交则删除该线段与相交线段之间所有的线段，如图二所示删除线段 2、3、4、5、6 就可以得到结果。这种处理方式在 PostGIS 中实现如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> REPLACE <span class="keyword">FUNCTION</span> ST_RemoveIntersection(line GEOMETRY)</span><br><span class="line"><span class="keyword">RETURNS</span> GEOMETRY</span><br><span class="line"><span class="keyword">AS</span> $$</span><br><span class="line"><span class="keyword">DECLARE</span></span><br><span class="line">    <span class="keyword">result</span> GEOMETRY;</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">    <span class="comment">-- 存储线串所有的点和线段</span></span><br><span class="line">    <span class="keyword">CREATE</span> TEMPORARY <span class="keyword">TABLE</span> points</span><br><span class="line">    (</span><br><span class="line">        index <span class="type">INTEGER</span>,    <span class="comment">-- 点的索引，也是线段的索引</span></span><br><span class="line">        point GEOMETRY,   <span class="comment">-- 点</span></span><br><span class="line">        segment GEOMETRY, <span class="comment">-- 线段</span></span><br><span class="line">        <span class="keyword">PRIMARY KEY</span> (index)</span><br><span class="line">    )</span><br><span class="line">    <span class="keyword">ON</span> <span class="keyword">COMMIT</span> <span class="keyword">DROP</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">-- 创建索引加快长线串的处理速度</span></span><br><span class="line">    <span class="keyword">CREATE</span> INDEX points_segment_gist <span class="keyword">ON</span> points <span class="keyword">USING</span> GIST(segment);</span><br><span class="line"></span><br><span class="line">    <span class="comment">-- 将线串拆分为点和线段，最后一个点没有与之匹配的线段</span></span><br><span class="line">    <span class="keyword">INSERT INTO</span> points(index, point, segment)</span><br><span class="line">    <span class="keyword">SELECT</span> t.path[<span class="number">1</span>] <span class="keyword">AS</span> index, t.geom <span class="keyword">AS</span> point, ST_MakeLine(t.geom, <span class="built_in">LEAD</span>(t.geom, <span class="number">1</span>) <span class="keyword">OVER</span>()) <span class="keyword">AS</span> segment</span><br><span class="line">    <span class="keyword">FROM</span> ST_DumpPoints(line) <span class="keyword">AS</span> t;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">WITH</span> remove_indexs <span class="keyword">AS</span> (</span><br><span class="line">        <span class="comment">-- 找出相交的线段的索引，也是要删除的点的索引</span></span><br><span class="line">        <span class="keyword">SELECT</span> a.index <span class="keyword">AS</span> start_index, b.index <span class="keyword">AS</span> end_index</span><br><span class="line">        <span class="keyword">FROM</span> points <span class="keyword">AS</span> a</span><br><span class="line">            <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> points <span class="keyword">AS</span> b</span><br><span class="line">                <span class="comment">-- 两条线段之间至少隔了一条线段，即相邻线段不算相交</span></span><br><span class="line">                <span class="keyword">ON</span> b.index <span class="operator">&gt;=</span> a.index <span class="operator">+</span> <span class="number">2</span></span><br><span class="line">        <span class="keyword">WHERE</span> a.segment <span class="keyword">IS</span> <span class="keyword">NOT NULL</span></span><br><span class="line">            <span class="keyword">AND</span> b.segment <span class="keyword">IS</span> <span class="keyword">NOT NULL</span></span><br><span class="line">            <span class="comment">-- 判断线段是否相交</span></span><br><span class="line">            <span class="keyword">AND</span> ST_Intersects(a.segment, b.segment)</span><br><span class="line">    )</span><br><span class="line">    <span class="comment">-- 剩下的点构成新的线串</span></span><br><span class="line">    <span class="keyword">SELECT</span> ST_MakeLine(p.point)</span><br><span class="line">    <span class="keyword">INTO</span> <span class="keyword">result</span></span><br><span class="line">    <span class="keyword">FROM</span> points <span class="keyword">as</span> p</span><br><span class="line">    <span class="keyword">WHERE</span> <span class="keyword">NOT</span> <span class="keyword">EXISTS</span>(</span><br><span class="line">        <span class="comment">-- 删除相交的线段，也是要删除的点</span></span><br><span class="line">        <span class="keyword">SELECT</span> <span class="number">1</span> <span class="keyword">FROM</span> remove_indexs <span class="keyword">AS</span> r <span class="keyword">WHERE</span> r.start_index <span class="operator">&lt;</span> p.index <span class="keyword">AND</span> p.index <span class="operator">&lt;=</span> r.end_index</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="keyword">RETURN</span> <span class="keyword">result</span>;</span><br><span class="line"><span class="keyword">END</span>;</span><br><span class="line">$$</span><br><span class="line">    <span class="keyword">LANGUAGE</span> plpgsql;</span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -269,7 +257,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://acomma.github.io/2025/08/30/use-qianxin-in-vm/" title="一种在虚拟机安装奇安信产品访问内网的方法">https://acomma.github.io/2025/08/30/use-qianxin-in-vm/</a>
+      <a href="https://acomma.github.io/2025/11/19/how-to-remove-self-intersect-part-in-postgis/" title="如何在 PostGIS 中删除 LINESTRING 自相交部分">https://acomma.github.io/2025/11/19/how-to-remove-self-intersect-part-in-postgis/</a>
   </li>
   <li class="post-copyright-license">
       <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -278,24 +266,18 @@
 </div>
 
           <div class="post-tags">
-              <a href="/tags/3proxy/" rel="tag"><i class="fa fa-tag"></i> 3proxy</a>
-              <a href="/tags/Clash/" rel="tag"><i class="fa fa-tag"></i> Clash</a>
-              <a href="/tags/VirtualBox/" rel="tag"><i class="fa fa-tag"></i> VirtualBox</a>
-              <a href="/tags/Qianxin/" rel="tag"><i class="fa fa-tag"></i> Qianxin</a>
+              <a href="/tags/PostGIS/" rel="tag"><i class="fa fa-tag"></i> PostGIS</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2025/04/26/use-easyconnect-in-docker/" rel="prev" title="使用 Docker 封印 EasyConnect">
-                  <i class="fa fa-angle-left"></i> 使用 Docker 封印 EasyConnect
+                <a href="/2025/11/15/dynamic-server-in-spring-ai-model-context-protocol/" rel="prev" title="在 Spring Boot 应用中动态创建&#x2F;销毁 MCP 服务器">
+                  <i class="fa fa-angle-left"></i> 在 Spring Boot 应用中动态创建/销毁 MCP 服务器
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2025/09/03/spring-ai-mcp-invocation-process/" rel="next" title="Spring AI MCP 源码分析">
-                  Spring AI MCP 源码分析 <i class="fa fa-angle-right"></i>
-                </a>
             </div>
           </div>
     </footer>

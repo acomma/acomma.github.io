@@ -1,4 +1,5 @@
 https://acomma.github.io/tags/index.html
+https://acomma.github.io/2025/11/19/how-to-remove-self-intersect-part-in-postgis/
 https://acomma.github.io/2025/11/15/dynamic-server-in-spring-ai-model-context-protocol/
 https://acomma.github.io/2025/09/03/spring-ai-mcp-invocation-process/
 https://acomma.github.io/2025/08/30/use-qianxin-in-vm/
@@ -40,8 +41,8 @@ https://acomma.github.io/tags/Kubernetes/
 https://acomma.github.io/tags/SQL/
 https://acomma.github.io/tags/SpringDoc/
 https://acomma.github.io/tags/Spring-Boot/
-https://acomma.github.io/tags/Java/
 https://acomma.github.io/tags/Jackson/
+https://acomma.github.io/tags/Java/
 https://acomma.github.io/tags/Knife4j/
 https://acomma.github.io/tags/Nginx/
 https://acomma.github.io/tags/OAuth2/
@@ -64,3 +65,4 @@ https://acomma.github.io/tags/VirtualBox/
 https://acomma.github.io/tags/Qianxin/
 https://acomma.github.io/tags/Spring-AI/
 https://acomma.github.io/tags/MCP/
+https://acomma.github.io/tags/PostGIS/
