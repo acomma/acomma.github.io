@@ -20,33 +20,30 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"acomma.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.26.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="在我们的场景中访问内网资源需要通过奇安信天信，一个零信任网络访问系统，功能类似 EasyConnect，同时也需要安装奇安信天擎和微步两个软件。我们都知道奇安信天擎等产品一旦安装想要卸载非常麻烦，而奇安信天信目前还没有类似 docker-easyconnect 的软件，经过实践把这三个软件安装在虚拟机中，然后在虚拟机中安装 3proxy 代理服务器，在主机中通过 Clash.for.Windows">
+    <meta name="description" content="Java 语言本身提供了两个 COW 数据结构 CopyOnWriteArrayList 和 CopyOnWriteArraySet，但在某些场景下，比如配置信息热更新、缓存系统数据刷新和一些读多写少且需要保证数据一致性的场景，它们太重了。以 CopyOnWriteArrayList 的 add 方法为例，它在实现时使用了 synchronized 同步代码块。在这些场景下，我们可以使用一种轻量级">
 <meta property="og:type" content="article">
-<meta property="og:title" content="一种在虚拟机安装奇安信产品访问内网的方法">
-<meta property="og:url" content="https://acomma.github.io/2025/08/30/use-qianxin-in-vm/index.html">
+<meta property="og:title" content="轻量级写时复制实现">
+<meta property="og:url" content="https://acomma.github.io/2025/11/27/a-lightweight-copy-on-write-implementation/index.html">
 <meta property="og:site_name" content="逗号的博客">
-<meta property="og:description" content="在我们的场景中访问内网资源需要通过奇安信天信，一个零信任网络访问系统，功能类似 EasyConnect，同时也需要安装奇安信天擎和微步两个软件。我们都知道奇安信天擎等产品一旦安装想要卸载非常麻烦，而奇安信天信目前还没有类似 docker-easyconnect 的软件，经过实践把这三个软件安装在虚拟机中，然后在虚拟机中安装 3proxy 代理服务器，在主机中通过 Clash.for.Windows">
+<meta property="og:description" content="Java 语言本身提供了两个 COW 数据结构 CopyOnWriteArrayList 和 CopyOnWriteArraySet，但在某些场景下，比如配置信息热更新、缓存系统数据刷新和一些读多写少且需要保证数据一致性的场景，它们太重了。以 CopyOnWriteArrayList 的 add 方法为例，它在实现时使用了 synchronized 同步代码块。在这些场景下，我们可以使用一种轻量级">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://acomma.github.io/2025/08/30/use-qianxin-in-vm/architecture.drawio.svg">
-<meta property="og:image" content="https://acomma.github.io/2025/08/30/use-qianxin-in-vm/network-setting.png">
-<meta property="article:published_time" content="2025-08-30T05:03:02.000Z">
-<meta property="article:modified_time" content="2025-08-30T05:03:02.000Z">
+<meta property="og:image" content="https://acomma.github.io/2025/11/27/a-lightweight-copy-on-write-implementation/reference.drawio.svg">
+<meta property="article:published_time" content="2025-11-27T13:29:55.000Z">
+<meta property="article:modified_time" content="2025-11-27T13:29:55.000Z">
 <meta property="article:author" content="逗号">
-<meta property="article:tag" content="3proxy">
-<meta property="article:tag" content="Clash">
-<meta property="article:tag" content="VirtualBox">
-<meta property="article:tag" content="Qianxin">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Design Pattern">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://acomma.github.io/2025/08/30/use-qianxin-in-vm/architecture.drawio.svg">
+<meta name="twitter:image" content="https://acomma.github.io/2025/11/27/a-lightweight-copy-on-write-implementation/reference.drawio.svg">
 
 
-<link rel="canonical" href="https://acomma.github.io/2025/08/30/use-qianxin-in-vm/">
+<link rel="canonical" href="https://acomma.github.io/2025/11/27/a-lightweight-copy-on-write-implementation/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2025/08/30/use-qianxin-in-vm/","path":"2025/08/30/use-qianxin-in-vm/","title":"一种在虚拟机安装奇安信产品访问内网的方法"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2025/11/27/a-lightweight-copy-on-write-implementation/","path":"2025/11/27/a-lightweight-copy-on-write-implementation/","title":"轻量级写时复制实现"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>一种在虚拟机安装奇安信产品访问内网的方法 | 逗号的博客</title>
+<title>轻量级写时复制实现 | 逗号的博客</title>
   
 
 
@@ -196,7 +193,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2025/08/30/use-qianxin-in-vm/">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2025/11/27/a-lightweight-copy-on-write-implementation/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -209,12 +206,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="一种在虚拟机安装奇安信产品访问内网的方法 | 逗号的博客">
+      <meta itemprop="name" content="轻量级写时复制实现 | 逗号的博客">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          一种在虚拟机安装奇安信产品访问内网的方法
+          轻量级写时复制实现
         </h1>
 
         <div class="post-meta-container">
@@ -225,7 +222,7 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2025-08-30 13:03:02" itemprop="dateCreated datePublished" datetime="2025-08-30T13:03:02+08:00">2025-08-30</time>
+      <time title="创建时间：2025-11-27 21:29:55" itemprop="dateCreated datePublished" datetime="2025-11-27T21:29:55+08:00">2025-11-27</time>
     </span>
 
   
@@ -237,21 +234,13 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>在我们的场景中访问内网资源需要通过<em>奇安信天信</em>，一个零信任网络访问系统，功能类似 <em>EasyConnect</em>，同时也需要安装<em>奇安信天擎</em>和<em>微步</em>两个软件。我们都知道<em>奇安信天擎</em>等产品一旦安装想要卸载非常麻烦，而<em>奇安信天信</em>目前还没有类似 <em>docker-easyconnect</em> 的软件，经过实践把这三个软件安装在虚拟机中，然后在虚拟机中安装 <em><a target="_blank" rel="noopener" href="https://github.com/3proxy/3proxy">3proxy</a></em> 代理服务器，在主机中通过 <em>Clash.for.Windows</em> 连接代理服务器从而避免在主机中安装<em>奇安信天擎</em>等产品</p>
-<img src="/2025/08/30/use-qianxin-in-vm/architecture.drawio.svg" class="">
-
+    <div class="post-body" itemprop="articleBody"><p>Java 语言本身提供了两个 COW 数据结构 <code>CopyOnWriteArrayList</code> 和 <code>CopyOnWriteArraySet</code>，但在某些场景下，比如配置信息热更新、缓存系统数据刷新和一些读多写少且需要保证数据一致性的场景，它们太重了。以 <code>CopyOnWriteArrayList</code> 的 <code>add</code> 方法为例，它在实现时使用了 <code>synchronized</code> 同步代码块。在这些场景下，我们可以使用一种轻量级的实现方式，即<strong>原子性地替换引用并利用 <code>volatile</code> 保证其他线程的可见性</strong>。</p>
 <span id="more"></span>
 
-<p>虚拟机和主机之间的网络选择<em>桥接模式</em>或者其他等价设置</p>
-<img src="/2025/08/30/use-qianxin-in-vm/network-setting.png" class="">
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FooService</span> &#123;</span><br><span class="line">    <span class="comment">// 全局缓存，使用 volatile 确保引用更新的可见性</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> List&lt;String&gt; cache = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">load</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 模拟从数据源加载新数据</span></span><br><span class="line">        List&lt;String&gt; loaded = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        loaded.add(<span class="string">&quot;a&quot;</span>);</span><br><span class="line">        loaded.add(<span class="string">&quot;b&quot;</span>);</span><br><span class="line">        <span class="comment">// 原子性地替换缓存引用，利用 volatile 保证其他线程可见</span></span><br><span class="line">        <span class="comment">// 不直接修改原列表，避免并发读写问题</span></span><br><span class="line">        <span class="built_in">this</span>.cache = loaded;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">usage</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 创建当前缓存的本地快照，确保后续操作基于一致的数据视图</span></span><br><span class="line">        <span class="comment">// 即使其他线程调用 load() 更新缓存，也不会影响本次使用</span></span><br><span class="line">        <span class="comment">// 利用 volatile 读取最新值，无需加锁即可实现线程安全的读取</span></span><br><span class="line">        List&lt;String&gt; backup = <span class="built_in">this</span>.cache;</span><br><span class="line">        <span class="comment">// 后续操作应仅使用 backup，避免多次读取 this.cache 导致不一致</span></span><br><span class="line">        <span class="keyword">for</span> (String item : backup) &#123;</span><br><span class="line">            System.out.println(item);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>在配置安装配置 <em>3proxy</em> 时要在它的 <em>bin</em> 目录创建一个 <em>3proxy.cfg</em> 文件，使用 <em>socks</em> 方式，文件内容如下所示</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">nserver 8.8.8.8</span><br><span class="line">nserver 8.8.4.4</span><br><span class="line">nscache 65536</span><br><span class="line">auth none</span><br><span class="line">socks -p1080</span><br></pre></td></tr></table></figure>
-
-<p>注意配置的 <em>socks</em> 端口在 <em>Clash.for.Windows</em> 中会用到，后者的配置和使用方法参考<a href="https://acomma.github.io/2025/04/26/use-easyconnect-in-docker/">使用 Docker 封印 EasyConnect</a> 一文，下面的例子在前文的基础上增加了 <em>VirtualBox 3proxy</em>，第 12 行是虚拟机的 IP 地址，第 13 行是 <em>3proxy</em> 配置的端口</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">mixed-port:</span> <span class="number">7890</span></span><br><span class="line"><span class="attr">allow-lan:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">external-controller:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:58547</span></span><br><span class="line"><span class="attr">secret:</span> <span class="string">e0449ccf-90d3-42d7-b814-3a885827271b</span></span><br><span class="line"><span class="attr">proxies:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Docker</span> <span class="string">EasyConnect</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">socks5</span></span><br><span class="line">    <span class="attr">server:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">1080</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">VirtualBox</span> <span class="string">3proxy</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">socks5</span></span><br><span class="line">    <span class="attr">server:</span> <span class="number">192.168</span><span class="number">.1</span><span class="number">.5</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">1080</span></span><br><span class="line"><span class="attr">proxy-groups:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">内部网络</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">select</span></span><br><span class="line">    <span class="attr">proxies:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">Docker</span> <span class="string">EasyConnect</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">VirtualBox</span> <span class="string">3proxy</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN,domain1,内部网络</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN,domain2,内部网络</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">IP-CIDR,xxx.yyy.0.0/16,内部网络</span></span><br></pre></td></tr></table></figure>
-
-<p>完~</p>
+<p>这种实现方式可以称为<em>无锁读写模式</em>、<em>乐观读取模式</em>、<em>Safe Publication via Immutable Snapshots</em> 或者 <em>Copy-on-Write Reference</em>。下面是运行时引用变化示意图</p>
+<img src="/2025/11/27/a-lightweight-copy-on-write-implementation/reference.drawio.svg" class="">
 
     </div>
 
@@ -269,7 +258,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://acomma.github.io/2025/08/30/use-qianxin-in-vm/" title="一种在虚拟机安装奇安信产品访问内网的方法">https://acomma.github.io/2025/08/30/use-qianxin-in-vm/</a>
+      <a href="https://acomma.github.io/2025/11/27/a-lightweight-copy-on-write-implementation/" title="轻量级写时复制实现">https://acomma.github.io/2025/11/27/a-lightweight-copy-on-write-implementation/</a>
   </li>
   <li class="post-copyright-license">
       <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -278,24 +267,19 @@
 </div>
 
           <div class="post-tags">
-              <a href="/tags/3proxy/" rel="tag"><i class="fa fa-tag"></i> 3proxy</a>
-              <a href="/tags/Clash/" rel="tag"><i class="fa fa-tag"></i> Clash</a>
-              <a href="/tags/VirtualBox/" rel="tag"><i class="fa fa-tag"></i> VirtualBox</a>
-              <a href="/tags/Qianxin/" rel="tag"><i class="fa fa-tag"></i> Qianxin</a>
+              <a href="/tags/Java/" rel="tag"><i class="fa fa-tag"></i> Java</a>
+              <a href="/tags/Design-Pattern/" rel="tag"><i class="fa fa-tag"></i> Design Pattern</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2025/04/26/use-easyconnect-in-docker/" rel="prev" title="使用 Docker 封印 EasyConnect">
-                  <i class="fa fa-angle-left"></i> 使用 Docker 封印 EasyConnect
+                <a href="/2025/11/19/how-to-remove-self-intersect-part-in-postgis/" rel="prev" title="如何在 PostGIS 中删除 LINESTRING 自相交部分">
+                  <i class="fa fa-angle-left"></i> 如何在 PostGIS 中删除 LINESTRING 自相交部分
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2025/09/03/spring-ai-mcp-invocation-process/" rel="next" title="Spring AI MCP 源码分析">
-                  Spring AI MCP 源码分析 <i class="fa fa-angle-right"></i>
-                </a>
             </div>
           </div>
     </footer>
