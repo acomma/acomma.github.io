@@ -40,3 +40,7 @@ public class FooService {
 这种实现方式可以称为*无锁读写模式*、*乐观读取模式*、*Safe Publication via Immutable Snapshots* 或者 *Copy-on-Write Reference*。下面是运行时引用变化示意图
 
 {% asset_img reference.drawio.svg %}
+
+下面是由 [next-ai-draw-io](https://github.com/DayuanJiang/next-ai-draw-io) 画的示意图，只做了一点儿微调
+
+{% asset_img state.drawio.svg %}
