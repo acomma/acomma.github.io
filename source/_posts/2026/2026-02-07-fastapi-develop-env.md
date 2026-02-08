@@ -113,6 +113,90 @@ Python 支持使用 `pdb` [调试](https://liaoxuefeng.com/books/python/error-de
 
 把启动命令简化为 `python -m uvicorn app.main:app --reload`，结果和使用 FastAPI 配置启动项目相同。
 
+## 构建 Docker 镜像
+
+参考 [.dockerignore example for Python projects](https://gist.github.com/KernelA/04b4d7691f28e264f72e76cfd724d448) 创建 *.dockerignore* 文件
+
+```
+README.md
+
+# Python
+**/__pycache__/
+**/*.py[cod]
+
+# Virtual environment
+.env
+.venv/
+venv/
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+docker-compose.yml
+Dockerfile
+.docker
+.dockerignore
+
+# PyCharm
+.idea
+
+# VS Code
+.vscode/
+
+# Mac OS
+.DS_Store
+```
+
+参考 [Using uv in Docker](https://docs.astral.sh/uv/guides/integration/docker/)、[FastAPI in Containers - Docker](https://fastapi.tiangolo.com/deployment/docker/) 创建 *Dockerfile* 文件
+
+```dockerfile
+# 基础镜像
+FROM python:3.12.12-slim-trixie
+
+# 取消缓冲，参考：https://docs.python.org/3/using/cmdline.html#cmdoption-u
+ENV PYTHONUNBUFFERED=1
+
+# 安装 uv，参考：https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
+COPY --from=docker.io/astral/uv:0.9.25 /uv /uvx /bin/
+
+# 编译字节码，参考：https://docs.astral.sh/uv/guides/integration/docker/#compiling-bytecode
+ENV UV_COMPILE_BYTECODE=1
+
+# uv 缓存，参考: https://docs.astral.sh/uv/guides/integration/docker/#caching
+ENV UV_LINK_MODE=copy
+
+# 忽略开发依赖
+ENV UV_NO_DEV=1
+
+# 改变工作目录到 `app` 目录
+WORKDIR /app/
+
+# 安装依赖，参考：https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --locked --no-install-project
+
+# 复制项目到镜像中，参考：https://fastapi.tiangolo.com/deployment/docker/#dockerfile
+COPY ./pyproject.toml ./uv.lock /app/
+COPY ./app /app/app
+
+# 同步项目，参考：https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked
+
+# 使用虚拟环境，参考：https://docs.astral.sh/uv/guides/integration/docker/#using-the-environment
+ENV PATH="/app/.venv/bin:$PATH"
+
+# 运行 FastAPI 应用，参考：https://fastapi.tiangolo.com/deployment/docker/#dockerfile
+CMD ["fastapi", "run", "app/main.py", "--port", "80"]
+```
+
+安装 uv 时使用 *docker.io* 而不是 *ghcr.io*，注意用户名不一样，其他都一样。
+
 ## 遇到的问题
 
 ### UV 缓存目录问题
