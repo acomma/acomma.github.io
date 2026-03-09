@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="msvalidate.01" content="09940DFE4C5DA4E85A7117EF7EEC3933">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"acomma.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="最近遇到这样一个需求：从视频中提取音频并将语音转换成文字。在和 Qwen 进行一些讨论后决定使用 openai-whisper 来实现。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 Whisper 实现语音转文字">
+<meta property="og:url" content="https://acomma.github.io/2026/03/08/video-transcriber-with-whisper/index.html">
+<meta property="og:site_name" content="逗号的博客">
+<meta property="og:description" content="最近遇到这样一个需求：从视频中提取音频并将语音转换成文字。在和 Qwen 进行一些讨论后决定使用 openai-whisper 来实现。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-03-08T14:35:43.000Z">
+<meta property="article:modified_time" content="2026-03-08T14:35:43.000Z">
+<meta property="article:author" content="逗号">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://acomma.github.io/2026/03/08/video-transcriber-with-whisper/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://acomma.github.io/2026/03/08/video-transcriber-with-whisper/","path":"2026/03/08/video-transcriber-with-whisper/","title":"使用 Whisper 实现语音转文字"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>使用 Whisper 实现语音转文字 | 逗号的博客</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">逗号的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这里有一句格言，但我还没想好</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-FFmpeg"><span class="nav-number">1.</span> <span class="nav-text">安装 FFmpeg</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E8%84%9A%E6%9C%AC"><span class="nav-number">2.</span> <span class="nav-text">实现脚本</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BD-Whisper-%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.1.</span> <span class="nav-text">下载 Whisper 模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">3.</span> <span class="nav-text">遇到的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%BA%E5%B0%91-GPU-%E8%AD%A6%E5%91%8A"><span class="nav-number">3.1.</span> <span class="nav-text">缺少 GPU 警告</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B9%81%E4%BD%93%E6%96%87%E6%9C%AC%E9%97%AE%E9%A2%98"><span class="nav-number">3.2.</span> <span class="nav-text">繁体文本问题</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="逗号"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">逗号</p>
+  <div class="site-description" itemprop="description">这里是站点描述，但我没有写</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/acomma" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;acomma" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:acomma@yeah.net" title="E-Mail → mailto:acomma@yeah.net" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://acomma.github.io/2026/03/08/video-transcriber-with-whisper/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="逗号">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逗号的博客">
+      <meta itemprop="description" content="这里是站点描述，但我没有写">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="使用 Whisper 实现语音转文字 | 逗号的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用 Whisper 实现语音转文字
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-03-08 22:35:43" itemprop="dateCreated datePublished" datetime="2026-03-08T22:35:43+08:00">2026-03-08</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>最近遇到这样一个需求：从视频中提取音频并将语音转换成文字。在和 <a target="_blank" rel="noopener" href="https://chat.qwen.ai/">Qwen</a> 进行一些讨论后决定使用 <a target="_blank" rel="noopener" href="https://pypi.org/project/openai-whisper/">openai-whisper</a> 来实现。</p>
+<span id="more"></span>
+
+<h2 id="安装-FFmpeg"><a href="#安装-FFmpeg" class="headerlink" title="安装 FFmpeg"></a>安装 FFmpeg</h2><p><em>openai-whisper</em> 依赖 <a target="_blank" rel="noopener" href="https://ffmpeg.org/">FFmpeg</a>，我们首先需要安装它。又因为我是 Windows 系统，因此从 <a target="_blank" rel="noopener" href="https://ffmpeg.org/download.html">FFmpeg 下载页</a> 导航到 <a target="_blank" rel="noopener" href="https://www.gyan.dev/ffmpeg/builds/">gyan.dev</a> 下载 <a target="_blank" rel="noopener" href="https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip">ffmpeg-release-essentials.zip</a>，解压到 <em>D:\Program Files</em> 目录，得到 <em>D:\Program Files\ffmpeg-8.0.1-essentials_build</em>，配置环境变量 <code>FFMPEG_HOME=D:\Program Files\ffmpeg-8.0.1-essentials_build</code>，在 <code>Path</code> 变量中加入 <code>%FFMPEG_HOME%\bin</code>，打开命令提示符输入 <code>ffmpeg -version</code> 检查安装是否成功，当前输出为</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg version 8.0.1-essentials_build-www.gyan.dev Copyright (c) 2000-2025 the FFmpeg developers</span><br><span class="line">built with gcc 15.2.0 (Rev8, Built by MSYS2 project)</span><br><span class="line">configuration: --enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-bzlib --enable-lzma --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-sdl2 --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-mediafoundation --enable-libass --enable-libfreetype --enable-libfribidi --enable-libharfbuzz --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-dxva2 --enable-d3d11va --enable-d3d12va --enable-ffnvcodec --enable-libvpl --enable-nvdec --enable-nvenc --enable-vaapi --enable-openal --enable-libgme --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libtheora --enable-libvo-amrwbenc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-librubberband</span><br><span class="line">libavutil      60.  8.100 / 60.  8.100</span><br><span class="line">libavcodec     62. 11.100 / 62. 11.100</span><br><span class="line">libavformat    62.  3.100 / 62.  3.100</span><br><span class="line">libavdevice    62.  1.100 / 62.  1.100</span><br><span class="line">libavfilter    11.  4.100 / 11.  4.100</span><br><span class="line">libswscale      9.  1.100 /  9.  1.100</span><br><span class="line">libswresample   6.  1.100 /  6.  1.100</span><br><span class="line"></span><br><span class="line">Exiting with exit code 0</span><br></pre></td></tr></table></figure>
+
+<p>到此为止，安装 FFmpeg 就完成了。</p>
+<h2 id="实现脚本"><a href="#实现脚本" class="headerlink" title="实现脚本"></a>实现脚本</h2><p>下面是 Vibe Coding 实现的转换脚本 <em>video_transcriber.py</em>，项目使用 <code>uv</code> 进行管理，需要安装依赖 <code>uv add openai-whisper==20250625</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> whisper</span><br><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">from</span> pathlib <span class="keyword">import</span> Path</span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">transcribe_video</span>(<span class="params">video_path: <span class="built_in">str</span>, model_size: <span class="built_in">str</span>, language: <span class="built_in">str</span> | <span class="literal">None</span>, verbose: <span class="built_in">bool</span></span>) -&gt; <span class="built_in">dict</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;转录视频文件&quot;&quot;&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;🔄 正在加载模型：<span class="subst">&#123;model_size&#125;</span> ...&quot;</span>)</span><br><span class="line">    model = whisper.load_model(model_size)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;✅ 模型加载完成&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;\n🎬 开始处理：<span class="subst">&#123;Path(video_path).name&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;   语言：<span class="subst">&#123;language <span class="keyword">if</span> language <span class="keyword">else</span> <span class="string">&#x27;自动检测&#x27;</span>&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    result = model.transcribe(<span class="built_in">str</span>(video_path), language=language, verbose=verbose)</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;✅ 转录完成&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">save_txt</span>(<span class="params">result: <span class="built_in">dict</span>, output_path: <span class="built_in">str</span>, with_timestamp: <span class="built_in">bool</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;保存为文件&quot;&quot;&quot;</span></span><br><span class="line">    timestamp = datetime.now().strftime(<span class="string">&quot;%Y%m%d_%H%M%S&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> with_timestamp:</span><br><span class="line">        output_file = <span class="string">f&quot;<span class="subst">&#123;output_path&#125;</span>_timestamp_<span class="subst">&#123;timestamp&#125;</span>.txt&quot;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        output_file = <span class="string">f&quot;<span class="subst">&#123;output_path&#125;</span>_<span class="subst">&#123;timestamp&#125;</span>.txt&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(output_file, <span class="string">&#x27;w&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="keyword">if</span> with_timestamp:</span><br><span class="line">            <span class="keyword">for</span> segment <span class="keyword">in</span> result[<span class="string">&quot;segments&quot;</span>]:</span><br><span class="line">                start = segment[<span class="string">&quot;start&quot;</span>]</span><br><span class="line">                end = segment[<span class="string">&quot;end&quot;</span>]</span><br><span class="line">                text = segment[<span class="string">&quot;text&quot;</span>].strip()</span><br><span class="line">                f.write(<span class="string">f&quot;[<span class="subst">&#123;start:<span class="number">6.2</span>f&#125;</span>s - <span class="subst">&#123;end:<span class="number">6.2</span>f&#125;</span>s] <span class="subst">&#123;text&#125;</span>\n&quot;</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            f.write(result[<span class="string">&quot;text&quot;</span>])</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;💾 已保存：<span class="subst">&#123;output_file&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> output_file</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="string">&quot;&quot;&quot;主函数&quot;&quot;&quot;</span></span><br><span class="line">    parser = argparse.ArgumentParser(</span><br><span class="line">        description=<span class="string">&quot;Whisper 视频转文本工具（简化版）&quot;</span>,</span><br><span class="line">        formatter_class=argparse.RawDescriptionHelpFormatter,</span><br><span class="line">        epilog=<span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        示例:</span></span><br><span class="line"><span class="string">            python video_transcriber.py input.mp4</span></span><br><span class="line"><span class="string">            python video_transcriber.py input.mp4 -m base -l zh</span></span><br><span class="line"><span class="string">            python video_transcriber.py input.mp4 -o output -t</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    parser.add_argument(<span class="string">&quot;video&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;视频文件路径&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;-m&quot;</span>, default=<span class="string">&quot;base&quot;</span>, choices=[<span class="string">&quot;tiny&quot;</span>, <span class="string">&quot;base&quot;</span>, <span class="string">&quot;small&quot;</span>, <span class="string">&quot;medium&quot;</span>, <span class="string">&quot;large-v3&quot;</span>], <span class="built_in">help</span>=<span class="string">&quot;模型大小 (默认：base)&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;-l&quot;</span>, default=<span class="literal">None</span>, <span class="built_in">help</span>=<span class="string">&quot;语言代码 (默认：自动检测，中文用 zh)&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;-o&quot;</span>, default=<span class="literal">None</span>, <span class="built_in">help</span>=<span class="string">&quot;输出文件路径 (默认：视频文件名)&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;-v&quot;</span>, action=<span class="string">&quot;store_true&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;显示详细进度&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;-t&quot;</span>, action=<span class="string">&quot;store_true&quot;</span>, <span class="built_in">help</span>=<span class="string">&quot;输出包含时间戳&quot;</span>)</span><br><span class="line"></span><br><span class="line">    args = parser.parse_args()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 检查视频文件</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> Path(args.video).exists():</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;❌ 错误：文件不存在：<span class="subst">&#123;args.video&#125;</span>&quot;</span>)</span><br><span class="line">        sys.exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 转录</span></span><br><span class="line">    result = transcribe_video(video_path=args.video, model_size=args.m, language=args.l, verbose=args.v)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 保存输出</span></span><br><span class="line">    output_path = args.o <span class="keyword">or</span> Path(args.video).stem</span><br><span class="line">    save_txt(result, output_path, args.t)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<h3 id="下载-Whisper-模型"><a href="#下载-Whisper-模型" class="headerlink" title="下载 Whisper 模型"></a>下载 Whisper 模型</h3><p>在执行 <code>whisper.load_model()</code> 这行代码时如果没有找到 <code>name</code> 参数指定的模型，会自动下载模型。这是一个耗时的操作，因此我们提前下载好模型。简单的阅读 <em>whisper</em> 的源码发现模型的下载路径记录在 <a target="_blank" rel="noopener" href="https://github.com/openai/whisper/blob/main/whisper/__init__.py"><em>whisper&#x2F;__init__.py</em></a> 文件的 <code>_MODELS</code> 字典中</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">_MODELS = &#123;</span><br><span class="line">    <span class="string">&quot;tiny.en&quot;</span>: <span class="string">&quot;https://openaipublic.azureedge.net/main/whisper/models/d3dd57d32accea0b295c96e26691aa14d8822fac7d9d27d5dc00b4ca2826dd03/tiny.en.pt&quot;</span>,</span><br><span class="line">    <span class="string">&quot;tiny&quot;</span>: <span class="string">&quot;https://openaipublic.azureedge.net/main/whisper/models/65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9/tiny.pt&quot;</span>,</span><br><span class="line">    <span class="string">&quot;base.en&quot;</span>: <span class="string">&quot;https://openaipublic.azureedge.net/main/whisper/models/25a8566e1d0c1e2231d1c762132cd20e0f96a85d16145c3a00adf5d1ac670ead/base.en.pt&quot;</span>,</span><br><span class="line">    <span class="string">&quot;base&quot;</span>: <span class="string">&quot;https://openaipublic.azureedge.net/main/whisper/models/ed3a0b6b1c0edf879ad9b11b1af5a0e6ab5db9205f891f668f8b0e6c6326e34e/base.pt&quot;</span>,</span><br><span class="line">    <span class="string">&quot;small.en&quot;</span>: <span class="string">&quot;https://openaipublic.azureedge.net/main/whisper/models/f953ad0fd29cacd07d5a9eda5624af0f6bcf2258be67c92b79389873d91e0872/small.en.pt&quot;</span>,</span><br><span class="line">    <span class="string">&quot;small&quot;</span>: <span class="string">&quot;https://openaipublic.azureedge.net/main/whisper/models/9ecf779972d90ba49c06d968637d720dd632c55bbf19d441fb42bf17a411e794/small.pt&quot;</span>,</span><br><span class="line">    <span class="string">&quot;medium.en&quot;</span>: <span class="string">&quot;https://openaipublic.azureedge.net/main/whisper/models/d7440d1dc186f76616474e0ff0b3b6b879abc9d1a4926b7adfa41db2d497ab4f/medium.en.pt&quot;</span>,</span><br><span class="line">    <span class="string">&quot;medium&quot;</span>: <span class="string">&quot;https://openaipublic.azureedge.net/main/whisper/models/345ae4da62f9b3d59415adc60127b97c714f32e89e936602e85993674d08dcb1/medium.pt&quot;</span>,</span><br><span class="line">    <span class="string">&quot;large-v1&quot;</span>: <span class="string">&quot;https://openaipublic.azureedge.net/main/whisper/models/e4b87e7e0bf463eb8e6956e646f1e277e901512310def2c24bf0e11bd3c28e9a/large-v1.pt&quot;</span>,</span><br><span class="line">    <span class="string">&quot;large-v2&quot;</span>: <span class="string">&quot;https://openaipublic.azureedge.net/main/whisper/models/81f7c96c852ee8fc832187b0132e569d6c3065a3252ed18e56effd0b6a73e524/large-v2.pt&quot;</span>,</span><br><span class="line">    <span class="string">&quot;large-v3&quot;</span>: <span class="string">&quot;https://openaipublic.azureedge.net/main/whisper/models/e5b1a55b89c1367dacf97e3e19bfd829a01529dbfdeefa8caeb59b3f1b81dadb/large-v3.pt&quot;</span>,</span><br><span class="line">    <span class="string">&quot;large&quot;</span>: <span class="string">&quot;https://openaipublic.azureedge.net/main/whisper/models/e5b1a55b89c1367dacf97e3e19bfd829a01529dbfdeefa8caeb59b3f1b81dadb/large-v3.pt&quot;</span>,</span><br><span class="line">    <span class="string">&quot;large-v3-turbo&quot;</span>: <span class="string">&quot;https://openaipublic.azureedge.net/main/whisper/models/aff26ae408abcba5fbf8813c21e62b0941638c5f6eebfb145be0c9839262a19a/large-v3-turbo.pt&quot;</span>,</span><br><span class="line">    <span class="string">&quot;turbo&quot;</span>: <span class="string">&quot;https://openaipublic.azureedge.net/main/whisper/models/aff26ae408abcba5fbf8813c21e62b0941638c5f6eebfb145be0c9839262a19a/large-v3-turbo.pt&quot;</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在 Windows 系统下模型会被下载到 <em>%USERPROFILE%\.cache\whisper</em> 目录中，比如 <code>name=&quot;small&quot;</code> 时模型会下载为 <em>%USERPROFILE%.cache\whisper\small.pt</em> 文件。因此我们可以直接复制对应模型的下载路径提前下载好模型。</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><h3 id="缺少-GPU-警告"><a href="#缺少-GPU-警告" class="headerlink" title="缺少 GPU 警告"></a>缺少 GPU 警告</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">D:\projects\python\example-video\.venv\Lib\site-packages\whisper\transcribe.py:132: UserWarning: FP16 is not supported on CPU; using FP32 instead</span><br><span class="line">  warnings.warn(&quot;FP16 is not supported on CPU; using FP32 instead&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>可以不用管它。</p>
+<h3 id="繁体文本问题"><a href="#繁体文本问题" class="headerlink" title="繁体文本问题"></a>繁体文本问题</h3><p>模型有的时候会返回繁体文本，需要转换一下。基于 <a target="_blank" rel="noopener" href="https://pypi.org/project/zhconv/">zhconv</a> 实现了 <em>zhcn_convert.py</em> 脚本</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> zhconv</span><br><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">from</span> pathlib <span class="keyword">import</span> Path</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">convert_to_simplified</span>(<span class="params">input_path, output_path</span>):</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(input_path, <span class="string">&#x27;r&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        content = f.read()</span><br><span class="line">    simplified = zhconv.convert(content, <span class="string">&#x27;zh-cn&#x27;</span>)</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(output_path, <span class="string">&#x27;w&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        f.write(simplified)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;✅ 转换完成：<span class="subst">&#123;input_path&#125;</span> -&gt; <span class="subst">&#123;output_path&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    parser = argparse.ArgumentParser(description=<span class="string">&quot;繁简转换工具&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;-i&quot;</span>, required=<span class="literal">True</span>, <span class="built_in">help</span>=<span class="string">&quot;输入文件路径&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;-o&quot;</span>, required=<span class="literal">True</span>, <span class="built_in">help</span>=<span class="string">&quot;输出文件路径&quot;</span>)</span><br><span class="line"></span><br><span class="line">    args = parser.parse_args()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> Path(args.i).exists():</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;❌ 错误：文件不存在：<span class="subst">&#123;args.i&#125;</span>&quot;</span>)</span><br><span class="line">        sys.exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    convert_to_simplified(args.i, args.o)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>逗号
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://acomma.github.io/2026/03/08/video-transcriber-with-whisper/" title="使用 Whisper 实现语音转文字">https://acomma.github.io/2026/03/08/video-transcriber-with-whisper/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"><i class="fa fa-tag"></i> Python</a>
+              <a href="/tags/AI/" rel="tag"><i class="fa fa-tag"></i> AI</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/02/07/fastapi-develop-env/" rel="prev" title="FastAPI 开发环境">
+                  <i class="fa fa-angle-left"></i> FastAPI 开发环境
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">逗号</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/acomma" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
