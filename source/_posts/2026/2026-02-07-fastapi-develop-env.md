@@ -2,7 +2,7 @@
 title: FastAPI 开发环境
 date: 2026-02-07 13:26:12
 updated: 2026-02-07 13:26:12
-tags:
+tags: [Python, FastAPI, Docker]
 ---
 
 这篇文章将记录一下在 Windows 系统下搭建 [FastAPI](https://github.com/fastapi/fastapi) 开发环境的过程，包括安装项目管理工具 [UV](https://docs.astral.sh/uv/)、使用 UV 初始化项目、使用 PyCharm 启动项目等，不包括 Python 的安装。
