@@ -53,15 +53,15 @@ https://acomma.github.io/tags/OAuth2/
 https://acomma.github.io/tags/Spring-Security/
 https://acomma.github.io/tags/Spring-Cloud/
 https://acomma.github.io/tags/Docker/
-https://acomma.github.io/tags/JWT/
 https://acomma.github.io/tags/PostgreSQL/
+https://acomma.github.io/tags/JWT/
 https://acomma.github.io/tags/Kettle/
 https://acomma.github.io/tags/GIS/
 https://acomma.github.io/tags/Linux/
 https://acomma.github.io/tags/Debian/
-https://acomma.github.io/tags/java/
 https://acomma.github.io/tags/C/
 https://acomma.github.io/tags/WinForms/
+https://acomma.github.io/tags/java/
 https://acomma.github.io/tags/EasyConnect/
 https://acomma.github.io/tags/3proxy/
 https://acomma.github.io/tags/Clash/
@@ -70,8 +70,8 @@ https://acomma.github.io/tags/Qianxin/
 https://acomma.github.io/tags/Spring-AI/
 https://acomma.github.io/tags/MCP/
 https://acomma.github.io/tags/PostGIS/
+https://acomma.github.io/tags/Design-Pattern/
 https://acomma.github.io/tags/Python/
 https://acomma.github.io/tags/FastAPI/
 https://acomma.github.io/tags/AI/
-https://acomma.github.io/tags/Design-Pattern/
 https://acomma.github.io/tags/Playwright/
