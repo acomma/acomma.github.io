@@ -156,7 +156,7 @@ const playVideos = async (page, remaining = 10) => {
 
             video.play();
 
-            await new Promise(resolve => video.addEventListener('ended', () => resolve(), { once: true }));
+            await new Promise(resolve => video.addEventListener("ended", () => resolve(), { once: true }));
         }, remaining);
     }
 }
@@ -164,7 +164,7 @@ const playVideos = async (page, remaining = 10) => {
 const isValidUrl = (string) => {
     try {
         const url = new URL(string);
-        return url.protocol === 'http:' || url.protocol === 'https:';
+        return url.protocol === "http:" || url.protocol === "https:";
     } catch {
         return false;
     }
@@ -219,6 +219,8 @@ main(cdpAddress, courseUrl, loggedIn, remaining);
 
 在示例配置下 CDP 地址为 [http://127.0.0.1:9222](http://127.0.0.1:9222)。
 
+**重要提示**：根据[更改了远程调试开关以提高安全性](https://developer.chrome.com/blog/remote-debugging-port?hl=zh-cn)的描述，高版本的 Chromium 浏览器 `--remote-debugging-port` 需要和 `--user-data-dir` 搭配使用。
+
 注意脚本的第 9 行代码，新打开的浏览器 [contexts](https://playwright.dev/docs/api/class-browser#browser-contexts) 的长度为 0，但是我们肯定会登录一次，因此这里获取的是默认的 context。
 
 ### 判断登录状态
@@ -236,3 +238,20 @@ main(cdpAddress, courseUrl, loggedIn, remaining);
 视频是异步加载的，因此要监听 `loadedmetadata` 事件来等待 `duration` 属性被设置，参考第 110 行代码。在第 113 行代码设置播放时间时，要等待视频加载完成，此时视频可能还不能播放，因此要监听 `canplay` 事件，参考第 115 行代码。
 
 因为会自动播放下一个视频，因此要监听 `ended` 事件，参考第 119 行代码，然后将控制权交回 Playwright 进行下一个视频的播放。在这里走了一些弯路，一开始的思路是判断 `video.ended` 属性，但是在网站自动播放配置下可能错过值为 `true` 的时刻，导致 `evaluate` 超时，因此只能监听 `ended` 事件。
+
+## 遇到的问题
+
+### 视频播放结束后没有返回上一个页面
+
+在其他操作系统和浏览器环境中遇到了最后一个视频播放结束后第 106 行的 `page.evaluate` 没有返回，并且程序没有报错也没有退出，这可能与[事件循环（Event Loop）](https://mdn.org.cn/en-US/docs/Web/JavaScript/Event_loop)和 `evaluate` 的退出机制有关，没有找到具体原因，但尝试了两种可能的解决方法，能一定程度解决问题。
+
+方法一：在第 120 行代码后面添加 `await page.waitForTimeout(1000);`，等待 1 秒后再处理下一个视频。
+
+方法二：修改第 119 行代码，增加超时限制
+
+```javascript
+await Promise.race([
+    new Promise(resolve => video.addEventListener("ended", () => resolve(), { once: true })),
+    new Promise(resolve => setTimeout(() => resolve(), remaining + 5000)),
+]);
+```
