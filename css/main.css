@@ -1291,7 +1291,7 @@ pre code {
     vertical-align: middle;
   }
   .links-of-author a::before {
-    background: #4008ff;
+    background: #379829;
     display: inline-block;
     margin-right: 3px;
     transform: translateY(-2px);
@@ -2717,6 +2717,7 @@ header.header {
     margin-bottom: 10px;
   }
 }
-.post-body img {
+.post-body img,
+.post-body svg {
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
