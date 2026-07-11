@@ -131,6 +131,108 @@ if __name__ == "__main__":
     remove_class_ids()
 ```
 
+### PowerShell 版
+
+```powershell
+function Get-CandidateClassIds {
+    $clsidPath = "HKCU:\Software\Classes\CLSID"
+
+    $infos = @()
+    $shellFolders = @()
+
+    $classIds = @(Get-ChildItem -Path $clsidPath -ErrorAction SilentlyContinue | ForEach-Object { $_.PSChildName })
+
+    foreach ($classId in $classIds) {
+        if ($classId.StartsWith("{CAFEEFAC-")) {
+            continue
+        }
+
+        $subKeyPath = "$clsidPath\$classId"
+        $subKeyNames = @(Get-ChildItem -Path $subKeyPath -ErrorAction SilentlyContinue | ForEach-Object { $_.PSChildName })
+
+        if ($subKeyNames.Count -eq 1) {
+            if ($subKeyNames[0] -eq "Info") {
+                $infos += $classId
+            }
+        }
+
+        if ($subKeyNames.Count -eq 2) {
+            $hasDefaultIcon = $subKeyNames -contains "DefaultIcon"
+            $hasShellFolder = $subKeyNames -contains "ShellFolder"
+            if ($hasDefaultIcon -and $hasShellFolder) {
+                $shellFolders += $classId
+            }
+        }
+    }
+
+    return @($infos, $shellFolders)
+}
+
+function Show-CandidateClassIds {
+    $result = Get-CandidateClassIds
+    $infos = $result[0]
+    $shellFolders = $result[1]
+
+    Write-Host "Keys containing Info:"
+    foreach ($classId in $infos) {
+        Write-Host "    $classId"
+    }
+
+    Write-Host "Keys containing DefaultIcon and ShellFolder:"
+    foreach ($classId in $shellFolders) {
+        Write-Host "    $classId"
+    }
+}
+
+function Remove-ClassIds {
+    $result = Get-CandidateClassIds
+    $infos = $result[0]
+    $shellFolders = $result[1]
+    $clsidPath = "Software\Classes\CLSID"
+
+    foreach ($classId in $infos) {
+        Write-Host "Deleting key containing Info: HKEY_CURRENT_USER\$clsidPath\$classId"
+        Remove-Item -Path "HKCU:\$clsidPath\$classId\Info" -ErrorAction SilentlyContinue
+        Remove-Item -Path "HKCU:\$clsidPath\$classId" -ErrorAction SilentlyContinue
+    }
+
+    foreach ($classId in $shellFolders) {
+        Write-Host "Deleting key containing DefaultIcon and ShellFolder: HKEY_CURRENT_USER\$clsidPath\$classId"
+        Remove-Item -Path "HKCU:\$clsidPath\$classId\DefaultIcon" -ErrorAction SilentlyContinue
+        Remove-Item -Path "HKCU:\$clsidPath\$classId\ShellFolder" -ErrorAction SilentlyContinue
+        Remove-Item -Path "HKCU:\$clsidPath\$classId" -ErrorAction SilentlyContinue
+    }
+}
+
+function Remove-Registration {
+    $navicatPath = "Software\PremiumSoft\NavicatPremium"
+
+    $premiumKey = Get-Item -Path "HKCU:\$navicatPath" -ErrorAction SilentlyContinue
+
+    if ($premiumKey) {
+        $subKeyNames = @($premiumKey.GetSubKeyNames())
+        $premiumKey.Close()
+
+        foreach ($subKeyName in $subKeyNames) {
+            if ($subKeyName -eq "Registration") {
+                continue
+            }
+            if (-not $subKeyName.StartsWith("Registration")) {
+                continue
+            }
+            Write-Host "Deleting Registration key: HKEY_CURRENT_USER\$navicatPath\$subKeyName"
+            Remove-Item -Path "HKCU:\$navicatPath\$subKeyName" -ErrorAction SilentlyContinue
+        }
+    }
+
+    Write-Host "Deleting Update key: HKEY_CURRENT_USER\$navicatPath\Update"
+    Remove-Item -Path "HKCU:\$navicatPath\Update" -ErrorAction SilentlyContinue
+}
+
+Remove-Registration
+Remove-ClassIds
+```
+
 ## 方法二：使用进程监视器精确定位
 
 上面的增强方式还是有缺陷，因为其他软件可能也会有相同的键名称使用方式。一种改进的方法是通过 [Sysinternals](https://learn.microsoft.com/zh-cn/sysinternals/) 提供的[进程监视器](https://learn.microsoft.com/zh-cn/sysinternals/downloads/procmon)找到目标键，为了实现目标需要配置过滤器
@@ -261,4 +363,116 @@ def remove_class_ids():
 if __name__ == "__main__":
     remove_registration()
     remove_class_ids()
+```
+
+### PowerShell 版
+
+```powershell
+<#  
+.SYNOPSIS  
+    Navicat Eval Resetter v2  
+.DESCRIPTION  
+    Reset Navicat Premium trial period by removing registration info and CLSID associations.  
+    Requires administrator privileges.  
+.NOTES  
+    Based on navicat_eval_resetter_v2.py logic, converted to PowerShell.  
+#>
+
+function Remove-Registration {
+    $key = Get-Item -Path "HKCU:\Software\PremiumSoft\NavicatPremium" -ErrorAction SilentlyContinue
+    if (-not $key) {
+        Write-Host "NavicatPremium registry key not found, skipping"
+        return
+    }
+
+    $subKeyNames = $key.GetSubKeyNames()
+    $key.Close()
+
+    foreach ($subKeyName in $subKeyNames) {
+        if ($subKeyName -eq "Registration") { continue }
+        if (-not $subKeyName.StartsWith("Registration")) { continue }
+        Write-Host "Deleting Registration key: HKEY_CURRENT_USER\Software\PremiumSoft\NavicatPremium\$subKeyName"
+        Remove-Item -Path "HKCU:\Software\PremiumSoft\NavicatPremium\$subKeyName" -Recurse -Force -ErrorAction SilentlyContinue
+    }
+
+    foreach ($subKeyName in $subKeyNames) {
+        if (-not ($subKeyName -eq "Update")) { continue }
+        Write-Host "Deleting Update key: HKEY_CURRENT_USER\Software\PremiumSoft\NavicatPremium\Update"
+        Remove-Item -Path "HKCU:\Software\PremiumSoft\NavicatPremium\Update" -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
+function Remove-ClassIds {
+    $infoClassId = "{BE501491-0113-1CCF-D535-F9E9E0FF7462}"
+
+    $infoKey = Get-Item -Path "HKCU:\Software\Classes\CLSID\$infoClassId\Info" -ErrorAction SilentlyContinue
+    if (-not $infoKey) {
+        Write-Host "Info key not found, skipping CLSID removal"
+        return
+    }
+
+    $valueNames = $infoKey.GetValueNames()
+    $infoKey.Close()
+
+    if ($valueNames.Count -eq 0 -or $valueNames.Count -gt 1) {
+        Write-Host "Info key value count is not 1, skipping CLSID removal"
+        return
+    }
+
+    $valueName = $valueNames[0]
+    $shellFolderClassIdPrefix = "{$($valueName.Substring(0,8))-$($valueName.Substring(8,4))-$($valueName.Substring(12,4))-$($valueName.Substring(16,4))-$($valueName.Substring(20,4))"
+
+    $rootKey = Get-Item -Path "HKCU:\Software\Classes\CLSID" -ErrorAction SilentlyContinue
+    if (-not $rootKey) {
+        Write-Host "CLSID registry key not found, skipping CLSID removal"
+        return
+    }
+
+    $allClsidNames = $rootKey.GetSubKeyNames()
+    $rootKey.Close()
+
+    $shellFolderClassIds = @()
+    foreach ($clsidName in $allClsidNames) {
+        if ($clsidName.StartsWith($shellFolderClassIdPrefix)) {
+            $shellFolderClassIds += $clsidName
+        }
+    }
+
+    if ($shellFolderClassIds.Count -eq 0 -or $shellFolderClassIds.Count -gt 1) {
+        Write-Host "ShellFolder key count is not 1, skipping CLSID removal"
+        return
+    }
+
+    $shellFolderClassId = $shellFolderClassIds[0]
+
+    $rootKey = Get-Item -Path "HKCU:\Software\Classes\CLSID\$infoClassId" -ErrorAction SilentlyContinue
+    if ($rootKey) {
+        $subKeyNames = $rootKey.GetSubKeyNames()
+        $rootKey.Close()
+
+        foreach ($subKeyName in $subKeyNames) {
+            Remove-Item -Path "HKCU:\Software\Classes\CLSID\$infoClassId\$subKeyName" -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        Write-Host "Deleting Info key: HKEY_CURRENT_USER\Software\Classes\CLSID\$infoClassId"
+        Remove-Item -Path "HKCU:\Software\Classes\CLSID\$infoClassId" -Recurse -Force -ErrorAction SilentlyContinue
+    }
+
+    $rootKey = Get-Item -Path "HKCU:\Software\Classes\CLSID\$shellFolderClassId" -ErrorAction SilentlyContinue
+    if ($rootKey) {
+        $subKeyNames = $rootKey.GetSubKeyNames()
+        $rootKey.Close()
+
+        foreach ($subKeyName in $subKeyNames) {
+            Remove-Item -Path "HKCU:\Software\Classes\CLSID\$shellFolderClassId\$subKeyName" -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        Write-Host "Deleting ShellFolder key: HKEY_CURRENT_USER\Software\Classes\CLSID\$shellFolderClassId"
+        Remove-Item -Path "HKCU:\Software\Classes\CLSID\$shellFolderClassId" -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
+# Main
+Write-Host "Starting Navicat eval reset..."
+Remove-Registration
+Remove-ClassIds
+Write-Host "Reset completed"
 ```
