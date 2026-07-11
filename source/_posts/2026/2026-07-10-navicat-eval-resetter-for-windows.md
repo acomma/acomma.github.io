@@ -201,8 +201,12 @@ def remove_registration():
         print(rf"删除 Registration 键：HKEY_CURRENT_USER\Software\PremiumSoft\NavicatPremium\{sub_key_name}")
         winreg.DeleteKey(winreg.HKEY_CURRENT_USER, r"Software\PremiumSoft\NavicatPremium" + "\\" + sub_key_name)
 
-    print(rf"删除 Update 键：HKEY_CURRENT_USER\Software\PremiumSoft\NavicatPremium\Update")
-    winreg.DeleteKey(winreg.HKEY_CURRENT_USER, r"Software\PremiumSoft\NavicatPremium\Update")
+    for sub_key_name in sub_key_names:
+        if not sub_key_name == "Update":
+            continue
+        print(rf"删除 Update 键：HKEY_CURRENT_USER\Software\PremiumSoft\NavicatPremium\Update")
+        winreg.DeleteKey(winreg.HKEY_CURRENT_USER, r"Software\PremiumSoft\NavicatPremium\Update")
+
 
 def remove_class_ids():
     # 通过 https://learn.microsoft.com/zh-cn/sysinternals/downloads/procmon 程序找到要删除 Info 对应的 CLSID，这是唯一需要替换的地方
