@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520" role="img" aria-labelledby="title desc">
+  <title id="title">行号差分示意</title>
+  <desc id="desc">ticket_no 减去按 ticket_no 排序的行号，连续段得到相同的分组键；跨过间隙时差值改变。</desc>
+  <rect width="1000" height="520" rx="18" fill="#f8fafc"/>
+  <rect x="0.5" y="0.5" width="999" height="519" rx="18" fill="none" stroke="#e2e8f0"/>
+
+  <text x="48" y="56" font-family="'Segoe UI', 'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="26" font-weight="700" fill="#0f172a">行号差分：让连续段共享同一个键</text>
+  <text x="48" y="84" font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="15" fill="#64748b">连续数值序列的常用技巧：值递增 1，行号也递增 1，差值便保持不变。</text>
+
+  <rect x="48" y="104" width="904" height="46" rx="10" fill="#0f172a"/>
+  <text x="66" y="133" font-family="Consolas, 'SFMono-Regular', monospace" font-size="15" fill="#e2e8f0">grp = ticket_no − ROW_NUMBER() OVER (ORDER BY ticket_no)</text>
+
+  <!-- table -->
+  <rect x="60" y="176" width="880" height="38" rx="8" fill="#e2e8f0"/>
+  <g font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="13" font-weight="600" fill="#475569">
+    <text x="78" y="200">ticket_no</text>
+    <text x="268" y="200">ROW_NUMBER()</text>
+    <text x="478" y="200">ticket_no − rn</text>
+    <text x="734" y="200">分组</text>
+  </g>
+
+  <!-- island 1 -->
+  <g font-family="Consolas, monospace" font-size="17" fill="#0f172a">
+    <rect x="60" y="222" width="880" height="42" fill="#eff6ff"/>
+    <rect x="60" y="222" width="5" height="42" fill="#2563eb"/>
+    <text x="78" y="249">1001</text>
+    <text x="268" y="249">1</text>
+    <rect x="470" y="228" width="228" height="30" rx="7" fill="#dbeafe"/>
+    <text x="486" y="249" fill="#1d4ed8">1000</text>
+    <text x="734" y="249" fill="#1d4ed8">Island 1</text>
+
+    <rect x="60" y="264" width="880" height="42" fill="#eff6ff"/>
+    <rect x="60" y="264" width="5" height="42" fill="#2563eb"/>
+    <text x="78" y="291">1002</text>
+    <text x="268" y="291">2</text>
+    <rect x="470" y="270" width="228" height="30" rx="7" fill="#dbeafe"/>
+    <text x="486" y="291" fill="#1d4ed8">1000</text>
+    <text x="734" y="291" fill="#1d4ed8">Island 1</text>
+
+    <rect x="60" y="306" width="880" height="42" fill="#eff6ff"/>
+    <rect x="60" y="306" width="5" height="42" fill="#2563eb"/>
+    <text x="78" y="333">1003</text>
+    <text x="268" y="333">3</text>
+    <rect x="470" y="312" width="228" height="30" rx="7" fill="#dbeafe"/>
+    <text x="486" y="333" fill="#1d4ed8">1000</text>
+    <text x="734" y="333" fill="#1d4ed8">Island 1</text>
+  </g>
+
+  <!-- gap divider -->
+  <line x1="60" y1="348" x2="940" y2="348" stroke="#fca5a5" stroke-width="2" stroke-dasharray="5 4"/>
+  <text x="947" y="352" font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="11" fill="#b91c1c" text-anchor="end">值跳变</text>
+
+  <g font-family="Consolas, monospace" font-size="17" fill="#0f172a">
+    <rect x="60" y="354" width="880" height="42" fill="#ecfdf5"/>
+    <rect x="60" y="354" width="5" height="42" fill="#059669"/>
+    <text x="78" y="381">1007</text>
+    <text x="268" y="381">4</text>
+    <rect x="470" y="360" width="228" height="30" rx="7" fill="#d1fae5" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <text x="486" y="381" fill="#047857">1003</text>
+    <text x="734" y="381" fill="#b91c1c">Island 2 · 新岛</text>
+
+    <rect x="60" y="396" width="880" height="42" fill="#ecfdf5"/>
+    <rect x="60" y="396" width="5" height="42" fill="#059669"/>
+    <text x="78" y="423">1008</text>
+    <text x="268" y="423">5</text>
+    <rect x="470" y="402" width="228" height="30" rx="7" fill="#d1fae5"/>
+    <text x="486" y="423" fill="#047857">1003</text>
+    <text x="734" y="423" fill="#047857">Island 2</text>
+
+    <rect x="60" y="438" width="880" height="42" fill="#fffbeb"/>
+    <rect x="60" y="438" width="5" height="42" fill="#d97706"/>
+    <text x="78" y="465">1012</text>
+    <text x="268" y="465">6</text>
+    <rect x="470" y="444" width="228" height="30" rx="7" fill="#fef3c7"/>
+    <text x="486" y="465" fill="#b45309">1006</text>
+    <text x="734" y="465" fill="#b45309">Island 3</text>
+  </g>
+
+  <text x="60" y="505" font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="13" fill="#475569">同一个岛内，差值恒定；差值一变化，就说明跨过了一个间隙。分组键不必连续，只要“同岛相同、异岛不同”。</text>
+  <text x="940" y="505" text-anchor="end" font-family="Consolas, monospace" font-size="12" fill="#94a3b8">图 3</text>
+</svg>

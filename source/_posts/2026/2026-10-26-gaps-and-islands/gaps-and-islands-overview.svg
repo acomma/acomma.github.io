@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="430" viewBox="0 0 1000 430" role="img" aria-labelledby="title desc">
+  <title id="title">Gaps and Islands 概念示意</title>
+  <desc id="desc">已排序的 ticket_no 序列 1001、1002、1003、1007、1008、1012 被划分为三个连续岛屿，岛之间的 1004 到 1006、1009 到 1011 是间隙。</desc>
+  <rect width="1000" height="430" rx="18" fill="#f8fafc"/>
+  <rect x="0.5" y="0.5" width="999" height="429" rx="18" fill="none" stroke="#e2e8f0"/>
+
+  <text x="48" y="58" font-family="'Segoe UI', 'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="26" font-weight="700" fill="#0f172a">一条序列，两种结构</text>
+  <text x="48" y="88" font-family="'Segoe UI', 'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="15" fill="#64748b">岛屿（island）是极大连续段；间隙（gap）是岛与岛之间缺失的键。</text>
+
+  <rect x="782" y="36" width="170" height="32" rx="16" fill="#0f172a"/>
+  <text x="867" y="57" text-anchor="middle" font-family="Consolas, monospace" font-size="13" fill="#e2e8f0">Gaps &amp; Islands</text>
+
+  <text x="48" y="128" font-family="Consolas, monospace" font-size="12" fill="#64748b">ticket_no</text>
+  <text x="48" y="146" font-family="'Microsoft YaHei', sans-serif" font-size="12" fill="#94a3b8">已排序</text>
+
+  <!-- row numbers -->
+  <g font-family="Consolas, monospace" font-size="12" fill="#94a3b8" text-anchor="middle">
+    <text x="120" y="144">1</text>
+    <text x="220" y="144">2</text>
+    <text x="320" y="144">3</text>
+    <text x="510" y="144">4</text>
+    <text x="610" y="144">5</text>
+    <text x="800" y="144">6</text>
+  </g>
+
+  <!-- boxes -->
+  <g font-family="Consolas, monospace" font-size="22" font-weight="700" text-anchor="middle">
+    <rect x="80" y="154" width="80" height="58" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="120" y="190" fill="#1d4ed8">1001</text>
+    <rect x="180" y="154" width="80" height="58" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="220" y="190" fill="#1d4ed8">1002</text>
+    <rect x="280" y="154" width="80" height="58" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="320" y="190" fill="#1d4ed8">1003</text>
+
+    <rect x="470" y="154" width="80" height="58" rx="10" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+    <text x="510" y="190" fill="#047857">1007</text>
+    <rect x="570" y="154" width="80" height="58" rx="10" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+    <text x="610" y="190" fill="#047857">1008</text>
+
+    <rect x="760" y="154" width="80" height="58" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="800" y="190" fill="#b45309">1012</text>
+  </g>
+
+  <!-- gaps -->
+  <g stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 4">
+    <path d="M368 228 H462" fill="none"/>
+    <path d="M658 228 H752" fill="none"/>
+  </g>
+  <text x="415" y="219" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#b91c1c">1004–1006</text>
+  <text x="705" y="219" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#b91c1c">1009–1011</text>
+
+  <!-- island brackets -->
+  <g fill="none" stroke-width="1.5">
+    <path d="M80 262 V270 H360 V262" stroke="#2563eb"/>
+    <path d="M470 262 V270 H650 V262" stroke="#059669"/>
+    <path d="M760 262 V270 H840 V262" stroke="#d97706"/>
+  </g>
+  <g font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="13" text-anchor="middle">
+    <text x="220" y="291" fill="#1d4ed8">Island 1 · 3 个连续值</text>
+    <text x="560" y="291" fill="#047857">Island 2 · 2 个连续值</text>
+    <text x="800" y="291" fill="#b45309">Island 3 · 1 个连续值</text>
+  </g>
+
+  <!-- legend -->
+  <g font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="13" fill="#475569">
+    <rect x="48" y="328" width="14" height="14" rx="4" fill="#dbeafe" stroke="#2563eb"/>
+    <text x="72" y="340">岛屿：组内键连续，不能再向左右扩展</text>
+    <rect x="368" y="328" width="14" height="14" rx="4" fill="#fee2e2" stroke="#dc2626"/>
+    <text x="392" y="340">间隙：没有观测行的键范围</text>
+  </g>
+
+  <line x1="48" y1="372" x2="952" y2="372" stroke="#e2e8f0"/>
+  <text x="48" y="400" font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="14" fill="#0f172a">关键前提：SQL 表本身没有顺序，必须先定义 ORDER BY，才有“相邻”。</text>
+  <text x="952" y="400" text-anchor="end" font-family="Consolas, monospace" font-size="12" fill="#94a3b8">图 1</text>
+</svg>

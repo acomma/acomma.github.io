@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="550" viewBox="0 0 1000 550" role="img" aria-labelledby="title desc">
+  <title id="title">LAG 标记边界并用累计和生成岛号</title>
+  <desc id="desc">序列 A A B B B A A C 在值变化处标记 1，再对标记做累计和，得到每个连续段的分组号。</desc>
+  <rect width="1000" height="550" rx="18" fill="#f8fafc"/>
+  <rect x="0.5" y="0.5" width="999" height="549" rx="18" fill="none" stroke="#e2e8f0"/>
+
+  <text x="48" y="56" font-family="'Segoe UI', 'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="26" font-weight="700" fill="#0f172a">先找边界，再累加：LAG + 累计和</text>
+  <text x="48" y="84" font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="15" fill="#64748b">不依赖“值必须加 1”。只要能用 LAG 判断“当前行是否开启了一个新岛”，就能分组。</text>
+
+  <!-- row labels -->
+  <g font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="12" fill="#94a3b8">
+    <text x="48" y="128">id</text>
+    <text x="48" y="242">prev</text>
+    <text x="48" y="286">is_new</text>
+    <text x="48" y="355">grp</text>
+  </g>
+
+  <!-- boundary dashed lines -->
+  <g stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.7">
+    <line x1="310.5" y1="112" x2="310.5" y2="375"/>
+    <line x1="625.5" y1="112" x2="625.5" y2="375"/>
+    <line x1="835.5" y1="112" x2="835.5" y2="375"/>
+  </g>
+
+  <!-- sequence chips -->
+  <g font-family="Consolas, monospace" font-size="26" font-weight="700" text-anchor="middle">
+    <rect x="110" y="145" width="86" height="68" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="153" y="188" fill="#1d4ed8">A</text>
+    <rect x="215" y="145" width="86" height="68" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="258" y="188" fill="#1d4ed8">A</text>
+
+    <rect x="320" y="145" width="86" height="68" rx="10" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+    <text x="363" y="188" fill="#047857">B</text>
+    <rect x="425" y="145" width="86" height="68" rx="10" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+    <text x="468" y="188" fill="#047857">B</text>
+    <rect x="530" y="145" width="86" height="68" rx="10" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+    <text x="573" y="188" fill="#047857">B</text>
+
+    <rect x="635" y="145" width="86" height="68" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="678" y="188" fill="#b45309">A</text>
+    <rect x="740" y="145" width="86" height="68" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="783" y="188" fill="#b45309">A</text>
+
+    <rect x="845" y="145" width="86" height="68" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+    <text x="888" y="188" fill="#6d28d9">C</text>
+  </g>
+
+  <!-- ids -->
+  <g font-family="Consolas, monospace" font-size="12" fill="#94a3b8" text-anchor="middle">
+    <text x="153" y="136">1</text>
+    <text x="258" y="136">2</text>
+    <text x="363" y="136">3</text>
+    <text x="468" y="136">4</text>
+    <text x="573" y="136">5</text>
+    <text x="678" y="136">6</text>
+    <text x="783" y="136">7</text>
+    <text x="888" y="136">8</text>
+  </g>
+
+  <!-- previous values -->
+  <g font-family="Consolas, monospace" font-size="14" fill="#64748b" text-anchor="middle">
+    <text x="153" y="242">–</text>
+    <text x="258" y="242">A</text>
+    <text x="363" y="242">A</text>
+    <text x="468" y="242">B</text>
+    <text x="573" y="242">B</text>
+    <text x="678" y="242">B</text>
+    <text x="783" y="242">A</text>
+    <text x="888" y="242">A</text>
+  </g>
+
+  <!-- is_new -->
+  <g font-family="Consolas, monospace" font-size="14" font-weight="700" text-anchor="middle">
+    <circle cx="153" cy="278" r="15" fill="#fee2e2" stroke="#dc2626"/>
+    <text x="153" y="283" fill="#b91c1c">1</text>
+    <circle cx="258" cy="278" r="15" fill="#f1f5f9" stroke="#cbd5e1"/>
+    <text x="258" y="283" fill="#64748b">0</text>
+    <circle cx="363" cy="278" r="15" fill="#fee2e2" stroke="#dc2626"/>
+    <text x="363" y="283" fill="#b91c1c">1</text>
+    <circle cx="468" cy="278" r="15" fill="#f1f5f9" stroke="#cbd5e1"/>
+    <text x="468" y="283" fill="#64748b">0</text>
+    <circle cx="573" cy="278" r="15" fill="#f1f5f9" stroke="#cbd5e1"/>
+    <text x="573" y="283" fill="#64748b">0</text>
+    <circle cx="678" cy="278" r="15" fill="#fee2e2" stroke="#dc2626"/>
+    <text x="678" y="283" fill="#b91c1c">1</text>
+    <circle cx="783" cy="278" r="15" fill="#f1f5f9" stroke="#cbd5e1"/>
+    <text x="783" y="283" fill="#64748b">0</text>
+    <circle cx="888" cy="278" r="15" fill="#fee2e2" stroke="#dc2626"/>
+    <text x="888" y="283" fill="#b91c1c">1</text>
+  </g>
+
+  <!-- group ids -->
+  <g font-family="Consolas, monospace" font-size="16" font-weight="700" text-anchor="middle">
+    <rect x="126" y="335" width="54" height="34" rx="8" fill="#dbeafe"/>
+    <text x="153" y="358" fill="#1d4ed8">1</text>
+    <rect x="231" y="335" width="54" height="34" rx="8" fill="#dbeafe"/>
+    <text x="258" y="358" fill="#1d4ed8">1</text>
+
+    <rect x="336" y="335" width="54" height="34" rx="8" fill="#d1fae5"/>
+    <text x="363" y="358" fill="#047857">2</text>
+    <rect x="441" y="335" width="54" height="34" rx="8" fill="#d1fae5"/>
+    <text x="468" y="358" fill="#047857">2</text>
+    <rect x="546" y="335" width="54" height="34" rx="8" fill="#d1fae5"/>
+    <text x="573" y="358" fill="#047857">2</text>
+
+    <rect x="651" y="335" width="54" height="34" rx="8" fill="#fef3c7"/>
+    <text x="678" y="358" fill="#b45309">3</text>
+    <rect x="756" y="335" width="54" height="34" rx="8" fill="#fef3c7"/>
+    <text x="783" y="358" fill="#b45309">3</text>
+
+    <rect x="861" y="335" width="54" height="34" rx="8" fill="#ede9fe"/>
+    <text x="888" y="358" fill="#6d28d9">4</text>
+  </g>
+
+  <!-- formula panel -->
+  <rect x="48" y="405" width="904" height="92" rx="12" fill="#0f172a"/>
+  <text x="68" y="433" font-family="Consolas, 'SFMono-Regular', monospace" font-size="14" fill="#93c5fd">is_new = CASE WHEN value IS DISTINCT FROM LAG(value) OVER (ORDER BY id)</text>
+  <text x="68" y="454" font-family="Consolas, 'SFMono-Regular', monospace" font-size="14" fill="#93c5fd">              THEN 1 ELSE 0 END</text>
+  <text x="68" y="480" font-family="Consolas, 'SFMono-Regular', monospace" font-size="14" fill="#86efac">grp    = SUM(is_new) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING)</text>
+
+  <text x="48" y="528" font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="13" fill="#475569">非空列上，首行没有前驱也记为 1；同一个 grp 就是一个岛。显式写 ROWS，避免同序值的默认帧把多行算在一起。</text>
+  <text x="952" y="528" text-anchor="end" font-family="Consolas, monospace" font-size="12" fill="#94a3b8">图 4</text>
+</svg>

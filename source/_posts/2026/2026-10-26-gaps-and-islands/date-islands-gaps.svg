@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520" role="img" aria-labelledby="title desc">
+  <title id="title">日期岛屿与间隙</title>
+  <desc id="desc">2026 年 10 月 1 日至 10 日，Bob 的打卡日期形成三个连续日期岛，10 月 4 日至 5 日、10 月 8 日至 9 日是间隙。</desc>
+  <rect width="1000" height="520" rx="18" fill="#f8fafc"/>
+  <rect x="0.5" y="0.5" width="999" height="519" rx="18" fill="none" stroke="#e2e8f0"/>
+
+  <text x="48" y="56" font-family="'Segoe UI', 'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="26" font-weight="700" fill="#0f172a">日期序列：先把重复日期压平</text>
+  <text x="48" y="84" font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="15" fill="#64748b">同一天可能有多条记录；按天判断连续前，先用 DISTINCT 得到“每天一行”。</text>
+
+  <text x="65" y="126" font-family="Consolas, monospace" font-size="14" fill="#475569">2026-10 · Bob 的打卡日期</text>
+
+  <!-- calendar cells -->
+  <g font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" text-anchor="middle">
+    <!-- island 1 -->
+    <rect x="65" y="145" width="80" height="70" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="105" y="168" font-size="11" fill="#64748b">周四</text>
+    <text x="105" y="198" font-size="26" font-weight="700" font-family="Consolas, monospace" fill="#1d4ed8">01</text>
+
+    <rect x="153" y="145" width="80" height="70" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="193" y="168" font-size="11" fill="#64748b">周五</text>
+    <text x="193" y="198" font-size="26" font-weight="700" font-family="Consolas, monospace" fill="#1d4ed8">02</text>
+
+    <rect x="241" y="145" width="80" height="70" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="281" y="168" font-size="11" fill="#64748b">周六</text>
+    <text x="281" y="198" font-size="26" font-weight="700" font-family="Consolas, monospace" fill="#1d4ed8">03</text>
+
+    <!-- gap 4-5 -->
+    <rect x="329" y="145" width="80" height="70" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <text x="369" y="168" font-size="11" fill="#b91c1c">周日</text>
+    <text x="369" y="198" font-size="26" font-weight="700" font-family="Consolas, monospace" fill="#b91c1c">04</text>
+
+    <rect x="417" y="145" width="80" height="70" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <text x="457" y="168" font-size="11" fill="#b91c1c">周一</text>
+    <text x="457" y="198" font-size="26" font-weight="700" font-family="Consolas, monospace" fill="#b91c1c">05</text>
+
+    <!-- island 2 -->
+    <rect x="505" y="145" width="80" height="70" rx="10" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+    <text x="545" y="168" font-size="11" fill="#64748b">周二</text>
+    <text x="545" y="198" font-size="26" font-weight="700" font-family="Consolas, monospace" fill="#047857">06</text>
+
+    <rect x="593" y="145" width="80" height="70" rx="10" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+    <text x="633" y="168" font-size="11" fill="#64748b">周三</text>
+    <text x="633" y="198" font-size="26" font-weight="700" font-family="Consolas, monospace" fill="#047857">07</text>
+
+    <!-- gap 8-9 -->
+    <rect x="681" y="145" width="80" height="70" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <text x="721" y="168" font-size="11" fill="#b91c1c">周四</text>
+    <text x="721" y="198" font-size="26" font-weight="700" font-family="Consolas, monospace" fill="#b91c1c">08</text>
+
+    <rect x="769" y="145" width="80" height="70" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <text x="809" y="168" font-size="11" fill="#b91c1c">周五</text>
+    <text x="809" y="198" font-size="26" font-weight="700" font-family="Consolas, monospace" fill="#b91c1c">09</text>
+
+    <!-- island 3 -->
+    <rect x="857" y="145" width="80" height="70" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="897" y="168" font-size="11" fill="#64748b">周六</text>
+    <text x="897" y="198" font-size="26" font-weight="700" font-family="Consolas, monospace" fill="#b45309">10</text>
+  </g>
+
+  <!-- island brackets -->
+  <g fill="none" stroke-width="1.5">
+    <path d="M65 238 V246 H321 V238" stroke="#2563eb"/>
+    <path d="M505 238 V246 H673 V238" stroke="#059669"/>
+    <path d="M857 238 V246 H937 V238" stroke="#d97706"/>
+  </g>
+  <g font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="12" text-anchor="middle">
+    <text x="193" y="266" fill="#1d4ed8">Island 1 · 3 天</text>
+    <text x="589" y="266" fill="#047857">Island 2 · 2 天</text>
+    <text x="897" y="266" fill="#b45309">Island 3 · 1 天</text>
+  </g>
+
+  <g font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="12" text-anchor="middle" fill="#b91c1c">
+    <text x="413" y="266">Gap · 10-04 ~ 10-05</text>
+    <text x="765" y="266">Gap · 10-08 ~ 10-09</text>
+  </g>
+
+  <!-- result cards -->
+  <rect x="65" y="302" width="420" height="156" rx="12" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="515" y="302" width="420" height="156" rx="12" fill="#ffffff" stroke="#e2e8f0"/>
+
+  <text x="87" y="330" font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="14" font-weight="700" fill="#0f172a">岛屿汇总</text>
+  <text x="537" y="330" font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="14" font-weight="700" fill="#0f172a">间隙汇总</text>
+
+  <g font-family="Consolas, monospace" font-size="13" fill="#334155">
+    <text x="87" y="360">2026-10-01 ~ 2026-10-03</text>
+    <text x="413" y="360" text-anchor="end" fill="#1d4ed8">3 天</text>
+    <text x="87" y="388">2026-10-06 ~ 2026-10-07</text>
+    <text x="413" y="388" text-anchor="end" fill="#047857">2 天</text>
+    <text x="87" y="416">2026-10-10 ~ 2026-10-10</text>
+    <text x="413" y="416" text-anchor="end" fill="#b45309">1 天</text>
+  </g>
+  <line x1="87" y1="428" x2="463" y2="428" stroke="#e2e8f0"/>
+
+  <g font-family="Consolas, monospace" font-size="13" fill="#b91c1c">
+    <text x="537" y="360">2026-10-04 ~ 2026-10-05</text>
+    <text x="537" y="388">2026-10-08 ~ 2026-10-09</text>
+  </g>
+  <text x="537" y="424" font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="12" fill="#64748b">用 LEAD(start_day) 与当前 end_day 比较即可。</text>
+
+  <text x="65" y="493" font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="13" fill="#475569">注意：这里的“连续”是日历日连续；若业务只关心工作日，应先构造工作日序列，再做行号差分。</text>
+  <text x="952" y="493" text-anchor="end" font-family="Consolas, monospace" font-size="12" fill="#94a3b8">图 6</text>
+</svg>

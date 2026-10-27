@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="640" viewBox="0 0 1000 640" role="img" aria-labelledby="title desc">
+  <title id="title">双行号差分示意</title>
+  <desc id="desc">序列 A A B B B A A C 同时计算全局行号和同值行号，两者相减得到岛键 0、0、2、2、2、3、3、7，从而把序列分成四个岛。</desc>
+  <rect width="1000" height="640" rx="18" fill="#f8fafc"/>
+  <rect x="0.5" y="0.5" width="999" height="639" rx="18" fill="none" stroke="#e2e8f0"/>
+
+  <text x="48" y="52" font-family="'Segoe UI', 'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="26" font-weight="700" fill="#0f172a">双行号差分：两个计数器一起走</text>
+  <text x="48" y="80" font-family="Consolas, 'Microsoft YaHei', monospace" font-size="14" fill="#64748b">rn_all = ROW_NUMBER() OVER (ORDER BY id)　　rn_status = ROW_NUMBER() OVER (PARTITION BY status ORDER BY id)</text>
+
+  <!-- row labels -->
+  <g font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="12" fill="#64748b">
+    <text x="48" y="124">id</text>
+    <text x="48" y="232">全局行号</text>
+    <text x="48" y="274">同值行号</text>
+    <text x="48" y="330">差值 = 岛键</text>
+  </g>
+
+  <!-- ids -->
+  <g font-family="Consolas, monospace" font-size="12" fill="#94a3b8" text-anchor="middle">
+    <text x="171" y="124">1</text>
+    <text x="271" y="124">2</text>
+    <text x="371" y="124">3</text>
+    <text x="471" y="124">4</text>
+    <text x="571" y="124">5</text>
+    <text x="671" y="124">6</text>
+    <text x="771" y="124">7</text>
+    <text x="871" y="124">8</text>
+  </g>
+
+  <!-- sequence chips -->
+  <g font-family="Consolas, monospace" font-size="24" font-weight="700" text-anchor="middle">
+    <rect x="130" y="134" width="82" height="62" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="171" y="173" fill="#1d4ed8">A</text>
+    <rect x="230" y="134" width="82" height="62" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="271" y="173" fill="#1d4ed8">A</text>
+
+    <rect x="330" y="134" width="82" height="62" rx="10" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+    <text x="371" y="173" fill="#047857">B</text>
+    <rect x="430" y="134" width="82" height="62" rx="10" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+    <text x="471" y="173" fill="#047857">B</text>
+    <rect x="530" y="134" width="82" height="62" rx="10" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+    <text x="571" y="173" fill="#047857">B</text>
+
+    <rect x="630" y="134" width="82" height="62" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="671" y="173" fill="#1d4ed8">A</text>
+    <rect x="730" y="134" width="82" height="62" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="771" y="173" fill="#1d4ed8">A</text>
+
+    <rect x="830" y="134" width="82" height="62" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+    <text x="871" y="173" fill="#6d28d9">C</text>
+  </g>
+
+  <!-- rn_all row -->
+  <rect x="110" y="212" width="820" height="30" rx="6" fill="#f1f5f9"/>
+  <g font-family="Consolas, monospace" font-size="15" fill="#475569" text-anchor="middle">
+    <text x="171" y="232">1</text>
+    <text x="271" y="232">2</text>
+    <text x="371" y="232">3</text>
+    <text x="471" y="232">4</text>
+    <text x="571" y="232">5</text>
+    <text x="671" y="232">6</text>
+    <text x="771" y="232">7</text>
+    <text x="871" y="232">8</text>
+  </g>
+
+  <!-- rn_status row -->
+  <rect x="110" y="252" width="820" height="30" rx="6" fill="#f1f5f9"/>
+  <g font-family="Consolas, monospace" font-size="15" fill="#475569" text-anchor="middle">
+    <text x="171" y="272">1</text>
+    <text x="271" y="272">2</text>
+    <text x="371" y="272">1</text>
+    <text x="471" y="272">2</text>
+    <text x="571" y="272">3</text>
+    <text x="671" y="272">3</text>
+    <text x="771" y="272">4</text>
+    <text x="871" y="272">1</text>
+  </g>
+
+  <!-- diff boxes -->
+  <g font-family="Consolas, monospace" font-size="15" font-weight="700" text-anchor="middle">
+    <rect x="144" y="306" width="54" height="30" rx="7" fill="#dbeafe"/>
+    <text x="171" y="327" fill="#1d4ed8">0</text>
+    <rect x="244" y="306" width="54" height="30" rx="7" fill="#dbeafe"/>
+    <text x="271" y="327" fill="#1d4ed8">0</text>
+
+    <rect x="344" y="306" width="54" height="30" rx="7" fill="#d1fae5"/>
+    <text x="371" y="327" fill="#047857">2</text>
+    <rect x="444" y="306" width="54" height="30" rx="7" fill="#d1fae5"/>
+    <text x="471" y="327" fill="#047857">2</text>
+    <rect x="544" y="306" width="54" height="30" rx="7" fill="#d1fae5"/>
+    <text x="571" y="327" fill="#047857">2</text>
+
+    <rect x="644" y="306" width="54" height="30" rx="7" fill="#dbeafe"/>
+    <text x="671" y="327" fill="#1d4ed8">3</text>
+    <rect x="744" y="306" width="54" height="30" rx="7" fill="#dbeafe"/>
+    <text x="771" y="327" fill="#1d4ed8">3</text>
+
+    <rect x="844" y="306" width="54" height="30" rx="7" fill="#ede9fe"/>
+    <text x="871" y="327" fill="#6d28d9">7</text>
+  </g>
+
+  <!-- island brackets -->
+  <g fill="none" stroke-width="1.5">
+    <path d="M130 352 V362 H292 V352" stroke="#2563eb"/>
+    <path d="M330 352 V362 H592 V352" stroke="#059669"/>
+    <path d="M630 352 V362 H792 V352" stroke="#d97706"/>
+    <path d="M830 352 V362 H912 V352" stroke="#7c3aed"/>
+  </g>
+  <g font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="12" text-anchor="middle">
+    <text x="211" y="384" fill="#1d4ed8">Island 1 · A×2</text>
+    <text x="461" y="384" fill="#047857">Island 2 · B×3</text>
+    <text x="711" y="384" fill="#b45309">Island 3 · A×2</text>
+    <text x="871" y="384" fill="#6d28d9">Island 4 · C</text>
+  </g>
+
+  <text x="48" y="416" font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="12.5" fill="#475569">同一个岛内，两个行号同步增长，差值不变；差值一变化，就说明跨过了一个岛边界。岛键不必连续：0、2、3、7 都可以。</text>
+  <text x="48" y="438" font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="12.5" fill="#475569">注意：rn_status 不会在换值时重置，它统计该值在整个分区中的第几次出现；所以 A 的第二个岛从 3 继续，而不是回到 1。</text>
+
+  <!-- warning panel -->
+  <rect x="48" y="458" width="904" height="145" rx="12" fill="#fff1f2" stroke="#fecdd3"/>
+  <text x="68" y="484" font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="13.5" font-weight="700" fill="#b91c1c">注意：岛键只在同一个 status 内唯一</text>
+
+  <g font-family="Consolas, monospace" font-size="18" font-weight="700" text-anchor="middle">
+    <rect x="68" y="500" width="46" height="34" rx="7" fill="#dbeafe" stroke="#2563eb"/>
+    <text x="91" y="523" fill="#1d4ed8">A</text>
+    <rect x="126" y="500" width="46" height="34" rx="7" fill="#d1fae5" stroke="#059669"/>
+    <text x="149" y="523" fill="#047857">B</text>
+    <rect x="184" y="500" width="46" height="34" rx="7" fill="#dbeafe" stroke="#2563eb"/>
+    <text x="207" y="523" fill="#1d4ed8">A</text>
+  </g>
+  <g font-family="Consolas, monospace" font-size="13" font-weight="700" text-anchor="middle">
+    <rect x="73" y="542" width="36" height="24" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="91" y="558" fill="#475569">0</text>
+    <rect x="131" y="542" width="36" height="24" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+    <text x="149" y="558" fill="#b91c1c">1</text>
+    <rect x="189" y="542" width="36" height="24" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+    <text x="207" y="558" fill="#b91c1c">1</text>
+  </g>
+
+  <g font-family="'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="12.5" fill="#7f1d1d">
+    <text x="270" y="510">B 和第二个 A 的岛键都是 1。</text>
+    <text x="270" y="534">如果只按 island_key 分组，这两个不同的岛会被合并。</text>
+    <text x="270" y="558">务必写成 GROUP BY status, island_key，或把 status 编进岛键。</text>
+  </g>
+
+  <text x="952" y="626" text-anchor="end" font-family="Consolas, monospace" font-size="12" fill="#94a3b8">图 5</text>
+</svg>
